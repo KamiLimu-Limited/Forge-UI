@@ -2,7 +2,8 @@
 
 // =============================================================================
 // useAuth — Authentication context and hook
-// Provides auth state globally. Wrap <App> with <AuthProvider>.
+// Provides auth state globally. <AuthProvider> is mounted in src/app/providers.tsx.
+// AuthContext is exported only so Storybook can provide a mocked value.
 // =============================================================================
 
 import {
@@ -52,7 +53,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 // Context
 // -----------------------------------------------------------------------------
 
-interface AuthContextValue {
+export interface AuthContextValue {
   user: UserProfileResponse | null
   isAuthenticated: boolean
   isLoading: boolean
@@ -62,7 +63,7 @@ interface AuthContextValue {
   clearError: () => void
 }
 
-const AuthContext = createContext<AuthContextValue | null>(null)
+export const AuthContext = createContext<AuthContextValue | null>(null)
 
 // -----------------------------------------------------------------------------
 // Provider

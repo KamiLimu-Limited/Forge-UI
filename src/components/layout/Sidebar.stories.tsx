@@ -1,18 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { MemoryRouter } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 
 const meta: Meta<typeof Sidebar> = {
   title: 'Layout/Sidebar',
   component: Sidebar,
   tags: ['autodocs'],
-  decorators: [
-    (Story) => (
-      <MemoryRouter initialEntries={['/admin/users']}>
-        <Story />
-      </MemoryRouter>
-    ),
-  ],
+  parameters: { nextjs: { navigation: { pathname: '/admin/users' } } },
 }
 
 export default meta

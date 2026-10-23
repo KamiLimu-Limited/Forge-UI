@@ -1,5 +1,8 @@
+'use client'
+
 import { type FormEvent, useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { api, tokenStore } from '@/lib/api'
 import { ApiError } from '@/types/auth'
 import { Button } from '@/components/ui/Button'
@@ -18,8 +21,8 @@ function validate(password: string, confirm: string): string | null {
 }
 
 export function Activate() {
-  const [params] = useSearchParams()
-  const navigate = useNavigate()
+  const params = useSearchParams()
+  const router = useRouter()
 
   const token = params.get('token') ?? ''
 
@@ -47,7 +50,7 @@ export function Activate() {
     try {
       const tokens = await api.auth.activate({ token, password })
       tokenStore.set(tokens.access_token, tokens.refresh_token)
-      navigate('/dashboard', { replace: true })
+      router.replace('/dashboard')
     } catch (caught) {
       if (caught instanceof ApiError) {
         setFieldError(caught.body.error)
@@ -76,9 +79,9 @@ export function Activate() {
         {tokenError ? (
           <div className="flex flex-col gap-4">
             <p className="font-sans text-body text-auburn">{tokenError}</p>
-            <a href="/login" className="font-mono text-caption text-teal-500 hover:text-teal-300">
-              ← Back to sign in
-            </a>
+            <Link href="/login" className="font-mono text-caption text-teal-500 hover:text-teal-300">
+              Back to sign in
+            </Link>
           </div>
         ) : (
           <form onSubmit={(e) => { void handleSubmit(e) }} noValidate className="flex flex-col gap-6">

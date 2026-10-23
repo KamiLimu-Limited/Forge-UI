@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import { TopBar } from '@/components/layout/TopBar'
 import { Badge } from '@/components/ui/Badge'

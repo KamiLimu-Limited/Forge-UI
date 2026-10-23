@@ -7,7 +7,6 @@
    Always reference a token from this file via a Tailwind class or CSS variable.
    ============================================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Hind+Guntur:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -120,9 +119,8 @@
      Typography
      --------------------------------------------------------------------------- */
 
-  /* Font families */
-  --font-mono:  'JetBrains Mono', 'Courier New', monospace;   /* Headings, titles, code */
-  --font-sans:  'Hind Guntur', system-ui, sans-serif;          /* Body, subtitles, UI */
+  /* Font families: --font-mono (JetBrains Mono) and --font-sans (Hind Guntur)
+     are set by next/font in src/app/fonts.ts on the <html> element. */
 
   /* Font sizes — from KamiLimu brand kit */
   --text-caption:     0.5rem;    /* 8px  — captions (JetBrains Mono) */
@@ -261,7 +259,7 @@ html {
 }
 
 body {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans), system-ui, sans-serif;
   font-size: var(--text-body);
   font-weight: var(--font-normal);
   line-height: var(--leading-normal);
@@ -270,7 +268,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-mono);
+  font-family: var(--font-mono), ui-monospace, monospace;
   font-weight: var(--font-bold);
   line-height: var(--leading-tight);
   color: var(--color-text-primary);

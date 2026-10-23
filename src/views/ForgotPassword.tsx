@@ -1,4 +1,7 @@
+'use client'
+
 import { type FormEvent, useState } from 'react'
+import Link from 'next/link'
 import { api } from '@/lib/api'
 import { ApiError } from '@/types/auth'
 import { Button } from '@/components/ui/Button'
@@ -57,12 +60,12 @@ export function ForgotPassword() {
               <span className="text-teal-500 font-semibold">{email}</span>, a password reset link
               has been sent. The link expires in 24 hours.
             </p>
-            <a
+            <Link
               href="/login"
               className="font-mono text-caption text-teal-500 hover:text-teal-300 mt-2"
             >
-              ← Back to sign in
-            </a>
+              Back to sign in
+            </Link>
           </div>
         ) : (
           <form onSubmit={(e) => { void handleSubmit(e) }} noValidate className="flex flex-col gap-6">
@@ -94,12 +97,12 @@ export function ForgotPassword() {
               Send Reset Link
             </Button>
 
-            <a
+            <Link
               href="/login"
               className="font-mono text-caption text-text-muted hover:text-teal-500 text-center transition-colors duration-fast"
             >
-              ← Back to sign in
-            </a>
+              Back to sign in
+            </Link>
           </form>
         )}
       </div>

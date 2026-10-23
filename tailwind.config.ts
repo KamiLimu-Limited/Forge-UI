@@ -2,7 +2,6 @@ import type { Config } from 'tailwindcss'
 
 const config: Config = {
   content: [
-    './index.html',
     './src/**/*.{ts,tsx}',
   ],
 
@@ -97,8 +96,8 @@ const config: Config = {
       // font-sans = Hind Guntur (body, subtitles, subheadings, quotes)
       // -------------------------------------------------------------------------
       fontFamily: {
-        mono: 'var(--font-mono)',
-        sans: 'var(--font-sans)',
+        mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
       },
 
       // Font sizes from the KamiLimu brand kit

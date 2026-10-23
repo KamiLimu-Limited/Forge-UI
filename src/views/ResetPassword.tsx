@@ -1,5 +1,8 @@
+'use client'
+
 import { type FormEvent, useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { api } from '@/lib/api'
 import { ApiError } from '@/types/auth'
 import { Button } from '@/components/ui/Button'
@@ -17,8 +20,8 @@ function validate(password: string, confirm: string): string | null {
 type PageState = 'idle' | 'submitting' | 'done'
 
 export function ResetPassword() {
-  const [params] = useSearchParams()
-  const navigate = useNavigate()
+  const params = useSearchParams()
+  const router = useRouter()
 
   const token = params.get('token') ?? ''
 
@@ -46,7 +49,7 @@ export function ResetPassword() {
     try {
       await api.auth.resetPassword({ token, new_password: password })
       setPageState('done')
-      setTimeout(() => navigate('/login', { replace: true }), 2500)
+      setTimeout(() => router.replace('/login'), 2500)
     } catch (caught) {
       if (caught instanceof ApiError) {
         setFieldError(caught.body.error)
@@ -74,12 +77,12 @@ export function ResetPassword() {
         {tokenError ? (
           <div className="flex flex-col gap-4">
             <p className="font-sans text-body text-auburn">{tokenError}</p>
-            <a
+            <Link
               href="/forgot-password"
               className="font-mono text-caption text-teal-500 hover:text-teal-300"
             >
-              Request a new reset link →
-            </a>
+              Request a new reset link
+            </Link>
           </div>
         ) : pageState === 'done' ? (
           <div className="flex flex-col gap-4">

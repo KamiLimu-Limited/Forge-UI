@@ -1,5 +1,8 @@
+'use client'
+
 import { type FormEvent, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -167,9 +170,9 @@ function StepIdentity({ email, onChange, onSubmit, error }: Step1Props) {
 
       <p className="font-sans text-body text-text-muted text-center">
         Forgot your password?{' '}
-        <a href="/forgot-password" className="text-teal-500 hover:text-teal-300">
+        <Link href="/forgot-password" className="text-teal-500 hover:text-teal-300">
           Reset it here
-        </a>
+        </Link>
       </p>
     </form>
   )
@@ -234,9 +237,9 @@ function StepVerification({
 
       <p className="font-sans text-body text-text-muted text-center">
         Forgot your password?{' '}
-        <a href="/forgot-password" className="text-teal-500 hover:text-teal-300">
+        <Link href="/forgot-password" className="text-teal-500 hover:text-teal-300">
           Reset it here
-        </a>
+        </Link>
       </p>
     </form>
   )
@@ -248,7 +251,7 @@ function StepVerification({
 
 export function Login() {
   const { login } = useAuth()
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const [step, setStep] = useState<1 | 2>(1)
   const [email, setEmail] = useState('')
@@ -276,7 +279,7 @@ export function Login() {
     setIsSubmitting(true)
     try {
       await login(email.trim(), password)
-      navigate('/dashboard', { replace: true })
+      router.replace('/dashboard')
     } catch (err) {
       if (err instanceof ApiError) {
         setFieldError(err.body.error)

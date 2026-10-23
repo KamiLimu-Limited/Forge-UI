@@ -1,4 +1,7 @@
-import { NavLink } from 'react-router-dom'
+'use client'
+
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/Button'
 
@@ -14,6 +17,7 @@ const adminNav: NavItem[] = [
 
 export function Sidebar() {
   const { user, logout } = useAuth()
+  const pathname = usePathname()
 
   return (
     <aside className="flex flex-col w-60 min-h-screen bg-surface border-r border-border flex-shrink-0">
@@ -30,21 +34,20 @@ export function Sidebar() {
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
         {adminNav.map(({ label, to, icon }) => (
-          <NavLink
+          <Link
             key={to}
-            to={to}
-            className={({ isActive }) =>
-              [
-                'flex items-center gap-3 px-3 py-2 rounded-md font-mono text-body font-medium transition-colors duration-fast',
-                isActive
-                  ? 'bg-teal-100 text-teal-700'
-                  : 'text-text-secondary hover:bg-border hover:text-text-primary',
-              ].join(' ')
-            }
+            href={to}
+            aria-current={pathname.startsWith(to) ? 'page' : undefined}
+            className={[
+              'flex items-center gap-3 px-3 py-2 rounded-md font-mono text-body font-medium transition-colors duration-fast',
+              pathname.startsWith(to)
+                ? 'bg-teal-100 text-teal-700'
+                : 'text-text-secondary hover:bg-border hover:text-text-primary',
+            ].join(' ')}
           >
             <span aria-hidden="true">{icon}</span>
             {label}
-          </NavLink>
+          </Link>
         ))}
       </nav>
 

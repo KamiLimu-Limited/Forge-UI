@@ -1,3 +1,5 @@
+'use client'
+
 // =============================================================================
 // useAuth — Authentication context and hook
 // Provides auth state globally. Wrap <App> with <AuthProvider>.

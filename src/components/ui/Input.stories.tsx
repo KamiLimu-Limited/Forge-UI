@@ -11,26 +11,23 @@ export default meta
 type Story = StoryObj<typeof Input>
 
 export const Default: Story = {
-  args: { label: 'Email Address', placeholder: 'yourname@university.ac.ke', type: 'email' },
+  args: { label: 'Email', placeholder: 'you@example.com', type: 'email' },
+}
+
+export const WithHint: Story = {
+  args: { label: 'First name', hint: 'As it appears on your student ID.' },
 }
 
 export const WithError: Story = {
   args: {
-    label: 'Email Address',
-    placeholder: 'yourname@university.ac.ke',
+    label: 'Email',
+    placeholder: 'you@example.com',
     type: 'email',
-    error: 'Please enter a valid email address.',
-  },
-}
-
-export const WithHint: Story = {
-  args: {
-    label: 'Password',
-    type: 'password',
-    hint: 'Minimum 8 characters with uppercase, lowercase, and a digit.',
+    defaultValue: 'amina@',
+    error: 'Enter a valid email address.',
   },
 }
 
 export const Disabled: Story = {
-  args: { label: 'Email Address', value: 'peter@university.ac.ke', disabled: true },
+  args: { label: 'Email', value: 'amina.otieno@example.com', disabled: true, readOnly: true },
 }

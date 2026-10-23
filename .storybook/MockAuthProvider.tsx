@@ -4,7 +4,8 @@ import type { UserProfileResponse } from '../src/types/auth'
 
 interface MockAuthProviderProps {
   user: UserProfileResponse | null
-  children: ReactNode
+  // Optional so preview.ts can pass children as a createElement argument
+  children?: ReactNode
 }
 
 // Provides a fixed auth state so components that call useAuth() render in Storybook

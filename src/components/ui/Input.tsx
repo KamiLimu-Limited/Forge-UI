@@ -1,52 +1,29 @@
-import type { InputHTMLAttributes } from 'react'
+'use client'
+
+import { useId, type InputHTMLAttributes, type ReactNode } from 'react'
+import { cx } from '@/lib/cx'
+import { Field, controlClasses, fieldDescribedBy } from './Field'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
+  labelAside?: ReactNode
   error?: string
   hint?: string
 }
 
-export function Input({ label, error, hint, id, className = '', ...rest }: InputProps) {
-  const inputId = id ?? (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined)
+export function Input({ label, labelAside, error, hint, id, className, ...rest }: InputProps) {
+  const autoId = useId()
+  const inputId = id ?? autoId
 
   return (
-    <div className="flex flex-col gap-2">
-      {label && (
-        <label
-          htmlFor={inputId}
-          className="font-mono text-caption font-semibold tracking-widest uppercase text-text-muted"
-        >
-          {label}
-        </label>
-      )}
+    <Field id={inputId} label={label} labelAside={labelAside} hint={hint} error={error}>
       <input
         id={inputId}
-        className={[
-          'w-full h-14 px-4 rounded-md font-sans text-quote text-text-primary',
-          'bg-surface border border-border',
-          'placeholder:text-text-muted',
-          'transition-colors duration-fast',
-          'focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500',
-          'disabled:opacity-40 disabled:cursor-not-allowed',
-          error ? 'border-auburn focus:border-auburn focus:ring-auburn' : '',
-          className,
-        ]
-          .filter(Boolean)
-          .join(' ')}
+        className={cx(controlClasses(Boolean(error)), 'h-control', className)}
         aria-invalid={error ? true : undefined}
-        aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
+        aria-describedby={fieldDescribedBy(inputId, error, hint)}
         {...rest}
       />
-      {error && (
-        <p id={`${inputId}-error`} role="alert" className="font-sans text-body text-auburn">
-          {error}
-        </p>
-      )}
-      {hint && !error && (
-        <p id={`${inputId}-hint`} className="font-sans text-body text-text-muted">
-          {hint}
-        </p>
-      )}
-    </div>
+    </Field>
   )
 }

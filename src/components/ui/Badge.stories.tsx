@@ -13,8 +13,8 @@ const meta: Meta<typeof Badge> = {
 export default meta
 type Story = StoryObj<typeof Badge>
 
-export const Success: Story = { args: { variant: 'success', children: 'Active' } }
-export const Warning: Story = { args: { variant: 'warning', children: 'Pending' } }
-export const Danger: Story = { args: { variant: 'danger', children: 'Suspended' } }
-export const Info: Story = { args: { variant: 'info', children: 'Info' } }
-export const Neutral: Story = { args: { variant: 'neutral', children: 'Neutral' } }
+export const Success: Story = { args: { variant: 'success', children: 'On track' } }
+export const Warning: Story = { args: { variant: 'warning', children: 'Needs attention' } }
+export const Danger: Story = { args: { variant: 'danger', children: 'At risk' } }
+export const Info: Story = { args: { variant: 'info', children: 'ICT track' } }
+export const Neutral: Story = { args: { variant: 'neutral', children: 'Draft' } }

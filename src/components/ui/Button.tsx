@@ -1,27 +1,44 @@
 import type { ButtonHTMLAttributes } from 'react'
+import { cx } from '@/lib/cx'
 import { Spinner } from './Spinner'
 
+type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'danger'
+  /** @deprecated Use `secondary`. Kept as an alias so older call sites keep working. */
+  | 'ghost'
+
+type ButtonSize = 'sm' | 'md' | 'lg'
+
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'ghost' | 'danger'
-  size?: 'sm' | 'md' | 'lg'
+  variant?: ButtonVariant
+  size?: ButtonSize
   isLoading?: boolean
   fullWidth?: boolean
 }
 
-const base =
-  'inline-flex items-center justify-center gap-2 font-mono font-bold tracking-widest uppercase transition-colors duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-40'
+const base = cx(
+  'relative inline-flex items-center justify-center gap-2 whitespace-nowrap border',
+  'font-mono font-semibold transition-colors duration-fast',
+  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary',
+  'disabled:cursor-not-allowed disabled:border-disabled-bg disabled:bg-disabled-bg disabled:text-disabled-text'
+)
 
-const variants = {
-  primary: 'bg-teal-500 text-text-inverse hover:bg-teal-700 active:bg-teal-900',
-  ghost:
-    'bg-transparent text-teal-500 border border-teal-500 hover:bg-teal-500 hover:text-text-inverse active:bg-teal-700',
-  danger: 'bg-auburn text-text-inverse hover:opacity-90 active:opacity-80',
+const secondary = 'border-border-strong bg-surface text-text-primary hover:bg-background'
+
+const variants: Record<ButtonVariant, string> = {
+  primary: 'border-teal-500 bg-teal-500 text-text-on-primary hover:border-teal-300 hover:bg-teal-300',
+  secondary,
+  danger: 'border-auburn bg-surface text-danger-text hover:bg-danger-bg',
+  ghost: secondary,
 }
 
-const sizes = {
-  sm: 'h-8 px-3 text-caption rounded-sm',
-  md: 'h-10 px-5 text-body rounded-md',
-  lg: 'h-14 px-6 text-subheading rounded-md',
+// sm is 36px tall; the ::before layer stretches its hit area to the 44px touch target
+const sizes: Record<ButtonSize, string> = {
+  sm: "h-control-sm rounded-md px-3 text-caption before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']",
+  md: 'h-control rounded-control px-4 text-small',
+  lg: 'h-control-lg rounded-control px-6 text-body',
 }
 
 export function Button({
@@ -29,23 +46,18 @@ export function Button({
   size = 'md',
   isLoading = false,
   fullWidth = false,
-  className = '',
+  className,
   children,
   disabled,
+  type = 'button',
   ...rest
 }: ButtonProps) {
   return (
     <button
-      className={[
-        base,
-        variants[variant],
-        sizes[size],
-        fullWidth ? 'w-full' : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      disabled={disabled ?? isLoading}
+      type={type}
+      className={cx(base, variants[variant], sizes[size], fullWidth && 'w-full', className)}
+      disabled={disabled === true || isLoading}
+      aria-busy={isLoading || undefined}
       {...rest}
     >
       {isLoading && <Spinner size="sm" />}

@@ -25,7 +25,8 @@
   "include": [
     "next-env.d.ts",
     "src",
-    ".storybook",
+    ".storybook/*.ts",
+    ".storybook/*.tsx",
     ".next/types/**/*.ts",
     "next.config.ts",
     "tailwind.config.ts"

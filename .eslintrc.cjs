@@ -14,6 +14,8 @@ module.exports = {
     'next-env.d.ts',
     '*.cjs',
     'postcss.config.js',
+    // Lint Storybook config too (dot folders are skipped by default)
+    '!.storybook',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {

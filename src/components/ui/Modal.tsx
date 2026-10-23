@@ -1,4 +1,8 @@
-import { useEffect, type ReactNode } from 'react'
+'use client'
+
+import { useEffect, useId, useRef, type ReactNode } from 'react'
+import { cx } from '@/lib/cx'
+import { Icon } from './Icon'
 
 interface ModalProps {
   isOpen: boolean
@@ -15,59 +19,96 @@ const widthClasses = {
   lg: 'max-w-lg',
 }
 
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
 export function Modal({ isOpen, onClose, title, children, footer, width = 'md' }: ModalProps) {
+  const titleId = useId()
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const onCloseRef = useRef(onClose)
+
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
+
+  // Move focus in on open, trap Tab inside, close on Escape, and hand focus back on close
   useEffect(() => {
     if (!isOpen) return
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [isOpen, onClose])
+    const previouslyFocused = document.activeElement as HTMLElement | null
+    const dialog = dialogRef.current
+    const focusables = () =>
+      dialog ? Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE)) : []
+
+    const first = focusables()[0]
+    ;(first ?? dialog)?.focus()
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onCloseRef.current()
+        return
+      }
+      if (e.key !== 'Tab') return
+      const items = focusables()
+      if (items.length === 0) {
+        e.preventDefault()
+        return
+      }
+      const firstItem = items[0]
+      const lastItem = items[items.length - 1]
+      if (e.shiftKey && document.activeElement === firstItem) {
+        e.preventDefault()
+        lastItem.focus()
+      } else if (!e.shiftKey && document.activeElement === lastItem) {
+        e.preventDefault()
+        firstItem.focus()
+      }
+    }
+
+    const { overflow } = document.body.style
+    document.body.style.overflow = 'hidden'
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = overflow
+      previouslyFocused?.focus()
+    }
+  }, [isOpen])
 
   if (!isOpen) return null
 
   return (
-    <div
-      className="fixed inset-0 z-modal flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
-    >
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-        aria-hidden="true"
-      />
+    <div className="fixed inset-0 z-modal flex items-end justify-center p-4 md:items-center">
+      <div className="absolute inset-0 bg-overlay" onClick={onClose} aria-hidden="true" />
 
-      {/* Dialog */}
       <div
-        className={`relative w-full ${widthClasses[width]} bg-surface rounded-lg shadow-xl flex flex-col max-h-[90vh]`}
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className={cx(
+          'relative flex max-h-[90vh] w-full flex-col rounded-xl border border-border bg-surface shadow-card',
+          widthClasses[width]
+        )}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2
-            id="modal-title"
-            className="font-mono font-bold text-section text-text-primary"
-          >
+        <div className="flex items-center justify-between gap-4 py-2 pl-6 pr-2">
+          <h2 id={titleId} className="font-mono text-card-title font-semibold text-text-primary">
             {title}
           </h2>
           <button
+            type="button"
             onClick={onClose}
-            className="text-text-muted hover:text-text-primary transition-colors duration-fast ml-4 flex-shrink-0"
             aria-label="Close"
+            className="flex size-control shrink-0 items-center justify-center rounded-md text-text-secondary hover:bg-background hover:text-text-primary"
           >
-            ✕
+            <Icon name="close" />
           </button>
         </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
-          {children}
-        </div>
+        <div className="flex-1 overflow-y-auto px-6 pb-6 pt-2">{children}</div>
 
-        {/* Footer */}
         {footer && (
-          <div className="px-6 py-4 border-t border-border flex justify-end gap-3">
+          <div className="flex flex-col-reverse gap-3 border-t border-border px-6 py-4 md:flex-row md:justify-end">
             {footer}
           </div>
         )}

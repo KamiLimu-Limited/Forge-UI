@@ -1,34 +1,47 @@
 # =============================================================================
-# Forge Frontend — .gitignore
+# Forge Frontend: .gitignore
 # =============================================================================
 
 # Dependencies
 node_modules/
 .pnp
 .pnp.js
+.yarn/
+.pnpm-store/
 
-# Build output
+# Next.js build output
 .next/
 out/
 build/
+dist/
 next-env.d.ts
+
+# Vercel CLI (vercel link / vercel pull)
+.vercel/
 
 # Storybook build
 storybook-static/
 
-# Playwright screenshots (local verification only)
+# Playwright (screenshots, reports and local browser cache)
 screenshots/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
 
-# Environment variables — never commit these
+# Environment variables: never commit these. .env.example is the only one tracked.
 .env
-.env.local
-.env.*.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
 
 # TypeScript
 *.tsbuildinfo
+
+# Tool caches
+.cache/
+.eslintcache
+.swc/
+.turbo/
 
 # Logs
 npm-debug.log*
@@ -39,6 +52,10 @@ lerna-debug.log*
 logs/
 *.log
 
+# Testing
+coverage/
+.nyc_output/
+
 # OS
 .DS_Store
 .DS_Store?
@@ -47,7 +64,7 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# Editor
+# Editor (shared VS Code settings stay tracked)
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
@@ -58,10 +75,11 @@ Desktop.ini
 *.sln
 *.sw?
 
-# Testing
-coverage/
-.nyc_output/
+# AI tools: local state only. CLAUDE.md, AGENTS.md and the shared rule files stay tracked.
+.aider*
+!.aider.conf.yml
+.claude/settings.local.json
 
 # Misc
 *.pem
-.cache/
+*.local

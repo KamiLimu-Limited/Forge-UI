@@ -42,7 +42,7 @@ export function SegmentedControl<T extends string>({
     <div
       role="tablist"
       aria-label={label}
-      className="flex w-full gap-1 rounded-control border border-border-strong bg-surface p-1 md:w-auto"
+      className="flex w-full gap-1 rounded-control border border-border-strong bg-surface p-1 md:w-auto md:self-start"
     >
       {options.map((option, index) => {
         const isSelected = option.value === value

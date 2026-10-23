@@ -1,7 +1,7 @@
 'use client'
 
 // =============================================================================
-// useAuth — Authentication context and hook
+// useAuth: authentication context and hook
 // Provides auth state globally. <AuthProvider> is mounted in src/app/providers.tsx.
 // AuthContext is exported only so Storybook can provide a mocked value.
 // =============================================================================
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       await api.auth.logout(refresh ?? undefined)
     } catch {
-      // Logout best-effort — clear locally regardless
+      // Logout is best effort: clear locally regardless
     }
     tokenStore.clear()
     dispatch({ type: 'CLEAR_USER' })

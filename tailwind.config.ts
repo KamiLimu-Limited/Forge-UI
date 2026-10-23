@@ -9,12 +9,12 @@ const config: Config = {
     extend: {
 
       // -------------------------------------------------------------------------
-      // Colours — mapped to CSS variables in src/styles/global.css
+      // Colours: mapped to CSS variables in src/styles/global.css
       // Never hardcode a hex value in a component. Use these class names instead.
       // -------------------------------------------------------------------------
       colors: {
 
-        // Teal scale — KamiLimu signature colour
+        // Teal scale: KamiLimu signature colour
         teal: {
           100: 'var(--color-teal-100)',
           300: 'var(--color-teal-300)',
@@ -105,7 +105,7 @@ const config: Config = {
       },
 
       // -------------------------------------------------------------------------
-      // Typography — KamiLimu brand fonts
+      // Typography: KamiLimu brand fonts
       // font-mono = JetBrains Mono (headings, titles, section headers, captions)
       // font-sans = Hind Guntur (body, subtitles, subheadings, quotes)
       // -------------------------------------------------------------------------
@@ -134,7 +134,7 @@ const config: Config = {
       },
 
       // -------------------------------------------------------------------------
-      // Spacing — maps to CSS variable scale
+      // Spacing: maps to CSS variable scale
       // -------------------------------------------------------------------------
       spacing: {
         '1':  'var(--space-1)',

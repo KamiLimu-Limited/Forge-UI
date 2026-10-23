@@ -1,5 +1,5 @@
 /* =============================================================================
-   Forge — Global Design Tokens
+   Forge: Global Design Tokens
    Single source of truth for all colours, typography, spacing, and other
    design values used across the frontend.
 
@@ -13,10 +13,10 @@
 
 :root {
   /* ---------------------------------------------------------------------------
-     Brand Colours — Primary Palette
+     Brand Colours: Primary Palette
      --------------------------------------------------------------------------- */
 
-  /* Teal — KamiLimu signature colour. All interactive elements. */
+  /* Teal: KamiLimu signature colour. All interactive elements. */
   --color-teal-100: #e0f7f9;
   --color-teal-300: #4dd0da;
   --color-teal-500: #00b4c2; /* Brand primary */
@@ -26,14 +26,14 @@
   /* Black */
   --color-black: #050505;
 
-  /* Ivory — light mode base surface */
+  /* Ivory: light mode base surface */
   --color-ivory: #f8f9f0;
 
-  /* White — component backgrounds, inputs */
+  /* White: component backgrounds, inputs */
   --color-white: #ffffff;
 
   /* ---------------------------------------------------------------------------
-     Brand Colours — Secondary Palette
+     Brand Colours: Secondary Palette
      --------------------------------------------------------------------------- */
 
   --color-auburn: #ac3931; /* Danger, at-risk, error */
@@ -79,7 +79,7 @@
   --color-info-text: var(--color-indigo);
 
   /* ---------------------------------------------------------------------------
-     Graduation Status — used in GraduationStatus component
+     Graduation Status: used in GraduationStatus component
      --------------------------------------------------------------------------- */
 
   --color-status-on-track: var(--color-success);
@@ -90,7 +90,7 @@
   --color-status-at-risk-bg: var(--color-danger-bg);
 
   /* ---------------------------------------------------------------------------
-     Programme Track Colours — used in TrackBadge component
+     Programme Track Colours: used in TrackBadge component
      --------------------------------------------------------------------------- */
 
   --color-track-ict: var(--color-teal-500);
@@ -107,7 +107,7 @@
   --color-track-community-bg: #e8e8e8;
 
   /* ---------------------------------------------------------------------------
-     Surface Colours — Light Mode
+     Surface Colours: Light Mode
      --------------------------------------------------------------------------- */
 
   --color-background: var(--color-ivory);
@@ -117,7 +117,7 @@
   --color-border-strong: #b8bcb0;
 
   /* ---------------------------------------------------------------------------
-     Text Colours — Light Mode
+     Text Colours: Light Mode
      --------------------------------------------------------------------------- */
 
   --color-text-primary: var(--color-black);

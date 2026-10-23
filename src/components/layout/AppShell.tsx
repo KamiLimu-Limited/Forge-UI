@@ -129,7 +129,8 @@ function Sidebar({ nav, fullName, onOpenSwitcher, onSignOut }: SidebarProps) {
                   href={item.href}
                   aria-current={isActive ? 'page' : undefined}
                   className={cx(
-                    'flex h-10 items-center gap-3 rounded-md px-3 py-2 font-sans text-body no-underline transition-colors duration-fast hover:no-underline',
+                    // 40px tall; the ::before layer reaches 44px without overlapping the next item
+                    "relative flex h-10 items-center gap-3 rounded-md px-3 py-2 font-sans text-body no-underline transition-colors duration-fast before:absolute before:inset-x-0 before:-inset-y-0.5 before:content-[''] hover:no-underline",
                     isActive
                       ? 'bg-accent-bg font-semibold text-accent-text'
                       : 'text-text-secondary hover:bg-background hover:text-text-primary'
@@ -158,7 +159,7 @@ function Sidebar({ nav, fullName, onOpenSwitcher, onSignOut }: SidebarProps) {
           <button
             type="button"
             onClick={onSignOut}
-            className="self-start font-sans text-caption font-semibold text-link hover:underline"
+            className="inline-flex min-h-control items-center self-start font-sans text-caption font-semibold text-link hover:underline"
           >
             Sign out
           </button>

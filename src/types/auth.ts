@@ -1,5 +1,5 @@
 // =============================================================================
-// Auth & User Types — mapped directly from the Forge API OpenAPI schema
+// Auth and user types, mapped directly from the Forge API OpenAPI schema
 // =============================================================================
 
 export type AccountState = 'pending' | 'active' | 'suspended'

@@ -1,5 +1,5 @@
 // =============================================================================
-// Admin Types — mapped directly from the Forge API OpenAPI schema
+// Admin types, mapped directly from the Forge API OpenAPI schema
 // =============================================================================
 
 import type { AccountState, UserRoleResponse } from '@/types/auth'

@@ -26,7 +26,9 @@ export function StatTile({ label, value, note, isLoading = false, error }: StatT
         ) : value === null ? (
           <p className="font-sans text-body text-text-muted">No data yet</p>
         ) : (
-          <p className="font-mono text-stat font-semibold tabular-nums text-text-primary">{value}</p>
+          <p className="font-mono text-stat font-semibold tabular-nums text-text-primary">
+            {value}
+          </p>
         )}
         {note && !isLoading && !error && (
           <p className="font-sans text-caption text-text-muted">{note}</p>

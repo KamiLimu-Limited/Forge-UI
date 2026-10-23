@@ -25,7 +25,11 @@ interface UseAdminUsersReturn {
   clearActionError: () => void
 }
 
-export function useAdminUsers({ page, pageSize, accountState }: UseAdminUsersOptions): UseAdminUsersReturn {
+export function useAdminUsers({
+  page,
+  pageSize,
+  accountState,
+}: UseAdminUsersOptions): UseAdminUsersReturn {
   const [data, setData] = useState<PaginatedResponse<AdminUserListResponse> | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -53,26 +57,34 @@ export function useAdminUsers({ page, pageSize, accountState }: UseAdminUsersOpt
         if (!cancelled) setIsLoading(false)
       })
 
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [page, pageSize, accountState, tick])
 
-  const suspend = useCallback(async (userId: string) => {
-    try {
-      await api.admin.users.suspend(userId)
-      refetch()
-    } catch (err: unknown) {
-      setActionError(err instanceof ApiError ? err.message : 'Failed to suspend user')
-    }
-  }, [refetch])
+  const suspend = useCallback(
+    async (userId: string) => {
+      try {
+        await api.admin.users.suspend(userId)
+        refetch()
+      } catch (err: unknown) {
+        setActionError(err instanceof ApiError ? err.message : 'Failed to suspend user')
+      }
+    },
+    [refetch]
+  )
 
-  const activate = useCallback(async (userId: string) => {
-    try {
-      await api.admin.users.activate(userId)
-      refetch()
-    } catch (err: unknown) {
-      setActionError(err instanceof ApiError ? err.message : 'Failed to reactivate user')
-    }
-  }, [refetch])
+  const activate = useCallback(
+    async (userId: string) => {
+      try {
+        await api.admin.users.activate(userId)
+        refetch()
+      } catch (err: unknown) {
+        setActionError(err instanceof ApiError ? err.message : 'Failed to reactivate user')
+      }
+    },
+    [refetch]
+  )
 
   return {
     users: data?.items ?? [],

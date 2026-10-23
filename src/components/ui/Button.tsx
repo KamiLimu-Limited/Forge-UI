@@ -28,7 +28,8 @@ const base = cx(
 const secondary = 'border-border-strong bg-surface text-text-primary hover:bg-background'
 
 const variants: Record<ButtonVariant, string> = {
-  primary: 'border-teal-500 bg-teal-500 text-text-on-primary hover:border-teal-300 hover:bg-teal-300',
+  primary:
+    'border-teal-500 bg-teal-500 text-text-on-primary hover:border-teal-300 hover:bg-teal-300',
   secondary,
   danger: 'border-auburn bg-surface text-danger-text hover:bg-danger-bg',
   ghost: secondary,

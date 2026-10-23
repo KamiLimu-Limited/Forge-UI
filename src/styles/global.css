@@ -7,13 +7,11 @@
    Always reference a token from this file via a Tailwind class or CSS variable.
    ============================================================================= */
 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-
   /* ---------------------------------------------------------------------------
      Brand Colours — Primary Palette
      --------------------------------------------------------------------------- */
@@ -21,7 +19,7 @@
   /* Teal — KamiLimu signature colour. All interactive elements. */
   --color-teal-100: #e0f7f9;
   --color-teal-300: #4dd0da;
-  --color-teal-500: #00b4c2;   /* Brand primary */
+  --color-teal-500: #00b4c2; /* Brand primary */
   --color-teal-700: #007f8a;
   --color-teal-900: #003d42;
 
@@ -38,96 +36,96 @@
      Brand Colours — Secondary Palette
      --------------------------------------------------------------------------- */
 
-  --color-auburn:    #ac3931;   /* Danger, at-risk, error */
-  --color-gamboge:   #eaa000;   /* Warning, amber graduation status */
-  --color-calPoly:   #214e34;   /* Success, on-track graduation status */
-  --color-indigo:    #1b4864;   /* Info, secondary actions */
+  --color-auburn: #ac3931; /* Danger, at-risk, error */
+  --color-gamboge: #eaa000; /* Warning, amber graduation status */
+  --color-calPoly: #214e34; /* Success, on-track graduation status */
+  --color-indigo: #1b4864; /* Info, secondary actions */
 
   /* ---------------------------------------------------------------------------
      Semantic Colour Mappings
      --------------------------------------------------------------------------- */
 
-  --color-primary:              var(--color-teal-500);
-  --color-primary-hover:        var(--color-teal-300);
-  --color-primary-light:        var(--color-teal-100);
+  --color-primary: var(--color-teal-500);
+  --color-primary-hover: var(--color-teal-300);
+  --color-primary-light: var(--color-teal-100);
 
   /* Selected and active states (nav items, segmented control, "on" chips).
      teal-100 background with teal-900 text in light mode; flipped in dark mode. */
-  --color-accent-bg:            var(--color-teal-100);
-  --color-accent-text:          var(--color-teal-900);
-  --color-accent-icon:          var(--color-teal-700);
+  --color-accent-bg: var(--color-teal-100);
+  --color-accent-text: var(--color-teal-900);
+  --color-accent-icon: var(--color-teal-700);
 
   /* Text links and active tab labels. teal-500 text fails contrast on ivory. */
-  --color-link:                 var(--color-teal-700);
+  --color-link: var(--color-teal-700);
 
   /* Disabled controls */
-  --color-disabled-bg:          #e9ebe3;
-  --color-disabled-text:        #5f6159;
+  --color-disabled-bg: #e9ebe3;
+  --color-disabled-text: #5f6159;
 
-  --color-success:              var(--color-calPoly);
-  --color-success-bg:           #d3f0dd;
-  --color-success-text:         var(--color-calPoly);
+  --color-success: var(--color-calPoly);
+  --color-success-bg: #d3f0dd;
+  --color-success-text: var(--color-calPoly);
 
-  --color-warning:              var(--color-gamboge);
-  --color-warning-bg:           #fef3c7;
-  --color-warning-text:         #7c4e00;
+  --color-warning: var(--color-gamboge);
+  --color-warning-bg: #fef3c7;
+  --color-warning-text: #7c4e00;
 
-  --color-danger:               var(--color-auburn);
-  --color-danger-bg:            #fde8e7;
-  --color-danger-text:          var(--color-auburn);
+  --color-danger: var(--color-auburn);
+  --color-danger-bg: #fde8e7;
+  --color-danger-text: var(--color-auburn);
 
-  --color-info:                 var(--color-indigo);
-  --color-info-bg:              #dce8f0;
-  --color-info-text:            var(--color-indigo);
+  --color-info: var(--color-indigo);
+  --color-info-bg: #dce8f0;
+  --color-info-text: var(--color-indigo);
 
   /* ---------------------------------------------------------------------------
      Graduation Status — used in GraduationStatus component
      --------------------------------------------------------------------------- */
 
-  --color-status-on-track:      var(--color-success);
-  --color-status-on-track-bg:   var(--color-success-bg);
-  --color-status-warning:       var(--color-warning);
-  --color-status-warning-bg:    var(--color-warning-bg);
-  --color-status-at-risk:       var(--color-danger);
-  --color-status-at-risk-bg:    var(--color-danger-bg);
+  --color-status-on-track: var(--color-success);
+  --color-status-on-track-bg: var(--color-success-bg);
+  --color-status-warning: var(--color-warning);
+  --color-status-warning-bg: var(--color-warning-bg);
+  --color-status-at-risk: var(--color-danger);
+  --color-status-at-risk-bg: var(--color-danger-bg);
 
   /* ---------------------------------------------------------------------------
      Programme Track Colours — used in TrackBadge component
      --------------------------------------------------------------------------- */
 
-  --color-track-ict:                    var(--color-teal-500);
-  --color-track-ict-bg:                 var(--color-teal-100);
-  --color-track-innovation:             var(--color-indigo);
-  --color-track-innovation-bg:          var(--color-info-bg);
-  --color-track-personal-dev:           var(--color-gamboge);
-  --color-track-personal-dev-bg:        var(--color-warning-bg);
-  --color-track-professional-dev:       var(--color-auburn);
-  --color-track-professional-dev-bg:    var(--color-danger-bg);
-  --color-track-scholarship:            var(--color-calPoly);
-  --color-track-scholarship-bg:         var(--color-success-bg);
-  --color-track-community:              var(--color-black);
-  --color-track-community-bg:           #e8e8e8;
+  --color-track-ict: var(--color-teal-500);
+  --color-track-ict-bg: var(--color-teal-100);
+  --color-track-innovation: var(--color-indigo);
+  --color-track-innovation-bg: var(--color-info-bg);
+  --color-track-personal-dev: var(--color-gamboge);
+  --color-track-personal-dev-bg: var(--color-warning-bg);
+  --color-track-professional-dev: var(--color-auburn);
+  --color-track-professional-dev-bg: var(--color-danger-bg);
+  --color-track-scholarship: var(--color-calPoly);
+  --color-track-scholarship-bg: var(--color-success-bg);
+  --color-track-community: var(--color-black);
+  --color-track-community-bg: #e8e8e8;
 
   /* ---------------------------------------------------------------------------
      Surface Colours — Light Mode
      --------------------------------------------------------------------------- */
 
-  --color-background:           var(--color-ivory);
-  --color-surface:              var(--color-white);
-  --color-surface-raised:       var(--color-white);
-  --color-border:               #dde0d6;
-  --color-border-strong:        #b8bcb0;
+  --color-background: var(--color-ivory);
+  --color-surface: var(--color-white);
+  --color-surface-raised: var(--color-white);
+  --color-border: #dde0d6;
+  --color-border-strong: #b8bcb0;
 
   /* ---------------------------------------------------------------------------
      Text Colours — Light Mode
      --------------------------------------------------------------------------- */
 
-  --color-text-primary:         var(--color-black);
-  --color-text-secondary:       #444444;
-  --color-text-muted:           #777777;
-  --color-text-inverse:         var(--color-white);
+  --color-text-primary: var(--color-black);
+  --color-text-secondary: #444444;
+  --color-text-muted: #777777;
+  --color-text-inverse: var(--color-white);
   /* Black on teal is about 8:1. White on teal is about 2.5:1 and fails WCAG AA. */
-  --color-text-on-primary:      var(--color-black);
+  --color-text-on-primary: var(--color-black);
 
   /* ---------------------------------------------------------------------------
      Typography
@@ -137,68 +135,68 @@
      are set by next/font in src/app/fonts.ts on the <html> element. */
 
   /* Font sizes. Nothing in the UI goes below 12px. */
-  --text-tab:         0.75rem;    /* 12px: bottom tab bar labels only */
-  --text-caption:     0.8125rem;  /* 13px: hints, chips, badges, meta */
-  --text-small:       0.875rem;   /* 14px: labels, table text */
-  --text-body:        0.9375rem;  /* 15px: body text */
-  --text-quote:       1rem;       /* 16px */
-  --text-card-title:  1.0625rem;  /* 17px: card titles */
-  --text-subheading:  1.125rem;   /* 18px */
-  --text-section:     1.25rem;    /* 20px */
-  --text-page-mobile: 1.375rem;   /* 22px: page title below md */
-  --text-subtitle:    1.5rem;     /* 24px: auth card title */
-  --text-page:        1.75rem;    /* 28px: page title md and up */
-  --text-stat:        2rem;       /* 32px: stat numbers */
-  --text-heading:     2rem;       /* 32px */
-  --text-title:       2.625rem;   /* 42px */
+  --text-tab: 0.75rem; /* 12px: bottom tab bar labels only */
+  --text-caption: 0.8125rem; /* 13px: hints, chips, badges, meta */
+  --text-small: 0.875rem; /* 14px: labels, table text */
+  --text-body: 0.9375rem; /* 15px: body text */
+  --text-quote: 1rem; /* 16px */
+  --text-card-title: 1.0625rem; /* 17px: card titles */
+  --text-subheading: 1.125rem; /* 18px */
+  --text-section: 1.25rem; /* 20px */
+  --text-page-mobile: 1.375rem; /* 22px: page title below md */
+  --text-subtitle: 1.5rem; /* 24px: auth card title */
+  --text-page: 1.75rem; /* 28px: page title md and up */
+  --text-stat: 2rem; /* 32px: stat numbers */
+  --text-heading: 2rem; /* 32px */
+  --text-title: 2.625rem; /* 42px */
 
   /* Font weights */
-  --font-normal:    400;
-  --font-medium:    500;
-  --font-semibold:  600;
-  --font-bold:      700;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
 
   /* Line heights */
-  --leading-tight:   1.25;
-  --leading-normal:  1.5;
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
   --leading-relaxed: 1.75;
 
   /* ---------------------------------------------------------------------------
      Spacing Scale
      --------------------------------------------------------------------------- */
 
-  --space-1:   0.25rem;   /* 4px  */
-  --space-2:   0.5rem;    /* 8px  */
-  --space-3:   0.75rem;   /* 12px */
-  --space-4:   1rem;      /* 16px */
-  --space-5:   1.25rem;   /* 20px */
-  --space-6:   1.5rem;    /* 24px */
-  --space-8:   2rem;      /* 32px */
-  --space-10:  2.5rem;    /* 40px */
-  --space-12:  3rem;      /* 48px */
-  --space-16:  4rem;      /* 64px */
-  --space-20:  5rem;      /* 80px */
+  --space-1: 0.25rem; /* 4px  */
+  --space-2: 0.5rem; /* 8px  */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem; /* 48px */
+  --space-16: 4rem; /* 64px */
+  --space-20: 5rem; /* 80px */
 
   /* ---------------------------------------------------------------------------
      Border Radius
      --------------------------------------------------------------------------- */
 
-  --radius-sm:    0.25rem;   /* 4px  */
-  --radius-md:      0.5rem;    /* 8px: nav items, small buttons */
-  --radius-control: 0.625rem;  /* 10px: buttons, inputs, segmented control */
-  --radius-lg:    0.75rem;   /* 12px: cards */
-  --radius-xl:    1rem;      /* 16px: auth card, dialogs */
-  --radius-2xl:   1.5rem;    /* 24px */
-  --radius-full:  9999px;    /* pill */
+  --radius-sm: 0.25rem; /* 4px  */
+  --radius-md: 0.5rem; /* 8px: nav items, small buttons */
+  --radius-control: 0.625rem; /* 10px: buttons, inputs, segmented control */
+  --radius-lg: 0.75rem; /* 12px: cards */
+  --radius-xl: 1rem; /* 16px: auth card, dialogs */
+  --radius-2xl: 1.5rem; /* 24px */
+  --radius-full: 9999px; /* pill */
 
   /* ---------------------------------------------------------------------------
      Shadows
      --------------------------------------------------------------------------- */
 
-  --shadow-sm:  0 1px 2px rgba(5, 5, 5, 0.06);
-  --shadow-md:  0 4px 6px rgba(5, 5, 5, 0.08);
-  --shadow-lg:  0 10px 15px rgba(5, 5, 5, 0.1);
-  --shadow-xl:  0 20px 25px rgba(5, 5, 5, 0.12);
+  --shadow-sm: 0 1px 2px rgba(5, 5, 5, 0.06);
+  --shadow-md: 0 4px 6px rgba(5, 5, 5, 0.08);
+  --shadow-lg: 0 10px 15px rgba(5, 5, 5, 0.1);
+  --shadow-xl: 0 20px 25px rgba(5, 5, 5, 0.12);
   --shadow-card: 0 1px 2px rgba(5, 5, 5, 0.05), 0 4px 14px rgba(5, 5, 5, 0.05);
 
   /* Dialog backdrop */
@@ -208,35 +206,35 @@
      Component Sizes. 44px is the minimum touch target for anything tappable.
      --------------------------------------------------------------------------- */
 
-  --size-control-sm:     2.25rem;   /* 36px */
-  --size-control:        2.75rem;   /* 44px */
-  --size-control-lg:     3.25rem;   /* 52px */
-  --size-sidebar:        15.5rem;   /* 248px */
-  --size-avatar:         2.25rem;   /* 36px */
-  --size-brand-mark:     1.875rem;  /* 30px */
-  --size-auth-card-max:  27.5rem;   /* 440px */
-  --size-tab-icon:       1.375rem;  /* 22px: bottom tab bar icons */
-  --size-textarea-min:   6.875rem;  /* 110px */
+  --size-control-sm: 2.25rem; /* 36px */
+  --size-control: 2.75rem; /* 44px */
+  --size-control-lg: 3.25rem; /* 52px */
+  --size-sidebar: 15.5rem; /* 248px */
+  --size-avatar: 2.25rem; /* 36px */
+  --size-brand-mark: 1.875rem; /* 30px */
+  --size-auth-card-max: 27.5rem; /* 440px */
+  --size-tab-icon: 1.375rem; /* 22px: bottom tab bar icons */
+  --size-textarea-min: 6.875rem; /* 110px */
 
   /* ---------------------------------------------------------------------------
      Transitions
      --------------------------------------------------------------------------- */
 
-  --transition-fast:    150ms ease;
-  --transition-normal:  250ms ease;
-  --transition-slow:    400ms ease;
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 400ms ease;
 
   /* ---------------------------------------------------------------------------
      Z-Index Scale
      --------------------------------------------------------------------------- */
 
-  --z-base:      0;
-  --z-raised:    10;
-  --z-dropdown:  100;
-  --z-sticky:    150;
-  --z-modal:     200;
-  --z-toast:     300;
-  --z-tooltip:   400;
+  --z-base: 0;
+  --z-raised: 10;
+  --z-dropdown: 100;
+  --z-sticky: 150;
+  --z-modal: 200;
+  --z-toast: 300;
+  --z-tooltip: 400;
 }
 
 /* =============================================================================
@@ -245,55 +243,54 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-
     /* Surfaces */
-    --color-background:       var(--color-black);
-    --color-surface:          #111111;
-    --color-surface-raised:   #1a1a1a;
-    --color-border:           #2a2a2a;
-    --color-border-strong:    #3a3a3a;
+    --color-background: var(--color-black);
+    --color-surface: #111111;
+    --color-surface-raised: #1a1a1a;
+    --color-border: #2a2a2a;
+    --color-border-strong: #3a3a3a;
 
     /* Text */
-    --color-text-primary:     var(--color-ivory);
-    --color-text-secondary:   #cccccc;
-    --color-text-muted:       #888888;
-    --color-text-inverse:     var(--color-black);
+    --color-text-primary: var(--color-ivory);
+    --color-text-secondary: #cccccc;
+    --color-text-muted: #888888;
+    --color-text-inverse: var(--color-black);
 
     /* Teal stays the same: it works on dark backgrounds */
-    --color-primary:          var(--color-teal-500);
-    --color-primary-hover:    var(--color-teal-300);
-    --color-primary-light:    var(--color-teal-900);
+    --color-primary: var(--color-teal-500);
+    --color-primary-hover: var(--color-teal-300);
+    --color-primary-light: var(--color-teal-900);
 
-    --color-accent-bg:        var(--color-teal-900);
-    --color-accent-text:      var(--color-teal-100);
-    --color-accent-icon:      var(--color-teal-300);
-    --color-link:             var(--color-teal-300);
+    --color-accent-bg: var(--color-teal-900);
+    --color-accent-text: var(--color-teal-100);
+    --color-accent-icon: var(--color-teal-300);
+    --color-link: var(--color-teal-300);
 
-    --color-disabled-bg:      #262626;
-    --color-disabled-text:    #9a9a93;
+    --color-disabled-bg: #262626;
+    --color-disabled-text: #9a9a93;
 
     /* Text on teal stays black in dark mode too */
-    --color-text-on-primary:  var(--color-black);
+    --color-text-on-primary: var(--color-black);
 
     /* Status text lightens so it stays readable on the dark status backgrounds */
-    --color-success-text:     #8fd1a8;
-    --color-warning-text:     #f2c14e;
-    --color-danger-text:      #f0a39d;
-    --color-info-text:        #9cc3dc;
+    --color-success-text: #8fd1a8;
+    --color-warning-text: #f2c14e;
+    --color-danger-text: #f0a39d;
+    --color-info-text: #9cc3dc;
 
     /* Semantic backgrounds darken */
-    --color-success-bg:       #0e2a1a;
-    --color-warning-bg:       #2a1e00;
-    --color-danger-bg:        #2a0e0e;
-    --color-info-bg:          #0e1e2a;
+    --color-success-bg: #0e2a1a;
+    --color-warning-bg: #2a1e00;
+    --color-danger-bg: #2a0e0e;
+    --color-info-bg: #0e1e2a;
 
     /* Track backgrounds darken */
-    --color-track-ict-bg:              var(--color-teal-900);
-    --color-track-innovation-bg:       #0e1e2a;
-    --color-track-personal-dev-bg:     #2a1e00;
+    --color-track-ict-bg: var(--color-teal-900);
+    --color-track-innovation-bg: #0e1e2a;
+    --color-track-personal-dev-bg: #2a1e00;
     --color-track-professional-dev-bg: #2a0e0e;
-    --color-track-scholarship-bg:      #0e2a1a;
-    --color-track-community-bg:        #1a1a1a;
+    --color-track-scholarship-bg: #0e2a1a;
+    --color-track-community-bg: #1a1a1a;
   }
 }
 
@@ -301,7 +298,9 @@
    Base Styles
    ============================================================================= */
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -323,7 +322,12 @@ body {
   background-color: var(--color-background);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-mono), ui-monospace, monospace;
   font-weight: var(--font-semibold);
   line-height: var(--leading-tight);

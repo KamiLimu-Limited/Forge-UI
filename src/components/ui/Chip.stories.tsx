@@ -50,9 +50,7 @@ function ToggleDemo() {
             variant={isOn ? 'on' : 'default'}
             pressed={isOn}
             onClick={() =>
-              setSelected((prev) =>
-                isOn ? prev.filter((o) => o !== option) : [...prev, option]
-              )
+              setSelected((prev) => (isOn ? prev.filter((o) => o !== option) : [...prev, option]))
             }
           >
             {option}

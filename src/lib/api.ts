@@ -135,22 +135,34 @@ async function request<T>(
 export const api = {
   auth: {
     login: (body: LoginRequest) =>
-      request<TokenResponse>('/api/v1/auth/login', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      }, false),
+      request<TokenResponse>(
+        '/api/v1/auth/login',
+        {
+          method: 'POST',
+          body: JSON.stringify(body),
+        },
+        false
+      ),
 
     activate: (body: AccountActivationRequest) =>
-      request<TokenResponse>('/api/v1/auth/activate', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      }, false),
+      request<TokenResponse>(
+        '/api/v1/auth/activate',
+        {
+          method: 'POST',
+          body: JSON.stringify(body),
+        },
+        false
+      ),
 
     refresh: (body: TokenRefreshRequest) =>
-      request<TokenResponse>('/api/v1/auth/refresh', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      }, false),
+      request<TokenResponse>(
+        '/api/v1/auth/refresh',
+        {
+          method: 'POST',
+          body: JSON.stringify(body),
+        },
+        false
+      ),
 
     logout: (refreshToken?: string) => {
       const query = refreshToken ? `?refresh_token=${encodeURIComponent(refreshToken)}` : ''
@@ -158,16 +170,24 @@ export const api = {
     },
 
     requestReset: (body: PasswordResetRequest) =>
-      request<SuccessResponse>('/api/v1/auth/request-reset', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      }, false),
+      request<SuccessResponse>(
+        '/api/v1/auth/request-reset',
+        {
+          method: 'POST',
+          body: JSON.stringify(body),
+        },
+        false
+      ),
 
     resetPassword: (body: PasswordResetConfirmRequest) =>
-      request<SuccessResponse>('/api/v1/auth/reset-password', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      }, false),
+      request<SuccessResponse>(
+        '/api/v1/auth/reset-password',
+        {
+          method: 'POST',
+          body: JSON.stringify(body),
+        },
+        false
+      ),
 
     invite: (body: UserInviteRequest) =>
       request<SuccessResponse>('/api/v1/auth/invite', {

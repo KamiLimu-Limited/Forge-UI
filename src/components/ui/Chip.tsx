@@ -22,7 +22,8 @@ const variantClasses: Record<ChipVariant, string> = {
   draft: 'border-dashed border-border-strong bg-transparent text-text-secondary font-medium',
 }
 
-const base = 'inline-flex items-center gap-1 whitespace-nowrap rounded-full border font-sans text-caption'
+const base =
+  'inline-flex items-center gap-1 whitespace-nowrap rounded-full border font-sans text-caption'
 
 export function Chip({ variant = 'default', children, onClick, pressed, disabled }: ChipProps) {
   if (onClick) {

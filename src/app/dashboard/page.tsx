@@ -7,7 +7,11 @@ export default function DashboardPage() {
     <>
       <PageHeader title="Dashboard" />
       <Card>
-        <EmptyState icon="home" title="Nothing here yet" description="Your dashboard is on its way." />
+        <EmptyState
+          icon="home"
+          title="Nothing here yet"
+          description="Your dashboard is on its way."
+        />
       </Card>
     </>
   )

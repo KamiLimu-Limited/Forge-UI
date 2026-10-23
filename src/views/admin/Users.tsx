@@ -1,66 +1,60 @@
 'use client'
 
-import { useState } from 'react'
-import { TopBar } from '@/components/layout/TopBar'
-import { Badge } from '@/components/ui/Badge'
+import { useState, type FormEvent } from 'react'
+import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { Chip, type ChipVariant } from '@/components/ui/Chip'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { Icon } from '@/components/ui/Icon'
 import { Input } from '@/components/ui/Input'
 import { Modal } from '@/components/ui/Modal'
+import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { Spinner } from '@/components/ui/Spinner'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '@/components/ui/Table'
 import { useAdminUsers } from '@/hooks/useAdminUsers'
 import { useInviteUser } from '@/hooks/useInviteUser'
-import type { AccountState, UserRole } from '@/types/auth'
+import { ALL_ROLES, roleLabel } from '@/lib/roles'
 import type { AdminUserListResponse } from '@/types/admin'
+import type { AccountState, UserRole } from '@/types/auth'
 
 // ---------------------------------------------------------------------------
-// Account state → badge
+// Display helpers
 // ---------------------------------------------------------------------------
 
-type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'neutral'
-
-function accountStateBadge(state: AccountState): { variant: BadgeVariant; label: string } {
-  switch (state) {
-    case 'active':    return { variant: 'success', label: 'Active' }
-    case 'pending':   return { variant: 'warning', label: 'Pending' }
-    case 'suspended': return { variant: 'danger',  label: 'Suspended' }
-  }
+const STATUS_CHIPS: Record<AccountState, { variant: ChipVariant; label: string }> = {
+  active: { variant: 'ok', label: 'Active' },
+  pending: { variant: 'warn', label: 'Pending' },
+  suspended: { variant: 'err', label: 'Suspended' },
 }
 
 function formatLastLogin(value: string | null): string {
-  if (!value) return '—'
+  if (!value) return 'Never'
   return new Date(value).toLocaleDateString('en-KE', {
-    day: 'numeric', month: 'short', year: 'numeric',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
   })
 }
 
-// ---------------------------------------------------------------------------
-// Filter tab bar
-// ---------------------------------------------------------------------------
+type StatusFilter = 'all' | AccountState
 
-const FILTERS: { label: string; value: AccountState | null }[] = [
-  { label: 'All',       value: null },
-  { label: 'Active',    value: 'active' },
-  { label: 'Pending',   value: 'pending' },
-  { label: 'Suspended', value: 'suspended' },
+const FILTERS: { value: StatusFilter; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'active', label: 'Active' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'suspended', label: 'Suspended' },
 ]
 
 // ---------------------------------------------------------------------------
-// Available roles for the invite form
-// ---------------------------------------------------------------------------
-
-const ALL_ROLES: UserRole[] = [
-  'mentee',
-  'peer_mentor_1:1',
-  'peer_mentor_ict',
-  'professional_mentor',
-  'committee',
-  'partner',
-  'alumni',
-  'admin',
-]
-
-// ---------------------------------------------------------------------------
-// Invite modal form
+// Invite modal
 // ---------------------------------------------------------------------------
 
 interface InviteFormState {
@@ -82,6 +76,12 @@ function InviteModal({ isOpen, onClose, onSuccess }: InviteModalProps) {
   const { invite, isLoading, error, success, reset } = useInviteUser()
   const [form, setForm] = useState<InviteFormState>(EMPTY_FORM)
 
+  const isComplete =
+    form.email.trim() !== '' &&
+    form.first_name.trim() !== '' &&
+    form.last_name.trim() !== '' &&
+    form.roles.length > 0
+
   const toggleRole = (role: UserRole) => {
     setForm((prev) => ({
       ...prev,
@@ -97,39 +97,50 @@ function InviteModal({ isOpen, onClose, onSuccess }: InviteModalProps) {
     onClose()
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (form.roles.length === 0) return
-    await invite({ ...form })
+    if (!isComplete) return
+    await invite({ ...form, email: form.email.trim() })
   }
 
   if (success) {
     return (
-      <Modal isOpen={isOpen} onClose={handleClose} title="Invite sent">
-        <div className="py-4 text-center">
-          <p className="font-mono text-section text-calPoly mb-2">✓</p>
-          <p className="font-sans text-body text-text-primary mb-1">
-            Invitation sent to <strong>{form.email}</strong>
+      <Modal
+        isOpen={isOpen}
+        onClose={handleClose}
+        title="Invite sent"
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                reset()
+                setForm(EMPTY_FORM)
+              }}
+            >
+              Invite another
+            </Button>
+            <Button
+              onClick={() => {
+                handleClose()
+                onSuccess()
+              }}
+            >
+              Done
+            </Button>
+          </>
+        }
+      >
+        <div className="flex flex-col items-center gap-3 py-4 text-center">
+          <span className="flex size-12 items-center justify-center rounded-full bg-success-bg text-success-text">
+            <Icon name="check" className="size-6" />
+          </span>
+          <p className="font-sans text-body text-text-primary">
+            Invitation sent to <span className="font-semibold">{form.email.trim()}</span>
           </p>
-          <p className="font-sans text-body text-text-muted">
-            They will receive an activation link by email.
+          <p className="font-sans text-body text-text-secondary">
+            They&apos;ll get an activation link by email.
           </p>
-        </div>
-        <div className="flex justify-end gap-3 mt-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => { reset(); setForm(EMPTY_FORM) }}
-          >
-            Invite another
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => { handleClose(); onSuccess() }}
-          >
-            Done
-          </Button>
         </div>
       </Modal>
     )
@@ -140,84 +151,83 @@ function InviteModal({ isOpen, onClose, onSuccess }: InviteModalProps) {
       isOpen={isOpen}
       onClose={handleClose}
       title="Invite user"
+      width="lg"
       footer={
         <>
-          <Button variant="ghost" size="sm" onClick={handleClose} disabled={isLoading}>
+          <Button variant="secondary" onClick={handleClose} disabled={isLoading}>
             Cancel
           </Button>
           <Button
-            variant="primary"
-            size="sm"
+            type="submit"
+            form="invite-user-form"
             isLoading={isLoading}
-            disabled={!form.email || !form.first_name || !form.last_name || form.roles.length === 0}
-            onClick={(e) => void handleSubmit(e as unknown as React.FormEvent)}
+            disabled={!isComplete}
           >
             Send invite
           </Button>
         </>
       }
     >
-      <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-4">
+      <form
+        id="invite-user-form"
+        onSubmit={(e) => {
+          void handleSubmit(e)
+        }}
+        noValidate
+        className="flex flex-col gap-5"
+      >
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <Input
+            label="First name"
+            value={form.first_name}
+            onChange={(e) => setForm((p) => ({ ...p, first_name: e.target.value }))}
+            autoComplete="off"
+            required
+          />
+          <Input
+            label="Last name"
+            value={form.last_name}
+            onChange={(e) => setForm((p) => ({ ...p, last_name: e.target.value }))}
+            autoComplete="off"
+            required
+          />
+        </div>
         <Input
           label="Email"
           type="email"
+          placeholder="you@example.com"
           value={form.email}
           onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+          autoComplete="off"
           required
         />
-        <div className="flex gap-3">
-          <div className="flex-1">
-            <Input
-              label="First name"
-              value={form.first_name}
-              onChange={(e) => setForm((p) => ({ ...p, first_name: e.target.value }))}
-              required
-            />
-          </div>
-          <div className="flex-1">
-            <Input
-              label="Last name"
-              value={form.last_name}
-              onChange={(e) => setForm((p) => ({ ...p, last_name: e.target.value }))}
-              required
-            />
-          </div>
-        </div>
 
-        {/* Role selection */}
-        <div>
-          <p className="font-mono text-caption font-medium text-text-secondary mb-2 uppercase tracking-widest">
+        <fieldset className="flex flex-col gap-2" aria-describedby="invite-roles-hint">
+          <legend className="pb-2 font-sans text-small font-semibold text-text-primary">
             Roles
-          </p>
+          </legend>
           <div className="flex flex-wrap gap-2">
             {ALL_ROLES.map((role) => {
-              const selected = form.roles.includes(role)
+              const isOn = form.roles.includes(role)
               return (
-                <button
+                <Chip
                   key={role}
-                  type="button"
+                  variant={isOn ? 'on' : 'default'}
+                  pressed={isOn}
                   onClick={() => toggleRole(role)}
-                  className={[
-                    'px-3 py-1 rounded-full font-mono text-caption font-medium border transition-colors duration-fast',
-                    selected
-                      ? 'bg-teal-500 text-text-inverse border-teal-500'
-                      : 'bg-transparent text-text-secondary border-border hover:border-teal-500 hover:text-teal-500',
-                  ].join(' ')}
                 >
-                  {role}
-                </button>
+                  {roleLabel(role)}
+                </Chip>
               )
             })}
           </div>
-          {form.roles.length === 0 && (
-            <p className="font-sans text-caption text-text-muted mt-1">
-              Select at least one role.
-            </p>
-          )}
-        </div>
+          <p id="invite-roles-hint" className="font-sans text-caption text-text-muted">
+            Pick at least one role.
+          </p>
+        </fieldset>
 
         {error && (
-          <p className="font-sans text-body text-danger" role="alert">
+          <p role="alert" className="font-sans text-small text-danger-text">
             {error}
           </p>
         )}
@@ -227,7 +237,7 @@ function InviteModal({ isOpen, onClose, onSuccess }: InviteModalProps) {
 }
 
 // ---------------------------------------------------------------------------
-// Table row actions
+// Row actions and pagination
 // ---------------------------------------------------------------------------
 
 interface RowActionsProps {
@@ -237,26 +247,33 @@ interface RowActionsProps {
 }
 
 function RowActions({ user, onSuspend, onActivate }: RowActionsProps) {
+  const name = `${user.first_name} ${user.last_name}`
   if (user.account_state === 'active') {
     return (
-      <Button variant="danger" size="sm" onClick={() => onSuspend(user.id)}>
+      <Button
+        variant="danger"
+        size="sm"
+        onClick={() => onSuspend(user.id)}
+        aria-label={`Suspend ${name}`}
+      >
         Suspend
       </Button>
     )
   }
   if (user.account_state === 'suspended') {
     return (
-      <Button variant="ghost" size="sm" onClick={() => onActivate(user.id)}>
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={() => onActivate(user.id)}
+        aria-label={`Reactivate ${name}`}
+      >
         Reactivate
       </Button>
     )
   }
-  return <span className="font-mono text-caption text-text-muted">—</span>
+  return null
 }
-
-// ---------------------------------------------------------------------------
-// Pagination controls
-// ---------------------------------------------------------------------------
 
 interface PaginationProps {
   page: number
@@ -268,20 +285,20 @@ interface PaginationProps {
 }
 
 function Pagination({ page, totalPages, total, pageSize, onPrev, onNext }: PaginationProps) {
-  const from = total === 0 ? 0 : (page - 1) * pageSize + 1
+  const from = (page - 1) * pageSize + 1
   const to = Math.min(page * pageSize, total)
 
   return (
-    <div className="flex items-center justify-between px-6 py-3 border-t border-border">
-      <p className="font-mono text-caption text-text-muted">
-        {total === 0 ? 'No results' : `${from}–${to} of ${total}`}
+    <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-6">
+      <p className="font-sans text-small text-text-secondary">
+        {from} to {to} of {total}
       </p>
       <div className="flex gap-2">
-        <Button variant="ghost" size="sm" onClick={onPrev} disabled={page <= 1}>
-          ← Prev
+        <Button variant="secondary" size="sm" onClick={onPrev} disabled={page <= 1}>
+          Previous
         </Button>
-        <Button variant="ghost" size="sm" onClick={onNext} disabled={page >= totalPages}>
-          Next →
+        <Button variant="secondary" size="sm" onClick={onNext} disabled={page >= totalPages}>
+          Next
         </Button>
       </div>
     </div>
@@ -296,7 +313,7 @@ const PAGE_SIZE = 20
 
 export function UsersPage() {
   const [page, setPage] = useState(1)
-  const [accountState, setAccountState] = useState<AccountState | null>(null)
+  const [filter, setFilter] = useState<StatusFilter>('all')
   const [inviteOpen, setInviteOpen] = useState(false)
 
   const {
@@ -310,157 +327,125 @@ export function UsersPage() {
     activate,
     actionError,
     clearActionError,
-  } = useAdminUsers({ page, pageSize: PAGE_SIZE, accountState })
+  } = useAdminUsers({
+    page,
+    pageSize: PAGE_SIZE,
+    accountState: filter === 'all' ? null : filter,
+  })
 
-  const handleFilterChange = (value: AccountState | null) => {
-    setAccountState(value)
+  const handleFilterChange = (value: StatusFilter) => {
+    setFilter(value)
     setPage(1)
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <TopBar title="Users" />
-
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Toolbar */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-6 py-4 border-b border-border">
-          {/* Filter tabs */}
-          <div className="flex gap-1">
-            {FILTERS.map(({ label, value }) => (
-              <button
-                key={label}
-                onClick={() => handleFilterChange(value)}
-                className={[
-                  'px-3 py-1.5 rounded-md font-mono text-caption font-medium transition-colors duration-fast',
-                  accountState === value
-                    ? 'bg-teal-100 text-teal-700'
-                    : 'text-text-muted hover:text-text-primary hover:bg-border',
-                ].join(' ')}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          <Button variant="primary" size="sm" onClick={() => setInviteOpen(true)}>
-            + Invite user
+    <>
+      <PageHeader
+        title="Users"
+        action={
+          <Button onClick={() => setInviteOpen(true)}>
+            <Icon name="plus" className="size-4" />
+            Invite user
           </Button>
-        </div>
+        }
+      />
 
-        {/* Action error banner */}
-        {actionError && (
-          <div
-            className="mx-6 mt-4 px-4 py-3 bg-danger-bg text-danger-text font-sans text-body rounded-md flex items-center justify-between"
-            role="alert"
+      <SegmentedControl
+        label="Filter users by status"
+        options={FILTERS}
+        value={filter}
+        onChange={handleFilterChange}
+      />
+
+      {actionError && (
+        <div
+          role="alert"
+          className="flex items-center justify-between gap-3 rounded-control border border-auburn bg-danger-bg py-1 pl-4 pr-1 font-sans text-small text-danger-text"
+        >
+          <span>{actionError}</span>
+          <button
+            type="button"
+            onClick={clearActionError}
+            aria-label="Dismiss"
+            className="flex size-control shrink-0 items-center justify-center rounded-md hover:bg-surface"
           >
-            {actionError}
-            <button
-              onClick={clearActionError}
-              className="ml-4 text-danger hover:opacity-70 transition-opacity duration-fast"
-              aria-label="Dismiss"
-            >
-              ✕
-            </button>
+            <Icon name="close" />
+          </button>
+        </div>
+      )}
+
+      <Card flush>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Spinner size="lg" label="Loading users" />
           </div>
-        )}
-
-        {/* Table area */}
-        <div className="flex-1 overflow-auto">
-          {isLoading && (
-            <div className="flex items-center justify-center py-20">
-              <Spinner size="lg" />
-            </div>
-          )}
-
-          {!isLoading && error && (
-            <div className="flex flex-col items-center justify-center py-20 gap-4">
-              <p className="font-sans text-body text-danger">{error}</p>
-              <Button variant="ghost" size="sm" onClick={refetch}>
-                Retry
-              </Button>
-            </div>
-          )}
-
-          {!isLoading && !error && users.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20">
-              <p className="font-mono text-body text-text-muted">No users found.</p>
-            </div>
-          )}
-
-          {!isLoading && !error && users.length > 0 && (
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-border bg-surface">
-                  <th className="px-6 py-3 font-mono text-caption font-medium text-text-muted uppercase tracking-widest">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 font-mono text-caption font-medium text-text-muted uppercase tracking-widest">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 font-mono text-caption font-medium text-text-muted uppercase tracking-widest">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 font-mono text-caption font-medium text-text-muted uppercase tracking-widest">
-                    Last login
-                  </th>
-                  <th className="px-6 py-3 font-mono text-caption font-medium text-text-muted uppercase tracking-widest">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
+        ) : error ? (
+          <div className="flex flex-col items-center gap-4 px-4 py-16 text-center">
+            <p role="alert" className="font-sans text-body text-danger-text">
+              {error}
+            </p>
+            <Button variant="secondary" onClick={refetch}>
+              Try again
+            </Button>
+          </div>
+        ) : users.length === 0 ? (
+          <EmptyState icon="users" title="No users found" />
+        ) : (
+          <>
+            <Table label="Users">
+              <TableHead>
+                <TableRow>
+                  <TableHeaderCell>Name</TableHeaderCell>
+                  <TableHeaderCell>Email</TableHeaderCell>
+                  <TableHeaderCell>Status</TableHeaderCell>
+                  <TableHeaderCell>Last login</TableHeaderCell>
+                  <TableHeaderCell>Actions</TableHeaderCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {users.map((user) => {
-                  const { variant, label } = accountStateBadge(user.account_state)
+                  const status = STATUS_CHIPS[user.account_state]
                   return (
-                    <tr
-                      key={user.id}
-                      className="border-b border-border hover:bg-surface transition-colors duration-fast"
-                    >
-                      <td className="px-6 py-4 font-mono text-body text-text-primary whitespace-nowrap">
+                    <TableRow key={user.id}>
+                      <TableCell className="whitespace-nowrap font-semibold">
                         {user.first_name} {user.last_name}
-                      </td>
-                      <td className="px-6 py-4 font-sans text-body text-text-secondary">
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap text-text-secondary">
                         {user.email}
-                      </td>
-                      <td className="px-6 py-4">
-                        <Badge variant={variant}>{label}</Badge>
-                      </td>
-                      <td className="px-6 py-4 font-mono text-body text-text-muted whitespace-nowrap">
+                      </TableCell>
+                      <TableCell>
+                        <Chip variant={status.variant}>{status.label}</Chip>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap text-text-secondary">
                         {formatLastLogin(user.last_login_at)}
-                      </td>
-                      <td className="px-6 py-4">
+                      </TableCell>
+                      <TableCell>
                         <RowActions
                           user={user}
                           onSuspend={(id) => void suspend(id)}
                           onActivate={(id) => void activate(id)}
                         />
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   )
                 })}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        {/* Pagination */}
-        {!isLoading && !error && totalPages > 0 && (
-          <Pagination
-            page={page}
-            totalPages={totalPages}
-            total={total}
-            pageSize={PAGE_SIZE}
-            onPrev={() => setPage((p) => p - 1)}
-            onNext={() => setPage((p) => p + 1)}
-          />
+              </TableBody>
+            </Table>
+            {totalPages > 0 && (
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                total={total}
+                pageSize={PAGE_SIZE}
+                onPrev={() => setPage((p) => p - 1)}
+                onNext={() => setPage((p) => p + 1)}
+              />
+            )}
+          </>
         )}
-      </div>
+      </Card>
 
-      <InviteModal
-        isOpen={inviteOpen}
-        onClose={() => setInviteOpen(false)}
-        onSuccess={refetch}
-      />
-    </div>
+      <InviteModal isOpen={inviteOpen} onClose={() => setInviteOpen(false)} onSuccess={refetch} />
+    </>
   )
 }

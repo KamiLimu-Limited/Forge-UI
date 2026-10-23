@@ -37,7 +37,11 @@ export function Select({
       <div className="relative">
         <select
           id={selectId}
-          className={cx(controlClasses(Boolean(error)), 'h-control appearance-none pr-10', className)}
+          className={cx(
+            controlClasses(Boolean(error)),
+            'h-control appearance-none pr-10',
+            className
+          )}
           aria-invalid={error ? true : undefined}
           aria-describedby={fieldDescribedBy(selectId, error, hint)}
           {...rest}

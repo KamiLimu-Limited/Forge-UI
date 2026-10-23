@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
+import { AppShell } from '@/components/layout/AppShell'
 import { RequireAuth } from '@/components/layout/guards'
-import { AdminLayout } from '@/components/layout/AdminLayout'
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -9,7 +9,7 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <RequireAuth>
-      <AdminLayout>{children}</AdminLayout>
+      <AppShell>{children}</AppShell>
     </RequireAuth>
   )
 }

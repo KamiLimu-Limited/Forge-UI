@@ -1,10 +1,14 @@
-import { TopBar } from '@/components/layout/TopBar'
+import { PageHeader } from '@/components/layout/PageHeader'
+import { Card } from '@/components/ui/Card'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export default function DashboardPage() {
   return (
     <>
-      <TopBar title="Dashboard" />
-      <p className="p-6 font-sans text-body text-text-secondary">Your dashboard is on its way.</p>
+      <PageHeader title="Dashboard" />
+      <Card>
+        <EmptyState icon="home" title="Nothing here yet" description="Your dashboard is on its way." />
+      </Card>
     </>
   )
 }

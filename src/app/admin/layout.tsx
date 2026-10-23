@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
+import { AppShell } from '@/components/layout/AppShell'
 import { RequireAdmin } from '@/components/layout/guards'
-import { AdminLayout } from '@/components/layout/AdminLayout'
 
 interface AdminRouteLayoutProps {
   children: ReactNode
@@ -9,7 +9,7 @@ interface AdminRouteLayoutProps {
 export default function AdminRouteLayout({ children }: AdminRouteLayoutProps) {
   return (
     <RequireAdmin>
-      <AdminLayout>{children}</AdminLayout>
+      <AppShell>{children}</AppShell>
     </RequireAdmin>
   )
 }

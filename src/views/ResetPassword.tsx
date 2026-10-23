@@ -62,8 +62,7 @@ export function ResetPassword() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-6 py-12"
-      style={{ backgroundColor: 'var(--color-black)' }}
+      className="min-h-screen flex items-center justify-center px-6 py-12 bg-background"
     >
       <div className="w-full max-w-sm flex flex-col gap-8">
         {/* Logo */}

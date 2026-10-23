@@ -28,6 +28,18 @@ const config: Config = {
         'primary-hover': 'var(--color-primary-hover)',
         'primary-light': 'var(--color-primary-light)',
 
+        // Selected and active states (teal-100 / teal-900 in light mode, flipped in dark)
+        'accent-bg':   'var(--color-accent-bg)',
+        'accent-text': 'var(--color-accent-text)',
+        'accent-icon': 'var(--color-accent-icon)',
+
+        // Text links and active tab labels (teal-700 in light mode)
+        link: 'var(--color-link)',
+
+        // Disabled controls
+        'disabled-bg':   'var(--color-disabled-bg)',
+        'disabled-text': 'var(--color-disabled-text)',
+
         // Brand secondary colours
         auburn:   'var(--color-auburn)',
         gamboge:  'var(--color-gamboge)',
@@ -82,12 +94,14 @@ const config: Config = {
         'surface-raised':'var(--color-surface-raised)',
         border:          'var(--color-border)',
         'border-strong': 'var(--color-border-strong)',
+        overlay:         'var(--color-overlay)',
 
         // Text colours
         'text-primary':   'var(--color-text-primary)',
         'text-secondary': 'var(--color-text-secondary)',
         'text-muted':     'var(--color-text-muted)',
         'text-inverse':   'var(--color-text-inverse)',
+        'text-on-primary': 'var(--color-text-on-primary)',
       },
 
       // -------------------------------------------------------------------------
@@ -101,16 +115,22 @@ const config: Config = {
       },
 
       // Font sizes from the KamiLimu brand kit
+      // Nothing in the UI goes below 12px (text-tab).
       fontSize: {
-        caption:     'var(--text-caption)',     // 8px  — JetBrains Mono
-        body:        'var(--text-body)',         // 12px — Hind Guntur
-        quote:       'var(--text-quote)',        // 16px — Hind Guntur
-        subheading:  'var(--text-subheading)',   // 18px — Hind Guntur
-        section:     'var(--text-section)',      // 20px — JetBrains Mono
-        subtitle:    'var(--text-subtitle)',     // 24px
-        heading:     'var(--text-heading)',      // 32px — JetBrains Mono
-        'subtitle-lg': 'var(--text-subtitle-lg)', // 36px — Hind Guntur
-        title:       'var(--text-title)',        // 42px — JetBrains Mono
+        tab:           'var(--text-tab)',          // 12px: bottom tab labels only
+        caption:       'var(--text-caption)',      // 13px: hints, chips, badges, meta
+        small:         'var(--text-small)',        // 14px: labels, table text
+        body:          'var(--text-body)',         // 15px
+        quote:         'var(--text-quote)',        // 16px
+        'card-title':  'var(--text-card-title)',   // 17px
+        subheading:    'var(--text-subheading)',   // 18px
+        section:       'var(--text-section)',      // 20px
+        'page-mobile': 'var(--text-page-mobile)',  // 22px: page title below md
+        subtitle:      'var(--text-subtitle)',     // 24px: auth card title
+        page:          'var(--text-page)',         // 28px: page title md and up
+        stat:          'var(--text-stat)',         // 32px: stat numbers
+        heading:       'var(--text-heading)',      // 32px
+        title:         'var(--text-title)',        // 42px
       },
 
       // -------------------------------------------------------------------------
@@ -128,6 +148,23 @@ const config: Config = {
         '12': 'var(--space-12)',
         '16': 'var(--space-16)',
         '20': 'var(--space-20)',
+
+        // Component sizes (h-control, w-sidebar, size-avatar, ...)
+        'control-sm':   'var(--size-control-sm)',    // 36px
+        control:        'var(--size-control)',       // 44px, minimum touch target
+        'control-lg':   'var(--size-control-lg)',    // 52px
+        sidebar:        'var(--size-sidebar)',       // 248px
+        avatar:         'var(--size-avatar)',        // 36px
+        'brand-mark':   'var(--size-brand-mark)',    // 30px
+        'tab-icon':     'var(--size-tab-icon)',      // 22px
+      },
+
+      maxWidth: {
+        'auth-card': 'var(--size-auth-card-max)',    // 440px
+      },
+
+      minHeight: {
+        textarea: 'var(--size-textarea-min)',        // 110px
       },
 
       // -------------------------------------------------------------------------
@@ -136,6 +173,7 @@ const config: Config = {
       borderRadius: {
         sm:   'var(--radius-sm)',
         md:   'var(--radius-md)',
+        control: 'var(--radius-control)',
         lg:   'var(--radius-lg)',
         xl:   'var(--radius-xl)',
         '2xl':'var(--radius-2xl)',
@@ -150,6 +188,7 @@ const config: Config = {
         md: 'var(--shadow-md)',
         lg: 'var(--shadow-lg)',
         xl: 'var(--shadow-xl)',
+        card: 'var(--shadow-card)',
       },
 
       // -------------------------------------------------------------------------

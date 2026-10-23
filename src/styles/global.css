@@ -48,8 +48,21 @@
      --------------------------------------------------------------------------- */
 
   --color-primary:              var(--color-teal-500);
-  --color-primary-hover:        var(--color-teal-700);
+  --color-primary-hover:        var(--color-teal-300);
   --color-primary-light:        var(--color-teal-100);
+
+  /* Selected and active states (nav items, segmented control, "on" chips).
+     teal-100 background with teal-900 text in light mode; flipped in dark mode. */
+  --color-accent-bg:            var(--color-teal-100);
+  --color-accent-text:          var(--color-teal-900);
+  --color-accent-icon:          var(--color-teal-700);
+
+  /* Text links and active tab labels. teal-500 text fails contrast on ivory. */
+  --color-link:                 var(--color-teal-700);
+
+  /* Disabled controls */
+  --color-disabled-bg:          #e9ebe3;
+  --color-disabled-text:        #5f6159;
 
   --color-success:              var(--color-calPoly);
   --color-success-bg:           #d3f0dd;
@@ -113,7 +126,8 @@
   --color-text-secondary:       #444444;
   --color-text-muted:           #777777;
   --color-text-inverse:         var(--color-white);
-  --color-text-on-primary:      var(--color-white);
+  /* Black on teal is about 8:1. White on teal is about 2.5:1 and fails WCAG AA. */
+  --color-text-on-primary:      var(--color-black);
 
   /* ---------------------------------------------------------------------------
      Typography
@@ -122,16 +136,21 @@
   /* Font families: --font-mono (JetBrains Mono) and --font-sans (Hind Guntur)
      are set by next/font in src/app/fonts.ts on the <html> element. */
 
-  /* Font sizes — from KamiLimu brand kit */
-  --text-caption:     0.5rem;    /* 8px  — captions (JetBrains Mono) */
-  --text-body:        0.75rem;   /* 12px — body text (Hind Guntur) */
-  --text-quote:       1rem;      /* 16px — quotes (Hind Guntur) */
-  --text-subheading:  1.125rem;  /* 18px — subheadings (Hind Guntur) */
-  --text-section:     1.25rem;   /* 20px — section headers (JetBrains Mono) */
-  --text-subtitle:    1.5rem;    /* 24px — not in kit, interpolated */
-  --text-heading:     2rem;      /* 32px — headings (JetBrains Mono) */
-  --text-subtitle-lg: 2.25rem;   /* 36px — subtitles (Hind Guntur) */
-  --text-title:       2.625rem;  /* 42px — titles (JetBrains Mono) */
+  /* Font sizes. Nothing in the UI goes below 12px. */
+  --text-tab:         0.75rem;    /* 12px: bottom tab bar labels only */
+  --text-caption:     0.8125rem;  /* 13px: hints, chips, badges, meta */
+  --text-small:       0.875rem;   /* 14px: labels, table text */
+  --text-body:        0.9375rem;  /* 15px: body text */
+  --text-quote:       1rem;       /* 16px */
+  --text-card-title:  1.0625rem;  /* 17px: card titles */
+  --text-subheading:  1.125rem;   /* 18px */
+  --text-section:     1.25rem;    /* 20px */
+  --text-page-mobile: 1.375rem;   /* 22px: page title below md */
+  --text-subtitle:    1.5rem;     /* 24px: auth card title */
+  --text-page:        1.75rem;    /* 28px: page title md and up */
+  --text-stat:        2rem;       /* 32px: stat numbers */
+  --text-heading:     2rem;       /* 32px */
+  --text-title:       2.625rem;   /* 42px */
 
   /* Font weights */
   --font-normal:    400;
@@ -165,9 +184,10 @@
      --------------------------------------------------------------------------- */
 
   --radius-sm:    0.25rem;   /* 4px  */
-  --radius-md:    0.5rem;    /* 8px  */
-  --radius-lg:    0.75rem;   /* 12px */
-  --radius-xl:    1rem;      /* 16px */
+  --radius-md:      0.5rem;    /* 8px: nav items, small buttons */
+  --radius-control: 0.625rem;  /* 10px: buttons, inputs, segmented control */
+  --radius-lg:    0.75rem;   /* 12px: cards */
+  --radius-xl:    1rem;      /* 16px: auth card, dialogs */
   --radius-2xl:   1.5rem;    /* 24px */
   --radius-full:  9999px;    /* pill */
 
@@ -179,6 +199,24 @@
   --shadow-md:  0 4px 6px rgba(5, 5, 5, 0.08);
   --shadow-lg:  0 10px 15px rgba(5, 5, 5, 0.1);
   --shadow-xl:  0 20px 25px rgba(5, 5, 5, 0.12);
+  --shadow-card: 0 1px 2px rgba(5, 5, 5, 0.05), 0 4px 14px rgba(5, 5, 5, 0.05);
+
+  /* Dialog backdrop */
+  --color-overlay: rgba(5, 5, 5, 0.5);
+
+  /* ---------------------------------------------------------------------------
+     Component Sizes. 44px is the minimum touch target for anything tappable.
+     --------------------------------------------------------------------------- */
+
+  --size-control-sm:     2.25rem;   /* 36px */
+  --size-control:        2.75rem;   /* 44px */
+  --size-control-lg:     3.25rem;   /* 52px */
+  --size-sidebar:        15.5rem;   /* 248px */
+  --size-avatar:         2.25rem;   /* 36px */
+  --size-brand-mark:     1.875rem;  /* 30px */
+  --size-auth-card-max:  27.5rem;   /* 440px */
+  --size-tab-icon:       1.375rem;  /* 22px: bottom tab bar icons */
+  --size-textarea-min:   6.875rem;  /* 110px */
 
   /* ---------------------------------------------------------------------------
      Transitions
@@ -221,10 +259,27 @@
     --color-text-muted:       #888888;
     --color-text-inverse:     var(--color-black);
 
-    /* Teal stays the same — it works on dark backgrounds */
+    /* Teal stays the same: it works on dark backgrounds */
     --color-primary:          var(--color-teal-500);
     --color-primary-hover:    var(--color-teal-300);
     --color-primary-light:    var(--color-teal-900);
+
+    --color-accent-bg:        var(--color-teal-900);
+    --color-accent-text:      var(--color-teal-100);
+    --color-accent-icon:      var(--color-teal-300);
+    --color-link:             var(--color-teal-300);
+
+    --color-disabled-bg:      #262626;
+    --color-disabled-text:    #9a9a93;
+
+    /* Text on teal stays black in dark mode too */
+    --color-text-on-primary:  var(--color-black);
+
+    /* Status text lightens so it stays readable on the dark status backgrounds */
+    --color-success-text:     #8fd1a8;
+    --color-warning-text:     #f2c14e;
+    --color-danger-text:      #f0a39d;
+    --color-info-text:        #9cc3dc;
 
     /* Semantic backgrounds darken */
     --color-success-bg:       #0e2a1a;
@@ -263,22 +318,28 @@ body {
   font-size: var(--text-body);
   font-weight: var(--font-normal);
   line-height: var(--leading-normal);
+  min-height: 100vh;
   color: var(--color-text-primary);
   background-color: var(--color-background);
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-weight: var(--font-bold);
+  font-weight: var(--font-semibold);
   line-height: var(--leading-tight);
   color: var(--color-text-primary);
 }
 
 a {
-  color: var(--color-primary);
+  color: var(--color-link);
   text-decoration: none;
 }
 
 a:hover {
-  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
 }

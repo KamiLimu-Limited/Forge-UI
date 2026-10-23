@@ -42,7 +42,7 @@ function BrandPanel() {
     <div
       className="relative hidden md:flex flex-col justify-between p-10 lg:p-16 overflow-hidden"
       style={{
-        backgroundColor: 'var(--color-black)',
+        backgroundColor: 'var(--color-background)',
         background: [
           'radial-gradient(ellipse 70% 60% at 20% 55%, rgba(0,180,194,0.13) 0%, transparent 70%)',
           'linear-gradient(rgba(0,180,194,0.04) 1px, transparent 1px)',
@@ -309,8 +309,7 @@ export function Login() {
 
       {/* Right — auth form */}
       <div
-        className="flex flex-1 flex-col justify-center px-6 py-12 md:px-12 lg:px-16"
-        style={{ backgroundColor: 'var(--color-black)' }}
+        className="flex flex-1 flex-col justify-center px-6 py-12 md:px-12 lg:px-16 bg-background"
       >
         <div className="w-full max-w-md mx-auto flex flex-col gap-10">
           {/* Mobile logo */}

@@ -26,6 +26,8 @@ Before building a new component, check `src/components/README.md` for the full l
 ### Component Rules
 
 - Components are functions, never classes
+- Named exports only. The one exception is Next.js route files in `src/app/` (`page.tsx`, `layout.tsx`, `not-found.tsx`), which must use a default export because the framework requires it. Keep them thin: they render a screen from `src/views/` and nothing else.
+- Add `'use client'` at the top of any file that uses hooks, state, effects, browser APIs or event handlers
 - Every component has a TypeScript props interface defined above it
 - Components do not contain business logic — they call hooks and render
 - Every component handles four states: loading, empty, error, and success
@@ -128,7 +130,7 @@ All API calls go through `src/lib/api.ts`. No exceptions.
 **Never call fetch() directly in a component or hook:**
 ```typescript
 // WRONG
-const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/sessions`)
+const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/sessions`)
 
 // CORRECT
 import { api } from '@/lib/api'
@@ -187,7 +189,8 @@ A component that renders nothing while loading, crashes on error, or shows a bla
 |---|---|---|
 | Components | PascalCase | `SessionRow.tsx` |
 | Hooks | camelCase starting with use | `useSessionList.ts` |
-| Pages | PascalCase | `Dashboard.tsx` |
+| Screens (`src/views/`) | PascalCase | `Dashboard.tsx` |
+| Route files (`src/app/`) | Next.js names | `page.tsx`, `layout.tsx` |
 | Types | PascalCase | `Session`, `AttendanceRecord` |
 | CSS variables | kebab-case with prefix | `--color-primary` |
 | Constants | SCREAMING_SNAKE_CASE | `MAX_SKILL_RATING` |

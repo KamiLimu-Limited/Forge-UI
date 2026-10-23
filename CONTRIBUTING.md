@@ -9,7 +9,7 @@ This is the frontend repository for Forge, the mentorship management system for 
 This repo is the frontend only. The backend lives in a separate repository. You do not need to understand the backend codebase to contribute here, but you do need the backend running locally so you can test your work end to end.
 
 Make sure you have:
-- Node.js 18 or higher
+- Node.js 20 or higher
 - The forge-backend running locally at `http://localhost:8000`
 - Read README.md so you understand what Forge is and who uses it
 
@@ -114,6 +114,7 @@ You must have tested the full end to end flow locally before opening a PR. This 
 - You have tested in both light mode and dark mode
 - `npm run lint` passes with no errors
 - `npm run typecheck` passes with no errors
+- `npm run format:check` passes
 
 If any of these are not true, do not open the PR yet.
 

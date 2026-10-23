@@ -4,10 +4,10 @@ You are working on the Forge frontend: the mentorship management system for the 
 
 ## Stack
 
-- React 18 + TypeScript strict mode + Vite + Tailwind CSS
+- Next.js 15 (App Router) + React 19 + TypeScript strict mode + Tailwind CSS
 - Design tokens in `src/styles/global.css` — never hardcode a hex value or pixel value
-- `font-mono` = JetBrains Mono (headings, labels, buttons, captions)
-- `font-sans` = Hind Guntur (body text, subtitles, descriptions)
+- `font-mono` = JetBrains Mono (headings, titles, buttons, numbers)
+- `font-sans` = Hind Guntur (body text, labels, table cells, hints, descriptions)
 - API documentation at `http://localhost:8000/api/v1/docs`
 
 ## What Is Already Built — Do Not Rebuild
@@ -15,14 +15,16 @@ You are working on the Forge frontend: the mentorship management system for the 
 - `src/lib/api.ts` — The only API client. Exports `api` (`api.auth.*`, `api.users.*`) and `tokenStore`. Never use `fetch()` anywhere else.
 - `src/types/auth.ts` — All auth and user type definitions. Add new types to `src/types/` in their own file.
 - `src/hooks/useAuth.ts` — Auth context and `useAuth()` hook. Do not create another auth state mechanism.
-- `src/pages/Login.tsx`, `Activate.tsx`, `ForgotPassword.tsx`, `ResetPassword.tsx` — Complete. Do not rebuild.
+- `src/views/Login.tsx`, `Activate.tsx`, `ForgotPassword.tsx`, `ResetPassword.tsx` — Complete. Do not rebuild. Routes for them live in `src/app/(auth)/`.
+- `src/components/layout/AppShell.tsx` and `guards.tsx` — Signed-in shell and route guards.
 - `src/components/ui/Button.tsx`, `Input.tsx`, `Spinner.tsx` — Exist. Check `src/components/README.md` before building any component.
 
 ## Non-negotiable Rules
 
 ### Components
 - Props interface above every component
-- Named exports only — no `export default`
+- Named exports only — no `export default`, except `page.tsx`, `layout.tsx` and `not-found.tsx` in `src/app/` (Next.js requires them)
+- `'use client'` at the top of any file that uses hooks, state, effects, browser APIs or event handlers
 - Business logic in `src/hooks/` — components call hooks and render, nothing else
 - All four states handled: loading, empty, error, success
 - Every new component has a `.stories.tsx` file alongside it in the same folder
@@ -53,5 +55,6 @@ src/components/layout/  Shell — Sidebar, TopBar, PageWrapper
 src/hooks/              All custom hooks — business logic lives here
 src/lib/api.ts          The only API client
 src/types/              TypeScript types for all API shapes
-src/pages/              One file per route
+src/app/                App Router: one folder per route (page.tsx, layout.tsx)
+src/views/              The screen component each route renders
 ```

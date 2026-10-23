@@ -8,9 +8,9 @@ Other AI agents working in this repo have their own config files — see AGENTS.
 
 ## The Stack
 
-- React 18 with TypeScript (strict mode)
-- Vite as the build tool
-- Tailwind CSS for styling
+- Next.js 15 (App Router) with React 19 and TypeScript (strict mode)
+- Tailwind CSS 3 for styling
+- Storybook 8 with the `@storybook/nextjs` framework
 - CSS custom properties in `src/styles/global.css` for all design tokens
 
 ---
@@ -20,21 +20,24 @@ Other AI agents working in this repo have their own config files — see AGENTS.
 The following are complete and must not be rebuilt or duplicated.
 
 ### Foundation
-- `src/vite-env.d.ts` — Vite type reference. Provides `import.meta.env` types. Do not delete.
-- `src/styles/global.css` — Design tokens and base styles. `@import` for Google Fonts must stay above the `@tailwind` directives. Body default font is JetBrains Mono.
+- `src/app/layout.tsx` — Root layout. Imports `global.css`, sets metadata, loads the fonts from `src/app/fonts.ts` (next/font exposes `--font-mono` and `--font-sans`) and mounts `<Providers>` (`src/app/providers.tsx`, which mounts `<AuthProvider>`).
+- `src/styles/global.css` — Design tokens and base styles. Body default font is Hind Guntur (`font-sans`) at 15px; headings use JetBrains Mono (`font-mono`).
 - `src/lib/api.ts` — The only API client. Exports `api` (typed namespaces: `api.auth.*`, `api.users.*`) and `tokenStore` (JWT read/write/clear). Handles automatic token refresh on 401. Never add a `fetch()` call anywhere else.
 - `src/types/auth.ts` — All type definitions for the auth and user domain: `UserRole`, `AccountState`, `UserProfileResponse`, `TokenResponse`, `ApiError`, and all request/response shapes. Add new API types to `src/types/` in their own file as new domains are built.
 
 ### Auth Infrastructure
-- `src/hooks/useAuth.ts` — Auth context and hook. Exports `<AuthProvider>` (mounted in `App.tsx`) and `useAuth()` which returns `{ user, isAuthenticated, isLoading, error, login, logout, clearError }`. Do not create another auth state mechanism.
-- `src/App.tsx` — Router, `<AuthProvider>`, `<RequireAuth>` and `<RedirectIfAuthed>` wrappers. Add new routes here only.
+- `src/hooks/useAuth.ts` — Auth context and hook. Exports `<AuthProvider>` (mounted in `src/app/providers.tsx`) and `useAuth()` which returns `{ user, isAuthenticated, isLoading, error, login, logout, clearError }`. Do not create another auth state mechanism.
+- `src/components/layout/guards.tsx` — `<RequireAuth>`, `<RedirectIfAuthed>` and `<RequireAdmin>` client guards. Use them in route layouts and pages.
+- `src/components/layout/AppShell.tsx` — Role-aware shell for signed-in routes. Nav links per role live in `src/components/layout/navConfig.ts`.
+- `src/lib/roles.ts` — `ROLE_LABELS`, `roleLabel()` and `ALL_ROLES`. Use these wherever a role is shown.
 
 ### Auth Pages
-All four auth pages are complete. Do not rebuild them.
-- `src/pages/Login.tsx` — Two-step flow: email (Step 1) then password (Step 2). Handles login via `useAuth`.
-- `src/pages/Activate.tsx` — Account activation. Reads `?token=` from URL, sets password, auto-logs in.
-- `src/pages/ForgotPassword.tsx` — Requests a password reset email.
-- `src/pages/ResetPassword.tsx` — Completes reset. Reads `?token=` from URL.
+All four auth screens are complete. Do not rebuild them. Their form logic lives in hooks in `src/hooks/`.
+- `src/views/Login.tsx` — Single-step sign in (email and password). Logic in `useLoginForm`.
+- `src/views/Activate.tsx` — Account activation. Reads `?token=` from the URL, sets a password, signs the user in. Logic in `useActivateAccount`.
+- `src/views/ForgotPassword.tsx` — Requests a password reset email. Logic in `useRequestPasswordReset`.
+- `src/views/ResetPassword.tsx` — Completes a reset. Reads `?token=` from the URL. Logic in `useResetPassword`.
+- `src/views/admin/Users.tsx` — Admin user list, filters, suspend and reactivate, and the invite dialog.
 
 ### UI Components
 Check `src/components/README.md` for the complete up-to-date list of every component in `src/components/ui/`, `src/components/forge/`, and `src/components/layout/`. Always check this file before building anything new.
@@ -72,7 +75,9 @@ src/lib/api.ts          The only place API calls are made — never use fetch() 
 
 src/types/              TypeScript type definitions for all API response shapes
 
-src/pages/              One file per route
+src/app/                Next.js App Router: one folder per route (page.tsx, layout.tsx)
+
+src/views/              The screen component each route renders
 ```
 
 ### Component Structure
@@ -85,7 +90,7 @@ interface ComponentNameProps {
   // typed props
 }
 
-// 2. Named export (not default export)
+// 2. Named export (not default export; only page.tsx and layout.tsx use default exports)
 export function ComponentName({ prop1, prop2 }: ComponentNameProps) {
   // 3. Hooks called at the top
   // 4. Render logic — no fetch calls, no business logic
@@ -148,10 +153,46 @@ All of these are defined as tokens in global.css. Use the token names, not the h
 
 ### KamiLimu Brand Fonts
 
-- JetBrains Mono — titles, headings, section headers, captions
-- Hind Guntur — subtitles, subheadings, body text, quotes
+- JetBrains Mono — headings, page titles, card titles, the brand wordmark, buttons and numbers
+- Hind Guntur — body text, labels, table cells, hints and descriptions
 
-Both are loaded via Google Fonts. Use `font-mono` for JetBrains Mono and `font-sans` for Hind Guntur in Tailwind classes.
+Both are loaded with `next/font/google` in `src/app/fonts.ts`. Use `font-mono` for JetBrains Mono and `font-sans` for Hind Guntur in Tailwind classes.
+
+---
+
+## Routing
+
+- Routes live in `src/app/`. Each route folder has a `page.tsx` that only renders a screen from `src/views/`. Shared wrappers (guards, `AppShell`) go in that route's `layout.tsx`.
+- Do not create `src/pages/`. Next.js treats it as the Pages Router.
+- The auth screens sit in the `(auth)` route group. `/dashboard` uses `RequireAuth` plus `AppShell`; everything under `/admin` uses `RequireAdmin` plus `AppShell`.
+- A screen that reads `useSearchParams()` must be wrapped in `<Suspense>` in its `page.tsx`, or the static build fails.
+- Navigate with `useRouter`, `usePathname` and `useSearchParams` from `next/navigation`, and link with `next/link`. Never use a plain `<a href>` for an internal link.
+- Auth tokens are in `localStorage`, so auth is client-side only. Do not move it to cookies or middleware.
+- Add `'use client'` at the top of any file that uses hooks, state, effects, browser APIs or event handlers. Files without it are server components.
+- Default exports are only allowed in `page.tsx`, `layout.tsx` and `not-found.tsx`, because Next.js requires them. Everything else uses named exports.
+- The API base URL is `process.env.NEXT_PUBLIC_API_BASE_URL`. Only `NEXT_PUBLIC_` variables reach the browser.
+
+---
+
+## Design rules
+
+**Copy**
+- Sentence case everywhere. No uppercase labels and no letter-spaced captions. The FORGE wordmark is the only uppercase text.
+- No "Step 01" counters, taglines, marketing lines, decorative grids or gradients.
+- Plain language a student understands. No em dashes in UI copy. No trailing full stops in titles.
+- No emoji or unicode symbols as icons. Use `<Icon>` (inline SVG, `aria-hidden`) next to visible text, or give the control an `aria-label`.
+
+**Type**
+- Body text is `font-sans` (Hind Guntur) at 15px (`text-body`).
+- `font-mono` (JetBrains Mono) at weight 600 for headings, page titles, card titles, buttons and numbers.
+- Sizes: `text-caption` 13px (hints, chips, badges), `text-small` 14px (labels, table text), `text-body` 15px, `text-card-title` 17px, `text-page-mobile` 22px and `text-page` 28px (page titles), `text-subtitle` 24px (auth card title), `text-stat` 32px. Nothing goes below 12px (`text-tab` is for the bottom tab bar only).
+
+**Sizing and colour**
+- Anything tappable is at least 44px (`h-control`). Small 36px controls stretch their hit area with a `::before` layer.
+- Radius: `rounded-md` (8px) for nav items and small buttons, `rounded-control` (10px) for buttons and inputs, `rounded-lg` (12px) for cards, `rounded-xl` (16px) for the auth card and dialogs.
+- Cards use `shadow-card`. Text on teal is black (`text-text-on-primary`); never white.
+- Selected states use `bg-accent-bg text-accent-text`, links use `text-link`, disabled controls use `bg-disabled-bg text-disabled-text`. These tokens flip correctly in dark mode.
+- Page backgrounds are always `bg-background`. Never use `var(--color-black)` as a background.
 
 ---
 
@@ -161,7 +202,7 @@ All API calls go through `src/lib/api.ts`. Never call `fetch()` directly anywher
 
 ```typescript
 // WRONG
-const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/sessions/${id}`)
+const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/sessions/${id}`)
 
 // CORRECT
 import { api } from '@/lib/api'

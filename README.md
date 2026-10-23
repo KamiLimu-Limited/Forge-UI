@@ -32,7 +32,7 @@ KamiLimu has historically run its operations across Google Sheets, Google Forms,
     |
     | HTTP REST + JWT
     v
-[forge-frontend: React on Vercel]
+[forge-frontend: Next.js on Vercel]
     |
     | HTTP REST + JWT
     v
@@ -55,9 +55,8 @@ This repo is the frontend only. It consumes the backend REST API. It does not co
 
 | Layer | Technology |
 |---|---|
-| Framework | React 18 |
+| Framework | Next.js 15 (App Router) with React 19 |
 | Language | TypeScript (strict mode) |
-| Build tool | Vite |
 | Styling | Tailwind CSS + CSS custom properties |
 | Component explorer | Storybook |
 | Linting | ESLint |
@@ -71,8 +70,10 @@ This repo is the frontend only. It consumes the backend REST API. It does not co
 ```
 forge-frontend/
 ├── public/
-│   └── logos/                  # KamiLimu logo assets
+│   └── logos/                  # KamiLimu logo assets and favicon
+├── .storybook/                 # Storybook config (@storybook/nextjs)
 ├── src/
+│   ├── app/                    # Next.js App Router: one folder per route
 │   ├── components/
 │   │   ├── ui/                 # Generic reusable components (Button, Badge, Card)
 │   │   ├── forge/              # Forge domain components (SessionRow, GraduationStatus)
@@ -80,7 +81,7 @@ forge-frontend/
 │   ├── hooks/                  # All custom React hooks
 │   ├── lib/
 │   │   └── api.ts              # Centralised API client — all API calls go here
-│   ├── pages/                  # One file per route
+│   ├── views/                  # The screen component each route renders
 │   ├── styles/
 │   │   └── global.css         # All design tokens — single source of truth
 │   └── types/                  # TypeScript type definitions for all API responses
@@ -93,7 +94,7 @@ forge-frontend/
 ├── .env.example                # All required environment variables documented
 ├── CLAUDE.md                   # Instructions for Claude Code
 ├── CONTRIBUTING.md             # How to contribute to this repo
-├── CONVENTIONS.md              # Code and design standards
+├── CONVECTIONS.md              # Code and design standards
 └── README.md
 ```
 
@@ -103,7 +104,7 @@ forge-frontend/
 
 ### Prerequisites
 
-- Node.js 18 or higher
+- Node.js 20 or higher
 - The forge-backend running locally at `http://localhost:8000`
 - Git
 
@@ -123,7 +124,7 @@ cp .env.example .env.local
 
 # 4. Start the development server
 npm run dev
-# App runs at http://localhost:5173
+# App runs at http://localhost:3000
 
 # 5. View the component library
 npm run storybook
@@ -133,13 +134,15 @@ npm run storybook
 ### Available Scripts
 
 ```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run preview      # Preview production build locally
-npm run lint         # Run ESLint
-npm run typecheck    # Run TypeScript type checker
-npm run format       # Run Prettier
-npm run storybook    # Start Storybook component explorer
+npm run dev              # Start the Next.js development server
+npm run build            # Build for production
+npm run start            # Serve the production build locally
+npm run lint             # Run ESLint (zero warnings allowed)
+npm run typecheck        # Run TypeScript type checker
+npm run format           # Run Prettier
+npm run format:check     # Check formatting (CI runs this)
+npm run storybook        # Start Storybook component explorer
+npm run build-storybook  # Build a static Storybook
 ```
 
 ---
@@ -147,6 +150,10 @@ npm run storybook    # Start Storybook component explorer
 ## Environment Variables
 
 See `.env.example` for all required variables and instructions on where to get each value.
+
+| Variable | Purpose |
+|---|---|
+| `NEXT_PUBLIC_API_BASE_URL` | Backend base URL, no trailing slash. Only `NEXT_PUBLIC_` variables reach the browser. |
 
 ---
 

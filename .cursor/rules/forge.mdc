@@ -10,10 +10,10 @@ You are working on the Forge frontend: the mentorship management system for the 
 
 ## Stack
 
-- React 18 + TypeScript strict mode + Vite + Tailwind CSS
+- Next.js 15 (App Router) + React 19 + TypeScript strict mode + Tailwind CSS
 - Design tokens in `src/styles/global.css` — never hardcode a hex or pixel value
-- `font-mono` = JetBrains Mono (headings, labels, buttons, captions)
-- `font-sans` = Hind Guntur (body text, subtitles, descriptions)
+- `font-mono` = JetBrains Mono (headings, titles, buttons, numbers)
+- `font-sans` = Hind Guntur (body text, labels, table cells, hints, descriptions)
 - API documentation at `http://localhost:8000/api/v1/docs`
 
 ## What Is Already Built — Do Not Rebuild
@@ -21,13 +21,15 @@ You are working on the Forge frontend: the mentorship management system for the 
 - `src/lib/api.ts` — API client. Use `api.auth.*` and `api.users.*`. Never call `fetch()` anywhere else.
 - `src/types/auth.ts` — All auth and user type definitions.
 - `src/hooks/useAuth.ts` — Auth context. Use `useAuth()` to access the current user. Do not create another auth mechanism.
-- `src/pages/Login.tsx`, `Activate.tsx`, `ForgotPassword.tsx`, `ResetPassword.tsx` — Complete auth pages.
+- `src/views/Login.tsx`, `Activate.tsx`, `ForgotPassword.tsx`, `ResetPassword.tsx` — Complete auth screens, routed from `src/app/(auth)/`.
+- `src/components/layout/AppShell.tsx` and `guards.tsx` — Signed-in shell and route guards.
 - `src/components/ui/Button.tsx`, `Input.tsx`, `Spinner.tsx` — Do not duplicate. Check `src/components/README.md` before building any component.
 
 ## Component Rules
 
 - Props interface defined above the component
-- Named exports only — never `export default`
+- Named exports only — never `export default`, except `page.tsx`, `layout.tsx` and `not-found.tsx` in `src/app/` (Next.js requires them)
+- `'use client'` at the top of any file that uses hooks, state, effects, browser APIs or event handlers
 - No business logic in components — put it in a hook in `src/hooks/`
 - Every component handles: loading, empty, error, and success states
 - Every new component ships with a `.stories.tsx` alongside it
@@ -58,7 +60,7 @@ className="flex-col md:flex-row"
 
 ```tsx
 // WRONG
-const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/sessions`)
+const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/sessions`)
 
 // CORRECT
 import { api } from '@/lib/api'

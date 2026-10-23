@@ -8,12 +8,16 @@ node_modules/
 .pnp.js
 
 # Build output
-dist/
-dist-ssr/
+.next/
+out/
 build/
+next-env.d.ts
 
 # Storybook build
 storybook-static/
+
+# Playwright screenshots (local verification only)
+screenshots/
 
 # Environment variables — never commit these
 .env
@@ -22,9 +26,6 @@ storybook-static/
 .env.development.local
 .env.test.local
 .env.production.local
-
-# Vite
-*.local
 
 # TypeScript
 *.tsbuildinfo

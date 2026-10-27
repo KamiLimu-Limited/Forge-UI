@@ -7,7 +7,7 @@ import '@/styles/global.css'
 export const metadata: Metadata = {
   title: 'Forge',
   description: 'The operational backbone of the KamiLimu mentorship programme.',
-  icons: { icon: '/logos/favicon.svg' },
+  icons: { icon: '/logos/favicon.png', apple: '/logos/apple-touch-icon.png' },
 }
 
 interface RootLayoutProps {

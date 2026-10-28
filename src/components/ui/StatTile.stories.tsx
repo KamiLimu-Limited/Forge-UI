@@ -19,3 +19,11 @@ export const Empty: Story = { args: { label: 'Sessions attended', value: null } 
 export const WithError: Story = {
   args: { label: 'Sessions attended', value: null, error: 'Could not load this number.' },
 }
+export const AsLink: Story = {
+  args: {
+    label: 'Pending override requests',
+    value: 3,
+    href: '/admin/attendance-queue',
+    linkLabel: 'Open the queue',
+  },
+}

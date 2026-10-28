@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation'
+import { OverviewPage } from '@/views/admin/Overview'
 
 export default function AdminIndexPage() {
-  redirect('/admin/users')
+  return <OverviewPage />
 }

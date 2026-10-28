@@ -42,6 +42,17 @@ const sizes: Record<ButtonSize, string> = {
   lg: 'h-control-lg rounded-control px-6 text-body',
 }
 
+// Classes for anything that should look like a Button, such as ButtonLink
+export function buttonClasses(
+  variant: ButtonVariant = 'primary',
+  size: ButtonSize = 'md',
+  fullWidth = false
+): string {
+  return cx(base, variants[variant], sizes[size], fullWidth && 'w-full')
+}
+
+export type { ButtonVariant, ButtonSize }
+
 export function Button({
   variant = 'primary',
   size = 'md',
@@ -56,7 +67,7 @@ export function Button({
   return (
     <button
       type={type}
-      className={cx(base, variants[variant], sizes[size], fullWidth && 'w-full', className)}
+      className={cx(buttonClasses(variant, size, fullWidth), className)}
       disabled={disabled === true || isLoading}
       aria-busy={isLoading || undefined}
       {...rest}

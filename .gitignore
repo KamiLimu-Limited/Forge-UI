@@ -84,3 +84,6 @@ Desktop.ini
 # Misc
 *.pem
 *.local
+
+# Design references (local only)
+design-reference/

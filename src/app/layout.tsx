@@ -6,7 +6,7 @@ import { Providers } from './providers'
 import '@/styles/global.css'
 
 export const metadata: Metadata = {
-  title: 'KamiLimu',
+  title: 'KamiLimu Dashboard',
   description: 'The operational backbone of the KamiLimu mentorship programme.',
   icons: { icon: '/logos/favicon.png', apple: '/logos/apple-touch-icon.png' },
 }

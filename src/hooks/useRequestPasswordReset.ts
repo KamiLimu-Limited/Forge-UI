@@ -32,7 +32,7 @@ export function useRequestPasswordReset(): UseRequestPasswordResetReturn {
       setStatus('sent')
     } catch (err) {
       // The API always answers with success, so only network problems land here
-      setError(err instanceof ApiError ? err.body.error : 'Something went wrong. Please try again.')
+      setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
       setStatus('idle')
     }
   }

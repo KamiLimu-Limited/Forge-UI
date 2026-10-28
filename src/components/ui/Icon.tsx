@@ -3,9 +3,21 @@ import { cx } from '@/lib/cx'
 
 export type IconName =
   | 'alert'
+  | 'arrow-left'
+  | 'calendar'
   | 'check'
   | 'chevron-down'
+  | 'chevron-left'
+  | 'chevron-right'
+  | 'chevron-up'
   | 'close'
+  | 'grip'
+  | 'menu'
+  | 'monitor'
+  | 'moon'
+  | 'search'
+  | 'sun'
+  | 'upload'
   | 'eye'
   | 'eye-off'
   | 'home'
@@ -30,8 +42,49 @@ const paths: Record<IconName, ReactNode> = {
       <path d="M12 16.5h.01" />
     </>
   ),
+  'arrow-left': <path d="M19 12H5M11 6l-6 6 6 6" />,
+  calendar: (
+    <>
+      <rect x="4" y="5.5" width="16" height="14" rx="2" />
+      <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" />
+    </>
+  ),
   check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
   'chevron-down': <path d="M6 9l6 6 6-6" />,
+  'chevron-left': <path d="M15 6l-6 6 6 6" />,
+  'chevron-right': <path d="M9 6l6 6-6 6" />,
+  'chevron-up': <path d="M6 15l6-6 6 6" />,
+  grip: (
+    <>
+      <path d="M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01" strokeWidth={3} />
+    </>
+  ),
+  menu: <path d="M4 7h16M4 12h16M4 17h16" />,
+  monitor: (
+    <>
+      <rect x="3.5" y="4.5" width="17" height="11.5" rx="1.5" />
+      <path d="M9 20h6M12 16v4" />
+    </>
+  ),
+  moon: <path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z" />,
+  search: (
+    <>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="M16 16l4 4" />
+    </>
+  ),
+  sun: (
+    <>
+      <circle cx="12" cy="12" r="3.75" />
+      <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4" />
+    </>
+  ),
+  upload: (
+    <>
+      <path d="M12 15V4.5M7.5 9L12 4.5 16.5 9" />
+      <path d="M4.5 15v4.5h15V15" />
+    </>
+  ),
   close: <path d="M6 6l12 12M18 6L6 18" />,
   eye: (
     <>

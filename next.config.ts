@@ -18,5 +18,8 @@ export default function config(phase: string): NextConfig {
   if (phase === PHASE_PRODUCTION_BUILD) assertApiBaseUrl()
   return {
     reactStrictMode: true,
+    // NEXT_DIST_DIR lets a local check build (for example .next-verify) run while
+    // `npm run dev` is using .next. Vercel leaves it unset.
+    distDir: process.env.NEXT_DIST_DIR || '.next',
   }
 }

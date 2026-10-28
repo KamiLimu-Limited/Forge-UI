@@ -241,8 +241,11 @@
    Dark Mode
    ============================================================================= */
 
+/* Dark mode follows the system setting unless the viewer picks a theme.
+   The toggle sets data-theme="light" or "dark" on <html> (see useTheme). */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
     /* Surfaces */
     --color-background: var(--color-black);
     --color-surface: #111111;
@@ -292,6 +295,62 @@
     --color-track-scholarship-bg: #0e2a1a;
     --color-track-community-bg: #1a1a1a;
   }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  /* Surfaces */
+  --color-background: var(--color-black);
+  --color-surface: #111111;
+  --color-surface-raised: #1a1a1a;
+  --color-border: #2a2a2a;
+  --color-border-strong: #3a3a3a;
+
+  /* Text */
+  --color-text-primary: var(--color-ivory);
+  --color-text-secondary: #cccccc;
+  --color-text-muted: #888888;
+  --color-text-inverse: var(--color-black);
+
+  /* Teal stays the same: it works on dark backgrounds */
+  --color-primary: var(--color-teal-500);
+  --color-primary-hover: var(--color-teal-300);
+  --color-primary-light: var(--color-teal-900);
+
+  --color-accent-bg: var(--color-teal-900);
+  --color-accent-text: var(--color-teal-100);
+  --color-accent-icon: var(--color-teal-300);
+  --color-link: var(--color-teal-300);
+
+  --color-disabled-bg: #262626;
+  --color-disabled-text: #9a9a93;
+
+  /* Text on teal stays black in dark mode too */
+  --color-text-on-primary: var(--color-black);
+
+  /* Status text lightens so it stays readable on the dark status backgrounds */
+  --color-success-text: #8fd1a8;
+  --color-warning-text: #f2c14e;
+  --color-danger-text: #f0a39d;
+  --color-info-text: #9cc3dc;
+
+  /* Semantic backgrounds darken */
+  --color-success-bg: #0e2a1a;
+  --color-warning-bg: #2a1e00;
+  --color-danger-bg: #2a0e0e;
+  --color-info-bg: #0e1e2a;
+
+  /* Track backgrounds darken */
+  --color-track-ict-bg: var(--color-teal-900);
+  --color-track-innovation-bg: #0e1e2a;
+  --color-track-personal-dev-bg: #2a1e00;
+  --color-track-professional-dev-bg: #2a0e0e;
+  --color-track-scholarship-bg: #0e2a1a;
+  --color-track-community-bg: #1a1a1a;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
 }
 
 /* =============================================================================

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { KamiLimuLogo } from './KamiLimuLogo'
 
 interface AuthLayoutProps {
@@ -19,6 +20,7 @@ export function AuthLayout({ title, description, children }: AuthLayoutProps) {
         </div>
         {children}
       </div>
+      <ThemeToggle className="mt-6" />
     </main>
   )
 }

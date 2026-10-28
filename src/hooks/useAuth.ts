@@ -97,7 +97,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const user = await api.users.getMe()
       dispatch({ type: 'SET_USER', user })
     } catch (err) {
-      const message = err instanceof ApiError ? err.body.error : 'Login failed. Please try again.'
+      const message = err instanceof ApiError ? err.message : 'Login failed. Please try again.'
       dispatch({ type: 'ERROR', message })
       throw err
     }

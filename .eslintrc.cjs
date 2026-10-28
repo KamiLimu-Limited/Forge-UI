@@ -8,6 +8,7 @@ module.exports = {
   ],
   ignorePatterns: [
     '.next',
+    '.next-verify',
     'node_modules',
     'storybook-static',
     'screenshots',

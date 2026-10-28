@@ -48,7 +48,7 @@ export function useResetPassword(token: string): UseResetPasswordReturn {
       setStatus('done')
       timer.current = setTimeout(() => router.replace('/login'), REDIRECT_DELAY_MS)
     } catch (err) {
-      setError(err instanceof ApiError ? err.body.error : 'Something went wrong. Please try again.')
+      setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
       setStatus('idle')
     }
   }

@@ -5,6 +5,15 @@ const config: Config = {
     './src/**/*.{ts,tsx}',
   ],
 
+  // dark: follows the system unless <html data-theme> picks light or dark (see useTheme)
+  darkMode: [
+    'variant',
+    [
+      "@media (prefers-color-scheme: dark) { &:not([data-theme='light'] *) }",
+      "&:is([data-theme='dark'] *)",
+    ],
+  ],
+
   theme: {
     extend: {
 

@@ -1,451 +1,346 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useMemo, useState } from 'react'
+import Link from 'next/link'
+import { InviteUserForm } from '@/components/forge/InviteUserForm'
+import { StatusChip } from '@/components/forge/StatusChip'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/Button'
+import { ButtonLink } from '@/components/ui/ButtonLink'
 import { Card } from '@/components/ui/Card'
-import { Chip, type ChipVariant } from '@/components/ui/Chip'
-import { EmptyState } from '@/components/ui/EmptyState'
-import { Icon } from '@/components/ui/Icon'
+import { Chip } from '@/components/ui/Chip'
+import { DataTable, type DataTableColumn } from '@/components/ui/DataTable'
 import { Input } from '@/components/ui/Input'
-import { Modal } from '@/components/ui/Modal'
-import { SegmentedControl } from '@/components/ui/SegmentedControl'
-import { Spinner } from '@/components/ui/Spinner'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table'
-import { useAdminUsers } from '@/hooks/useAdminUsers'
-import { useInviteUser } from '@/hooks/useInviteUser'
-import { ALL_ROLES, roleLabel } from '@/lib/roles'
-import type { AdminUserListResponse } from '@/types/admin'
+import { Notice } from '@/components/ui/Notice'
+import { Select } from '@/components/ui/Select'
+import { useActiveCohort } from '@/hooks/useActiveCohort'
+import { useInvitations } from '@/hooks/useInvitations'
+import { useToast } from '@/hooks/useToast'
+import { useUsersDirectory } from '@/hooks/useUsersDirectory'
+import { fullName } from '@/lib/format'
+import { ACCOUNT_STATE_LABELS } from '@/lib/labels'
+import { roleLabel } from '@/lib/roles'
+import type { AdminUserDetailResponse } from '@/types/admin'
 import type { AccountState, UserRole } from '@/types/auth'
-
-// ---------------------------------------------------------------------------
-// Display helpers
-// ---------------------------------------------------------------------------
-
-const STATUS_CHIPS: Record<AccountState, { variant: ChipVariant; label: string }> = {
-  active: { variant: 'ok', label: 'Active' },
-  pending: { variant: 'warn', label: 'Pending' },
-  suspended: { variant: 'err', label: 'Suspended' },
-}
-
-function formatLastLogin(value: string | null): string {
-  if (!value) return 'Never'
-  return new Date(value).toLocaleDateString('en-KE', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
-}
-
-type StatusFilter = 'all' | AccountState
-
-const FILTERS: { value: StatusFilter; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'active', label: 'Active' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'suspended', label: 'Suspended' },
-]
-
-// ---------------------------------------------------------------------------
-// Invite modal
-// ---------------------------------------------------------------------------
-
-interface InviteFormState {
-  email: string
-  first_name: string
-  last_name: string
-  roles: UserRole[]
-}
-
-const EMPTY_FORM: InviteFormState = { email: '', first_name: '', last_name: '', roles: [] }
-
-interface InviteModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSuccess: () => void
-}
-
-function InviteModal({ isOpen, onClose, onSuccess }: InviteModalProps) {
-  const { invite, isLoading, error, success, reset } = useInviteUser()
-  const [form, setForm] = useState<InviteFormState>(EMPTY_FORM)
-
-  const isComplete =
-    form.email.trim() !== '' &&
-    form.first_name.trim() !== '' &&
-    form.last_name.trim() !== '' &&
-    form.roles.length > 0
-
-  const toggleRole = (role: UserRole) => {
-    setForm((prev) => ({
-      ...prev,
-      roles: prev.roles.includes(role)
-        ? prev.roles.filter((r) => r !== role)
-        : [...prev.roles, role],
-    }))
-  }
-
-  const handleClose = () => {
-    reset()
-    setForm(EMPTY_FORM)
-    onClose()
-  }
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    if (!isComplete) return
-    await invite({ ...form, email: form.email.trim() })
-  }
-
-  if (success) {
-    return (
-      <Modal
-        isOpen={isOpen}
-        onClose={handleClose}
-        title="Invite sent"
-        footer={
-          <>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                reset()
-                setForm(EMPTY_FORM)
-              }}
-            >
-              Invite another
-            </Button>
-            <Button
-              onClick={() => {
-                handleClose()
-                onSuccess()
-              }}
-            >
-              Done
-            </Button>
-          </>
-        }
-      >
-        <div className="flex flex-col items-center gap-3 py-4 text-center">
-          <span className="flex size-12 items-center justify-center rounded-full bg-success-bg text-success-text">
-            <Icon name="check" className="size-6" />
-          </span>
-          <p className="font-sans text-body text-text-primary">
-            Invitation sent to <span className="font-semibold">{form.email.trim()}</span>
-          </p>
-          <p className="font-sans text-body text-text-secondary">
-            They&apos;ll get an activation link by email.
-          </p>
-        </div>
-      </Modal>
-    )
-  }
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      title="Invite user"
-      width="lg"
-      footer={
-        <>
-          <Button variant="secondary" onClick={handleClose} disabled={isLoading}>
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            form="invite-user-form"
-            isLoading={isLoading}
-            disabled={!isComplete}
-          >
-            Send invite
-          </Button>
-        </>
-      }
-    >
-      <form
-        id="invite-user-form"
-        onSubmit={(e) => {
-          void handleSubmit(e)
-        }}
-        noValidate
-        className="flex flex-col gap-5"
-      >
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-          <Input
-            label="First name"
-            value={form.first_name}
-            onChange={(e) => setForm((p) => ({ ...p, first_name: e.target.value }))}
-            autoComplete="off"
-            required
-          />
-          <Input
-            label="Last name"
-            value={form.last_name}
-            onChange={(e) => setForm((p) => ({ ...p, last_name: e.target.value }))}
-            autoComplete="off"
-            required
-          />
-        </div>
-        <Input
-          label="Email"
-          type="email"
-          placeholder="you@example.com"
-          value={form.email}
-          onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-          autoComplete="off"
-          required
-        />
-
-        <fieldset className="flex flex-col gap-2" aria-describedby="invite-roles-hint">
-          <legend className="pb-2 font-sans text-small font-semibold text-text-primary">
-            Roles
-          </legend>
-          <div className="flex flex-wrap gap-2">
-            {ALL_ROLES.map((role) => {
-              const isOn = form.roles.includes(role)
-              return (
-                <Chip
-                  key={role}
-                  variant={isOn ? 'on' : 'default'}
-                  pressed={isOn}
-                  onClick={() => toggleRole(role)}
-                >
-                  {roleLabel(role)}
-                </Chip>
-              )
-            })}
-          </div>
-          <p id="invite-roles-hint" className="font-sans text-caption text-text-muted">
-            Pick at least one role.
-          </p>
-        </fieldset>
-
-        {error && (
-          <p role="alert" className="font-sans text-small text-danger-text">
-            {error}
-          </p>
-        )}
-      </form>
-    </Modal>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Row actions and pagination
-// ---------------------------------------------------------------------------
-
-interface RowActionsProps {
-  user: AdminUserListResponse
-  onSuspend: (id: string) => void
-  onActivate: (id: string) => void
-}
-
-function RowActions({ user, onSuspend, onActivate }: RowActionsProps) {
-  const name = `${user.first_name} ${user.last_name}`
-  if (user.account_state === 'active') {
-    return (
-      <Button
-        variant="danger"
-        size="sm"
-        onClick={() => onSuspend(user.id)}
-        aria-label={`Suspend ${name}`}
-      >
-        Suspend
-      </Button>
-    )
-  }
-  if (user.account_state === 'suspended') {
-    return (
-      <Button
-        variant="secondary"
-        size="sm"
-        onClick={() => onActivate(user.id)}
-        aria-label={`Reactivate ${name}`}
-      >
-        Reactivate
-      </Button>
-    )
-  }
-  return null
-}
-
-interface PaginationProps {
-  page: number
-  totalPages: number
-  total: number
-  pageSize: number
-  onPrev: () => void
-  onNext: () => void
-}
-
-function Pagination({ page, totalPages, total, pageSize, onPrev, onNext }: PaginationProps) {
-  const from = (page - 1) * pageSize + 1
-  const to = Math.min(page * pageSize, total)
-
-  return (
-    <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-6">
-      <p className="font-sans text-small text-text-secondary">
-        {from} to {to} of {total}
-      </p>
-      <div className="flex gap-2">
-        <Button variant="secondary" size="sm" onClick={onPrev} disabled={page <= 1}>
-          Previous
-        </Button>
-        <Button variant="secondary" size="sm" onClick={onNext} disabled={page >= totalPages}>
-          Next
-        </Button>
-      </div>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Users page
-// ---------------------------------------------------------------------------
+import type { CohortResponse } from '@/types/cohort'
+import type { InvitationResponse } from '@/types/invitation'
 
 const PAGE_SIZE = 20
 
-export function UsersPage() {
-  const [page, setPage] = useState(1)
-  const [filter, setFilter] = useState<StatusFilter>('all')
-  const [inviteOpen, setInviteOpen] = useState(false)
+const ROLE_CHIPS: { value: UserRole | null; label: string }[] = [
+  { value: null, label: 'All' },
+  { value: 'mentee', label: 'Mentees' },
+  { value: 'peer_mentor_1:1', label: '1:1 peer mentors' },
+  { value: 'peer_mentor_ict', label: 'ICT peer mentors' },
+  { value: 'professional_mentor', label: 'Professional mentors' },
+  { value: 'committee', label: 'Committee' },
+  { value: 'admin', label: 'Admins' },
+]
 
-  const {
-    users,
-    total,
-    totalPages,
-    isLoading,
-    error,
-    refetch,
-    suspend,
-    activate,
-    actionError,
-    clearActionError,
-  } = useAdminUsers({
+type Row =
+  | { kind: 'invite'; id: string; invitation: InvitationResponse }
+  | { kind: 'user'; id: string; user: AdminUserDetailResponse }
+
+function cohortNames(ids: Array<string | null>, cohorts: CohortResponse[]): string {
+  const scoped = Array.from(new Set(ids.filter((id): id is string => id !== null)))
+  if (scoped.length === 0) return 'All cohorts'
+  return scoped.map((id) => cohorts.find((c) => c.id === id)?.name ?? 'Another cohort').join(', ')
+}
+
+function rolesText(roles: UserRole[]): string {
+  return Array.from(new Set(roles)).map(roleLabel).join(', ') || 'No role yet'
+}
+
+export function UsersPage() {
+  const { showToast } = useToast()
+  const { cohorts, cohort, cohortId } = useActiveCohort()
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
+  const [role, setRole] = useState<UserRole | null>(null)
+  const [scope, setScope] = useState<'cohort' | 'all'>('cohort')
+  const [accountState, setAccountState] = useState<AccountState | null>(null)
+  const [isInviting, setIsInviting] = useState(false)
+
+  const scopedCohortId = scope === 'cohort' ? cohortId : null
+  const directory = useUsersDirectory({
     page,
     pageSize: PAGE_SIZE,
-    accountState: filter === 'all' ? null : filter,
+    search,
+    role,
+    cohortId: scopedCohortId,
+    accountState,
   })
+  const invites = useInvitations()
 
-  const handleFilterChange = (value: StatusFilter) => {
-    setFilter(value)
-    setPage(1)
+  // Pending invitations that match the filters, shown above the first page
+  const inviteRows = useMemo<Row[]>(() => {
+    if (page !== 1 || (accountState !== null && accountState !== 'pending')) return []
+    const term = search.trim().toLowerCase()
+    return invites.invitations
+      .filter((i) => !scopedCohortId || i.intended_cohort_id === scopedCohortId)
+      .filter((i) => !role || (i.intended_roles ?? []).includes(role))
+      .filter((i) => !term || `${fullName(i)} ${i.email}`.toLowerCase().includes(term))
+      .map((invitation) => ({ kind: 'invite', id: `invite-${invitation.id}`, invitation }))
+  }, [invites.invitations, page, accountState, search, scopedCohortId, role])
+
+  const rows: Row[] = [
+    ...inviteRows,
+    ...directory.users.map((user): Row => ({ kind: 'user', id: user.id, user })),
+  ]
+
+  const resend = async (invitation: InvitationResponse) => {
+    if (await invites.resend(invitation.id)) showToast(`Invitation resent to ${invitation.email}.`)
   }
+  const revoke = async (invitation: InvitationResponse) => {
+    if (await invites.revoke(invitation.id)) showToast(`Invitation to ${invitation.email} revoked.`)
+  }
+  const reactivate = async (user: AdminUserDetailResponse) => {
+    if (await directory.reactivate(user.id)) showToast(`${fullName(user)} can sign in again.`)
+  }
+
+  const columns: DataTableColumn<Row>[] = [
+    {
+      key: 'name',
+      header: 'Name',
+      render: (row) => (
+        <span className="whitespace-nowrap font-semibold">
+          {row.kind === 'user' ? fullName(row.user) : fullName(row.invitation) || 'No name given'}
+        </span>
+      ),
+      sortValue: (row) => (row.kind === 'user' ? fullName(row.user) : fullName(row.invitation)),
+    },
+    {
+      key: 'email',
+      header: 'Email',
+      render: (row) => (
+        <span className="text-text-secondary">
+          {row.kind === 'user' ? row.user.email : row.invitation.email}
+        </span>
+      ),
+      sortValue: (row) => (row.kind === 'user' ? row.user.email : row.invitation.email),
+    },
+    {
+      key: 'role',
+      header: 'Role',
+      render: (row) =>
+        row.kind === 'user'
+          ? rolesText(row.user.roles.map((r) => r.role))
+          : rolesText(row.invitation.intended_roles ?? []),
+    },
+    {
+      key: 'cohort',
+      header: 'Cohort',
+      render: (row) =>
+        row.kind === 'user'
+          ? cohortNames(
+              row.user.roles.map((r) => r.cohort_id),
+              cohorts
+            )
+          : cohortNames([row.invitation.intended_cohort_id], cohorts),
+    },
+    {
+      key: 'account',
+      header: 'Account',
+      render: (row) =>
+        row.kind === 'user' ? (
+          <StatusChip kind="account" status={row.user.account_state} />
+        ) : (
+          <StatusChip kind="invitation" status="pending" />
+        ),
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      alignEnd: true,
+      render: (row) => {
+        if (row.kind === 'invite') {
+          const name = fullName(row.invitation) || row.invitation.email
+          const busy = invites.busyId === row.invitation.id
+          return (
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => void resend(row.invitation)}
+                disabled={busy}
+                aria-label={`Resend invite to ${name}`}
+              >
+                Resend invite
+              </Button>
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() => void revoke(row.invitation)}
+                disabled={busy}
+                aria-label={`Revoke invite to ${name}`}
+              >
+                Revoke
+              </Button>
+            </div>
+          )
+        }
+        const name = fullName(row.user)
+        return (
+          <div className="flex items-center justify-end gap-3">
+            {row.user.account_state === 'suspended' && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => void reactivate(row.user)}
+                disabled={directory.isActing}
+                aria-label={`Reactivate ${name}`}
+              >
+                Reactivate
+              </Button>
+            )}
+            <Link
+              href={`/admin/users/${row.user.id}`}
+              aria-label={`Manage ${name}`}
+              className="relative font-sans text-small font-semibold text-link before:absolute before:-inset-x-2 before:-inset-y-3 before:content-[''] hover:underline"
+            >
+              Manage
+            </Link>
+          </div>
+        )
+      },
+    },
+  ]
+
+  const actionError = invites.actionError ?? directory.actionError
 
   return (
     <>
       <PageHeader
         title="Users"
+        subtitle={
+          scope === 'cohort' && cohort
+            ? `Everyone with a role in ${cohort.name}.`
+            : 'Everyone with access to KamiLimu.'
+        }
         action={
-          <Button onClick={() => setInviteOpen(true)}>
-            <Icon name="plus" className="size-4" />
-            Invite user
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            <ButtonLink variant="secondary" href="/admin/users/import">
+              Import CSV
+            </ButtonLink>
+            <Button onClick={() => setIsInviting(true)}>Invite user</Button>
+          </div>
         }
       />
 
-      <SegmentedControl
-        label="Filter users by status"
-        options={FILTERS}
-        value={filter}
-        onChange={handleFilterChange}
-      />
+      {isInviting && (
+        <InviteUserForm
+          cohorts={cohorts}
+          defaultCohortId={cohortId}
+          onCancel={() => setIsInviting(false)}
+          onInvited={(email) => {
+            showToast(`Invitation sent to ${email}.`)
+            invites.refetch()
+          }}
+        />
+      )}
+
+      <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3 lg:max-w-4xl">
+          <Input
+            type="search"
+            aria-label="Search users"
+            placeholder="Search by name or email"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value)
+              setPage(1)
+            }}
+          />
+          <Select
+            aria-label="Cohort"
+            options={[
+              { value: 'cohort', label: cohort ? `Roles in ${cohort.name}` : 'This cohort' },
+              { value: 'all', label: 'All cohorts' },
+            ]}
+            value={scope}
+            onChange={(e) => {
+              setScope(e.target.value as 'cohort' | 'all')
+              setPage(1)
+            }}
+          />
+          <Select
+            aria-label="Account"
+            options={[
+              { value: '', label: 'Any account status' },
+              ...(Object.keys(ACCOUNT_STATE_LABELS) as AccountState[]).map((s) => ({
+                value: s,
+                label: ACCOUNT_STATE_LABELS[s],
+              })),
+            ]}
+            value={accountState ?? ''}
+            onChange={(e) => {
+              setAccountState((e.target.value || null) as AccountState | null)
+              setPage(1)
+            }}
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Role">
+          <span className="mr-1 font-sans text-small text-text-secondary">Role</span>
+          {ROLE_CHIPS.map((chip) => (
+            <Chip
+              key={chip.label}
+              variant={role === chip.value ? 'on' : 'default'}
+              pressed={role === chip.value}
+              onClick={() => {
+                setRole(chip.value)
+                setPage(1)
+              }}
+            >
+              {chip.label}
+            </Chip>
+          ))}
+        </div>
+      </div>
 
       {actionError && (
-        <div
-          role="alert"
-          className="flex items-center justify-between gap-3 rounded-control border border-auburn bg-danger-bg py-1 pl-4 pr-1 font-sans text-small text-danger-text"
-        >
-          <span>{actionError}</span>
+        <Notice variant="danger">
+          {actionError}{' '}
           <button
             type="button"
-            onClick={clearActionError}
-            aria-label="Dismiss"
-            className="flex size-control shrink-0 items-center justify-center rounded-md hover:bg-surface"
+            className="font-semibold underline"
+            onClick={() => {
+              invites.clearActionError()
+              directory.clearActionError()
+            }}
           >
-            <Icon name="close" />
+            Dismiss
           </button>
-        </div>
+        </Notice>
       )}
 
       <Card flush>
-        {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Spinner size="lg" label="Loading users" />
-          </div>
-        ) : error ? (
-          <div className="flex flex-col items-center gap-4 px-4 py-16 text-center">
-            <p role="alert" className="font-sans text-body text-danger-text">
-              {error}
-            </p>
-            <Button variant="secondary" onClick={refetch}>
-              Try again
-            </Button>
-          </div>
-        ) : users.length === 0 ? (
-          <EmptyState icon="users" title="No users found" />
-        ) : (
-          <>
-            <Table label="Users">
-              <TableHead>
-                <TableRow>
-                  <TableHeaderCell>Name</TableHeaderCell>
-                  <TableHeaderCell>Email</TableHeaderCell>
-                  <TableHeaderCell>Status</TableHeaderCell>
-                  <TableHeaderCell>Last login</TableHeaderCell>
-                  <TableHeaderCell>Actions</TableHeaderCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {users.map((user) => {
-                  const status = STATUS_CHIPS[user.account_state]
-                  return (
-                    <TableRow key={user.id}>
-                      <TableCell className="whitespace-nowrap font-semibold">
-                        {user.first_name} {user.last_name}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap text-text-secondary">
-                        {user.email}
-                      </TableCell>
-                      <TableCell>
-                        <Chip variant={status.variant}>{status.label}</Chip>
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap text-text-secondary">
-                        {formatLastLogin(user.last_login_at)}
-                      </TableCell>
-                      <TableCell>
-                        <RowActions
-                          user={user}
-                          onSuspend={(id) => void suspend(id)}
-                          onActivate={(id) => void activate(id)}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
-            {totalPages > 0 && (
-              <Pagination
-                page={page}
-                totalPages={totalPages}
-                total={total}
-                pageSize={PAGE_SIZE}
-                onPrev={() => setPage((p) => p - 1)}
-                onNext={() => setPage((p) => p + 1)}
-              />
-            )}
-          </>
-        )}
+        <DataTable
+          label="Users"
+          columns={columns}
+          rows={rows}
+          rowKey={(row) => row.id}
+          isLoading={directory.isLoading || invites.isLoading}
+          error={directory.error ?? invites.error}
+          onRetry={() => {
+            directory.refetch()
+            invites.refetch()
+          }}
+          empty={{
+            icon: 'users',
+            title: search ? 'No one matches that search' : 'No users found',
+            description: search
+              ? 'Check the spelling, or clear the search and filters.'
+              : 'Invite someone, or import a CSV of accepted mentees.',
+            action: <Button onClick={() => setIsInviting(true)}>Invite user</Button>,
+          }}
+          pagination={{
+            page,
+            pageSize: PAGE_SIZE,
+            total: directory.total,
+            onPageChange: setPage,
+          }}
+        />
       </Card>
-
-      <InviteModal isOpen={inviteOpen} onClose={() => setInviteOpen(false)} onSuccess={refetch} />
     </>
   )
 }

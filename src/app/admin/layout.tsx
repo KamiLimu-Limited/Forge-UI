@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
-import { AppShell } from '@/components/layout/AppShell'
+import { AdminShell } from '@/components/layout/AdminShell'
 import { RequireAdmin } from '@/components/layout/guards'
+import { ActiveCohortProvider } from '@/hooks/useActiveCohort'
 
 interface AdminRouteLayoutProps {
   children: ReactNode
@@ -9,7 +10,9 @@ interface AdminRouteLayoutProps {
 export default function AdminRouteLayout({ children }: AdminRouteLayoutProps) {
   return (
     <RequireAdmin>
-      <AppShell>{children}</AppShell>
+      <ActiveCohortProvider>
+        <AdminShell>{children}</AdminShell>
+      </ActiveCohortProvider>
     </RequireAdmin>
   )
 }

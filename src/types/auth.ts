@@ -109,20 +109,51 @@ export interface SuccessResponse {
   message: string
 }
 
+// One entry of a 422 validation error
+export interface ValidationIssue {
+  loc?: Array<string | number>
+  msg?: string
+}
+
+// `error` is a code such as "business_rule_violation"; `detail` is the readable message
 export interface ErrorResponse {
   success: false
   error: string
-  detail?: string | null
+  detail?: string | ValidationIssue[] | null
 }
 
 // ---- API error thrown by the client ----
+
+// Plain words for the codes the API returns when it gives no detail
+const ERROR_CODE_MESSAGES: Record<string, string> = {
+  unauthorized: 'Your session has ended. Sign in again.',
+  forbidden: "You don't have permission to do that.",
+  not_found: "We couldn't find that record.",
+  conflict: 'That clashes with an existing record.',
+  rate_limited: 'Too many attempts. Wait a minute and try again.',
+  validation_error: 'Some of the details are not valid.',
+}
+
+function readableMessage(body: ErrorResponse): string {
+  const { detail, error } = body
+  if (typeof detail === 'string' && detail.trim() !== '') return detail
+  if (Array.isArray(detail) && detail.length > 0) {
+    return detail
+      .map((issue) => {
+        const field = issue.loc?.filter((part) => part !== 'body').join(' ')
+        return field ? `${field}: ${issue.msg ?? 'not valid'}` : (issue.msg ?? 'Not valid')
+      })
+      .join('. ')
+  }
+  return ERROR_CODE_MESSAGES[error] ?? 'Something went wrong. Try again.'
+}
 
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
     public readonly body: ErrorResponse
   ) {
-    super(body.error)
+    super(readableMessage(body))
     this.name = 'ApiError'
   }
 }

@@ -36,7 +36,7 @@ export function useActivateAccount(token: string): UseActivateAccountReturn {
       // reach RequireAuth before the provider knows the user and bounce to /login.
       window.location.replace('/dashboard')
     } catch (err) {
-      setError(err instanceof ApiError ? err.body.error : 'Something went wrong. Please try again.')
+      setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
       setIsSubmitting(false)
     }
   }

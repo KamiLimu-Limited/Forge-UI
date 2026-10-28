@@ -40,7 +40,7 @@ export function useLoginForm(): UseLoginFormReturn {
       router.replace('/dashboard')
     } catch (err) {
       setPasswordError(
-        err instanceof ApiError ? err.body.error : 'Something went wrong. Please try again.'
+        err instanceof ApiError ? err.message : 'Something went wrong. Please try again.'
       )
     } finally {
       setIsSubmitting(false)

@@ -15,7 +15,7 @@ type Story = StoryObj<typeof PageHeader>
 export const Default: Story = { args: { title: 'Users' } }
 
 export const WithSubtitle: Story = {
-  args: { title: 'Users', subtitle: 'Everyone with a Forge account.' },
+  args: { title: 'Users', subtitle: 'Everyone with a KamiLimu account.' },
 }
 
 export const WithAction: Story = {

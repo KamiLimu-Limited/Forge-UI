@@ -8,6 +8,7 @@ import { Avatar } from '@/components/ui/Avatar'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { Modal } from '@/components/ui/Modal'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { cx } from '@/lib/cx'
 import { Brand } from './Brand'
 
@@ -145,6 +146,7 @@ function Sidebar({ nav, fullName, onOpenSwitcher, onSignOut }: SidebarProps) {
         ))}
       </nav>
 
+      <ThemeToggle className="self-start" />
       <div className="flex items-center gap-3 border-t border-border pt-4">
         <Avatar name={fullName} />
         <div className="flex min-w-0 flex-col">
@@ -316,6 +318,7 @@ function MeDialog({ isOpen, onClose, fullName, email, roleLabel, onSignOut }: Me
             <span className="truncate font-sans text-caption text-text-secondary">{email}</span>
           </div>
         </div>
+        <ThemeToggle className="self-start" />
         <Button variant="secondary" fullWidth onClick={onSignOut}>
           Sign out
         </Button>

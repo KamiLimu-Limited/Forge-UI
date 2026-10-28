@@ -201,6 +201,16 @@ npm run dev:links                    # newest invitation and newest reset link
 npm run dev:links -- ada@example.com # newest invitation for one address
 ```
 
+To fill the local API with something to look at, add the admin from `forge-cli create-admin` to `.env.local` (git ignores it) and run the seed:
+
+```bash
+FORGE_ADMIN_EMAIL=you@example.com          # in .env.local
+FORGE_ADMIN_PASSWORD=your-local-password   # in .env.local
+npm run dev:seed
+```
+
+It signs in through the API and makes sure there is one active cohort ("Local seed cohort") with 8 KamiLimu months and 4 ICT tracks, 6 sessions across the three categories (one in the past, one a draft), and invitations for 3 mentees, a 1:1 peer mentor and an ICT peer mentor at `+seed-...` aliases of the admin's address. Running it again creates nothing new. It refuses to run against anything but a localhost API. Open the invitation links from `npm run dev:links -- <email>` to activate them; invited people only appear on the assignment screens once they have.
+
 It reads `FORGE_DB_CONTAINER` (`forge-api-db-1`), `FORGE_DB_NAME` (`forge`), `FORGE_DB_USER` (`forge`) and `FRONTEND_URL` (`http://localhost:3000`). If the container is not running, it tells you to run `docker compose up -d db` in `~/forge-api`. Both helper scripts are for local use only, and the build does not depend on them.
 
 ### Deployed setup (Vercel)

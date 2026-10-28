@@ -11,6 +11,7 @@ node_modules/
 
 # Next.js build output
 .next/
+.next-verify/
 out/
 build/
 dist/
@@ -83,3 +84,6 @@ Desktop.ini
 # Misc
 *.pem
 *.local
+
+# Design references (local only)
+design-reference/

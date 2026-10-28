@@ -20,7 +20,7 @@ Other AI agents working in this repo have their own config files — see AGENTS.
 The following are complete and must not be rebuilt or duplicated.
 
 ### Foundation
-- `src/app/layout.tsx` — Root layout. Imports `global.css`, sets metadata, loads the fonts from `src/app/fonts.ts` (next/font exposes `--font-mono` and `--font-sans`) and mounts `<Providers>` (`src/app/providers.tsx`, which mounts `<AuthProvider>`).
+- `src/app/layout.tsx` — Root layout. Imports `global.css`, sets metadata, loads the fonts from `src/app/fonts.ts` (next/font exposes `--font-mono` and `--font-sans`) and mounts `<Providers>` (`src/app/providers.tsx`, which mounts `<AuthProvider>` and `<ToastProvider>`). A small script in `<head>` applies the saved theme before first paint.
 - `src/styles/global.css` — Design tokens and base styles. Body default font is Hind Guntur (`font-sans`) at 15px; headings use JetBrains Mono (`font-mono`).
 - `src/lib/api.ts` — The only API client. Exports `api` (typed namespaces: `api.auth.*`, `api.users.*`) and `tokenStore` (JWT read/write/clear). Handles automatic token refresh on 401. Never add a `fetch()` call anywhere else.
 - `src/types/auth.ts` — All type definitions for the auth and user domain: `UserRole`, `AccountState`, `UserProfileResponse`, `TokenResponse`, `ApiError`, and all request/response shapes. Add new API types to `src/types/` in their own file as new domains are built.
@@ -37,7 +37,51 @@ All four auth screens are complete. Do not rebuild them. Their form logic lives 
 - `src/views/Activate.tsx` — Account activation. Reads `?token=` from the URL, sets a password, signs the user in. Logic in `useActivateAccount`.
 - `src/views/ForgotPassword.tsx` — Requests a password reset email. Logic in `useRequestPasswordReset`.
 - `src/views/ResetPassword.tsx` — Completes a reset. Reads `?token=` from the URL. Logic in `useResetPassword`.
-- `src/views/admin/Users.tsx` — Admin user list, filters, suspend and reactivate, and the invite dialog.
+- `src/views/admin/Users.tsx` — Admin user list with search, role and account filters, pending invitations (resend, revoke), reactivate, and the invite form.
+
+### System Admin screens
+Every admin route is built. `src/app/admin/layout.tsx` wraps them in `<RequireAdmin>`, `<ActiveCohortProvider>` and `<AdminShell>`. Each `page.tsx` renders a screen from `src/views/admin/`.
+
+| Route | Screen | Design |
+| --- | --- | --- |
+| `/admin` | `views/admin/Overview.tsx` | SA-Home |
+| `/admin/cohorts` | `views/admin/cohorts/Cohorts.tsx` | SA-Cohorts |
+| `/admin/cohorts/new` | `views/admin/cohorts/CreateCohort.tsx` | SA-CreateCohort |
+| `/admin/cohorts/[cohortId]/archive-import` | `views/admin/cohorts/ArchiveImport.tsx` | SA-ArchiveImport |
+| `/admin/settings` | `views/admin/cohorts/CohortSettings.tsx` | SA-CohortSettings |
+| `/admin/sessions` | `views/admin/sessions/Calendar.tsx` | SA-Calendar |
+| `/admin/sessions/new` | `views/admin/sessions/CreateSession.tsx` | SA-CreateSession |
+| `/admin/sessions/[sessionId]` | `views/admin/sessions/EditSession.tsx` | SA-EditSession, SA-CancelSession |
+| `/admin/sessions/[sessionId]/attendance` | `views/admin/sessions/SessionAttendance.tsx` | SA-SessionAttendance |
+| `/admin/attendance-queue` | `views/admin/queues/OverrideQueue.tsx` | SA-OverrideQueue |
+| `/admin/extra-activities` | `views/admin/queues/ExtraActivities.tsx` | SA-ExtraReview |
+| `/admin/users` | `views/admin/Users.tsx` | SA-Users |
+| `/admin/users/[userId]` | `views/admin/UserDetail.tsx` | SA-UserDetail |
+| `/admin/users/import` | `views/admin/UserImport.tsx` | SA-CSVImport |
+| `/admin/ict-tracks` | `views/admin/cohorts/IctTracks.tsx` | SA-ICTTracks |
+| `/admin/assignments` | `views/admin/assignments/MentorGroups.tsx` | SA-MentorAssignments |
+| `/admin/assignments/ict` | `views/admin/assignments/AssignIct.tsx` | SA-AssignICT |
+| `/admin/assignments/professional` | `views/admin/assignments/AssignPro.tsx` | SA-AssignPro |
+| `/admin/rosters/professional-mentors` | `views/admin/rosters/ProMentors.tsx` | SA-ProMentors |
+| `/admin/rosters/consultants` | `views/admin/rosters/Consultants.tsx` | SA-Consultants |
+| `/admin/audit-trail` | `views/admin/AuditTrail.tsx` | SA-AuditTrail |
+
+"Graduation preview" is not in the admin nav yet; it ships with the Program Lead screens.
+
+### Admin infrastructure
+- `src/hooks/useActiveCohort.ts` — `<ActiveCohortProvider>` loads `GET /cohorts`, defaults to the newest cohort with status `active` (or the newest cohort), and remembers the choice in `localStorage` under `kamilimu_active_cohort`. `useActiveCohort()` returns `{ cohorts, cohort, cohortId, isLoading, error, setCohortId, refresh }`. Every cohort-scoped screen reads `cohortId` from it and shows `<NoCohortNotice>` when there is none. Never keep a second "current cohort" anywhere else.
+- `src/hooks/useApiQuery.ts` and `src/hooks/useAsyncAction.ts` — the loading and error plumbing for reads and writes. Build new data hooks on them.
+- `src/hooks/useToast.ts` — `useToast().showToast(message, 'success' | 'error' | 'info')`. Every write gives feedback with a toast or an inline message.
+- `src/hooks/useTheme.ts` and `<ThemeToggle>` — light, dark or device theme, saved under `kamilimu_theme`. Dark tokens in `global.css` apply from the device setting unless `<html data-theme>` says otherwise, and Tailwind's `dark:` variant follows the same rule.
+- `src/lib/labels.ts` — plain labels for every API enum (attendance `attended` is "Present", and so on). `src/lib/format.ts` — dates like "Thu 27 Aug" and times like "5:30 PM". Use these instead of formatting by hand.
+- `src/lib/api.ts` — `fetchAllPages()` walks a paginated list (the API caps `page_size` at 100). `ApiError.message` is the API's readable `detail`; show it as is.
+
+### API gaps
+Where a design needs a route or field the API doesn't have:
+- build that part exactly as designed but disabled, with the hint "Not available yet",
+- never pretend a save worked,
+- log it in `docs/api-gaps.md` (screen, what's missing, the route or field it needs, what the UI does now, and where).
+When the backend closes a gap, switch the UI on and remove its row.
 
 ### UI Components
 Check `src/components/README.md` for the complete up-to-date list of every component in `src/components/ui/`, `src/components/forge/`, and `src/components/layout/`. Always check this file before building anything new.
@@ -164,7 +208,7 @@ Both are loaded with `next/font/google` in `src/app/fonts.ts`. Use `font-mono` f
 
 - Routes live in `src/app/`. Each route folder has a `page.tsx` that only renders a screen from `src/views/`. Shared wrappers (guards, `AppShell`) go in that route's `layout.tsx`.
 - Do not create `src/pages/`. Next.js treats it as the Pages Router.
-- The auth screens sit in the `(auth)` route group. `/dashboard` uses `RequireAuth` plus `AppShell`; everything under `/admin` uses `RequireAdmin` plus `AppShell`.
+- The auth screens sit in the `(auth)` route group. `/dashboard` uses `RequireAuth` plus `AppShell`; everything under `/admin` uses `RequireAdmin`, `ActiveCohortProvider` and `AdminShell`.
 - A screen that reads `useSearchParams()` must be wrapped in `<Suspense>` in its `page.tsx`, or the static build fails.
 - Navigate with `useRouter`, `usePathname` and `useSearchParams` from `next/navigation`, and link with `next/link`. Never use a plain `<a href>` for an internal link.
 - Auth tokens are in `localStorage`, so auth is client-side only. Do not move it to cookies or middleware.

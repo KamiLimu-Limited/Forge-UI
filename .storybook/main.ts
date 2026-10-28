@@ -15,6 +15,12 @@ const config: StorybookConfig = {
     options: {},
   },
   staticDirs: ['../public'],
+  // Storybook only exposes variables listed here. Stories never call the API, but
+  // src/lib/config.ts needs an address to load in a static build.
+  env: (config) => ({
+    ...config,
+    NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000',
+  }),
 }
 
 export default config

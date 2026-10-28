@@ -25,8 +25,7 @@ import type {
   AdminUserDetailResponse,
   AdminUserUpdateRequest,
 } from '@/types/admin'
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? ''
+import { API_BASE_URL } from './config'
 
 // -----------------------------------------------------------------------------
 // Token storage
@@ -75,7 +74,7 @@ async function request<T>(
     if (token) headers['Authorization'] = `Bearer ${token}`
   }
 
-  const res = await fetch(`${BASE_URL}${path}`, { ...options, headers })
+  const res = await fetch(`${API_BASE_URL}${path}`, { ...options, headers })
 
   // Attempt token refresh on 401
   if (res.status === 401 && authenticated) {
@@ -106,7 +105,7 @@ async function request<T>(
       refreshSubscribers.push(async (newToken: string) => {
         try {
           headers['Authorization'] = `Bearer ${newToken}`
-          const retried = await fetch(`${BASE_URL}${path}`, { ...options, headers })
+          const retried = await fetch(`${API_BASE_URL}${path}`, { ...options, headers })
           if (!retried.ok) {
             const body = (await retried.json()) as ErrorResponse
             reject(new ApiError(retried.status, body))

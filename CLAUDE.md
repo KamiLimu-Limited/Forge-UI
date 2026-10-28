@@ -170,7 +170,7 @@ Both are loaded with `next/font/google` in `src/app/fonts.ts`. Use `font-mono` f
 - Auth tokens are in `localStorage`, so auth is client-side only. Do not move it to cookies or middleware.
 - Add `'use client'` at the top of any file that uses hooks, state, effects, browser APIs or event handlers. Files without it are server components.
 - Default exports are only allowed in `page.tsx`, `layout.tsx` and `not-found.tsx`, because Next.js requires them. Everything else uses named exports.
-- The API base URL is `process.env.NEXT_PUBLIC_API_BASE_URL`. Only `NEXT_PUBLIC_` variables reach the browser.
+- The API base URL comes only from `process.env.NEXT_PUBLIC_API_BASE_URL`, read in one place: `src/lib/config.ts` exports `API_BASE_URL`. Never read the variable or write an API address anywhere else in `src/`. Only `NEXT_PUBLIC_` variables reach the browser, so never put database details or secrets in one. See "API environments" below.
 
 ---
 
@@ -208,6 +208,70 @@ const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/sessions/${id}`
 import { api } from '@/lib/api'
 const session = await api.sessions.getById(id)
 ```
+
+## API environments
+
+The same code runs against a local Forge API and against the deployed API. The only thing that changes is `NEXT_PUBLIC_API_BASE_URL`.
+
+### How the address is chosen
+
+- `src/lib/config.ts` is the only place that reads the variable. It exports `API_BASE_URL`, with any trailing slash trimmed, and `src/lib/api.ts` imports it from there. Nothing else in `src/` reads the variable or holds an API address.
+- **Locally**, the value comes from `.env.local`, which git ignores. If the variable is missing while `next dev` is running, the app falls back to `http://localhost:8000` and logs one console warning.
+- **On Vercel**, the value comes from the project settings, not from a file.
+- Next.js bakes the value into the client bundle at build time. `next.config.ts` makes `next build` fail with a clear message when the variable is missing, so a build can never silently ship with no API address.
+- The frontend never connects to the database, and no `NEXT_PUBLIC_` variable holds database details, because those values end up in the browser.
+
+### Local setup
+
+Start the backend from `~/forge-api`:
+
+```bash
+cd ~/forge-api
+docker compose up -d db              # Postgres in forge-api-db-1 on localhost:5433
+source .venv/bin/activate
+alembic upgrade head
+forge-cli create-admin               # first time only
+uvicorn forge.main:app --reload      # API at http://localhost:8000
+```
+
+Then start the frontend:
+
+```bash
+echo "NEXT_PUBLIC_API_BASE_URL=http://localhost:8000" > .env.local   # once
+npm run dev:api-check                # confirms the API answers on /health
+npm run dev                          # http://localhost:3000
+```
+
+The dev server must run on port 3000. The local API only allows CORS from `http://localhost:3000`, and its email links point there. `npm run dev` pins the port, so it stops with an error if 3000 is already taken instead of moving to 3001.
+
+With no `RESEND_API_KEY` set, the local API sends no emails. `npm run dev:links` reads the local database and prints the newest invitation link and the newest password reset link, ready to open:
+
+```bash
+npm run dev:links                    # newest invitation and newest reset link
+npm run dev:links -- ada@example.com # newest invitation for one address
+```
+
+It reads `FORGE_DB_CONTAINER` (`forge-api-db-1`), `FORGE_DB_NAME` (`forge`), `FORGE_DB_USER` (`forge`) and `FRONTEND_URL` (`http://localhost:3000`). If the container is not running, it tells you to run `docker compose up -d db` in `~/forge-api`. Both helper scripts are for local use only, and the build does not depend on them.
+
+### Deployed setup (Vercel)
+
+- In the Vercel project, set `NEXT_PUBLIC_API_BASE_URL` under Settings > Environment Variables for **Production** and **Preview**. For now it is `https://dev.api.kamilimu.org`. Later it will be the production API.
+- Redeploy after any change to the variable. The value is baked in at build time, so a running deployment keeps the old one.
+- The deployed API must list the Vercel domain in its `CORS_ORIGINS`, or the browser blocks every request. The backend team manages this.
+- Every preview deployment gets a new URL per branch, and those URLs are not in `CORS_ORIGINS`. Test login on the production alias, unless that preview URL has been added to CORS too.
+
+### Testing the login flows
+
+Run through this list locally with `npm run dev`, and again on the deployed alias after changing anything in auth:
+
+- [ ] **Sign in** with the admin from `forge-cli create-admin`. You land on `/dashboard`.
+- [ ] **Wrong password** shows an error, and you stay on `/login`.
+- [ ] **Rate limit**: 11 failed sign-in attempts within a minute return a 429 (the API allows 10 per 60 seconds). The form shows the error from the API, and sign in works again after a minute.
+- [ ] **Invite and activate**: invite a user from `/admin/users`. Open the link from `npm run dev:links -- <email>`, set a password, and you are signed in.
+- [ ] **Reusing a used link**: open the same activation link again. It is rejected with a clear message.
+- [ ] **Forgot and reset**: request a reset on `/forgot-password`. Open the link from `npm run dev:links`, set a new password, and sign in with it. The old password no longer works.
+- [ ] **Staying signed in**: refresh `/dashboard`, and you are still signed in.
+- [ ] **Sign out** returns you to `/login`, and `/dashboard` then redirects back to `/login`.
 
 ---
 

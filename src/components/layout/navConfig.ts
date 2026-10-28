@@ -56,3 +56,15 @@ export function adminNavMatches(href: string, pathname: string): boolean {
   if (href.startsWith('/admin/rosters')) return pathname.startsWith('/admin/rosters')
   return pathname === href || pathname.startsWith(`${href}/`)
 }
+
+// Tabs on the roster and mentor assignment pages
+export const ROSTER_TABS = [
+  { label: 'Professional mentors', href: '/admin/rosters/professional-mentors' },
+  { label: 'Consultants', href: '/admin/rosters/consultants' },
+]
+
+export const ASSIGNMENT_TABS = [
+  { label: '1:1 peer mentor groups', href: '/admin/assignments' },
+  { label: 'ICT peer mentors to tracks', href: '/admin/assignments/ict' },
+  { label: 'Professional mentors to sessions', href: '/admin/assignments/professional' },
+]

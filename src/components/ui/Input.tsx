@@ -1,10 +1,11 @@
 'use client'
 
-import { useId, type InputHTMLAttributes, type ReactNode } from 'react'
+import { useId, type ComponentProps, type ReactNode } from 'react'
 import { cx } from '@/lib/cx'
 import { Field, controlClasses, fieldDescribedBy } from './Field'
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+// ComponentProps includes ref, which React 19 passes through as a normal prop
+interface InputProps extends ComponentProps<'input'> {
   label?: string
   labelAside?: ReactNode
   error?: string

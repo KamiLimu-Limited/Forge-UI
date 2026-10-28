@@ -8,6 +8,7 @@ import { useApiQuery, type ApiQuery } from './useApiQuery'
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000
 const COMING_UP_COUNT = 4
+const NOT_CHANGES = new Set(['login', 'logout'])
 
 interface UseAdminOverviewReturn {
   pendingOverrides: ApiQuery<number>
@@ -84,8 +85,12 @@ export function useAdminOverview(cohortId: string | null): UseAdminOverviewRetur
     { enabled, fallbackError: "We couldn't load the upcoming sessions." }
   )
 
+  // Sign-ins and sign-outs aren't changes, so they're skipped here (the audit trail keeps them)
   const recentChanges = useApiQuery(
-    () => api.admin.auditLogs.list({ page_size: 5 }).then((p) => p.items),
+    () =>
+      api.admin.auditLogs
+        .list({ page_size: 50 })
+        .then((p) => p.items.filter((log) => !NOT_CHANGES.has(log.action)).slice(0, 5)),
     [],
     { fallbackError: "We couldn't load the recent changes." }
   )

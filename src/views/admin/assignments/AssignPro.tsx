@@ -47,7 +47,7 @@ export function AssignProPage() {
         <div className="flex min-w-48 flex-col">
           <Link
             href={`/admin/sessions/${row.session.id}`}
-            className="font-semibold text-text-primary hover:underline"
+            className="relative before:absolute before:inset-x-0 before:-inset-y-3 before:content-[''] font-semibold text-text-primary hover:underline"
           >
             {row.session.title}
           </Link>

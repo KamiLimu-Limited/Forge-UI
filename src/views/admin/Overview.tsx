@@ -11,6 +11,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { StatTile } from '@/components/ui/StatTile'
+import { TextLink } from '@/components/ui/TextLink'
 import { useActiveCohort } from '@/hooks/useActiveCohort'
 import { useAdminOverview } from '@/hooks/useAdminOverview'
 import { useAuditLookups } from '@/hooks/useAuditLookups'
@@ -112,9 +113,9 @@ export function OverviewPage() {
         <Card
           title="Coming up"
           action={
-            <Link href="/admin/sessions" className="font-sans text-caption font-semibold text-link">
+            <TextLink href="/admin/sessions" layout="inline">
               Calendar
-            </Link>
+            </TextLink>
           }
         >
           {data.comingUp.isLoading ? (
@@ -139,7 +140,7 @@ export function OverviewPage() {
                     <div className="flex min-w-0 flex-col">
                       <Link
                         href={`/admin/sessions/${session.id}`}
-                        className="font-sans text-body font-semibold text-text-primary hover:underline"
+                        className="relative before:absolute before:inset-x-0 before:-inset-y-3 before:content-[''] font-sans text-body font-semibold text-text-primary hover:underline"
                       >
                         {session.title}
                       </Link>
@@ -162,12 +163,9 @@ export function OverviewPage() {
         <Card
           title="Recent changes"
           action={
-            <Link
-              href="/admin/audit-trail"
-              className="font-sans text-caption font-semibold text-link"
-            >
+            <TextLink href="/admin/audit-trail" layout="inline">
               Audit trail
-            </Link>
+            </TextLink>
           }
         >
           {data.recentChanges.isLoading ? (

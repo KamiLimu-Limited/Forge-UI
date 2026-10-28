@@ -44,7 +44,7 @@ export function SessionRow({ session, href, now }: SessionRowProps) {
         <Link
           href={href}
           className={cx(
-            'font-sans text-body font-semibold text-text-primary hover:underline',
+            "font-sans text-body font-semibold text-text-primary hover:underline relative before:absolute before:inset-x-0 before:-inset-y-3 before:content-['']",
             session.status === 'cancelled' && 'line-through'
           )}
         >

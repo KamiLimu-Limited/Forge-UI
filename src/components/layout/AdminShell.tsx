@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, type ReactNode } from 'react'
-import Link from 'next/link'
+import Link, { useLinkStatus } from 'next/link'
 import { usePathname } from 'next/navigation'
 import { StatusChip } from '@/components/forge/StatusChip'
 import { Avatar } from '@/components/ui/Avatar'
@@ -91,6 +91,13 @@ function CohortPill({ active, onOpenPicker }: CohortControlProps) {
 // Navigation list, shared by the sidebar and the mobile menu
 // ---------------------------------------------------------------------------
 
+// Shows straight away that a nav link was clicked, while the next page loads
+function NavPending() {
+  const { pending } = useLinkStatus()
+  if (!pending) return null
+  return <Spinner size="sm" label="Opening page" className="ml-auto" />
+}
+
 interface NavListProps {
   pathname: string
   onNavigate?: () => void
@@ -116,6 +123,7 @@ function NavList({ pathname, onNavigate }: NavListProps) {
               )}
             >
               {item.label}
+              <NavPending />
             </Link>
           </li>
         )

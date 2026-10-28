@@ -36,13 +36,7 @@ export function CohortFormFields({ form, variant }: CohortFormFieldsProps) {
                 error={errors.name}
               />
               {variant === 'create' ? (
-                <Input
-                  label="Programme type"
-                  value="Undergraduate"
-                  readOnly
-                  disabled
-                  hint="Postgraduate cohorts aren't run yet"
-                />
+                <Input label="Programme type" value="Undergraduate" readOnly disabled />
               ) : (
                 <Select
                   label="Status"

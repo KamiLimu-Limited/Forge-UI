@@ -52,7 +52,9 @@ export function MenteeCard({
     >
       <Icon name="grip" className="size-4 text-text-muted" />
       <div className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate font-sans text-body font-semibold text-text-primary">{name}</span>
+        <span className="break-words font-sans text-body font-semibold text-text-primary">
+          {name}
+        </span>
         {(detail ?? isChanged) && (
           <span className="truncate font-sans text-caption text-text-muted">
             {isChanged ? 'Moved, not saved yet' : detail}

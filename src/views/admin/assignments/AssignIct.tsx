@@ -97,7 +97,10 @@ export function AssignIctPage() {
       {!data.isLoading && (
         <Notice variant="info">
           {data.menteesWithTrack} of {plural(data.menteeCount, 'mentee')} chose a track.{' '}
-          <Link href="/admin/ict-tracks" className="font-semibold underline">
+          <Link
+            href="/admin/ict-tracks"
+            className="relative before:absolute before:-inset-x-2 before:-inset-y-3 before:content-[''] font-semibold underline"
+          >
             See who hasn&apos;t
           </Link>
         </Notice>

@@ -31,7 +31,7 @@ interface SessionFormProps {
   isEdit?: boolean
   timeChanged?: boolean
   disabled?: boolean
-  // Extra cards at the bottom of the right column, such as status and cancel
+  // Extra cards at the top of the right column, such as status and cancel
   aside?: ReactNode
 }
 
@@ -240,6 +240,7 @@ export function SessionForm({
       </Card>
 
       <div className="flex flex-col gap-5 lg:col-span-2">
+        {aside}
         <Card title="Points and mentors">
           <fieldset disabled={disabled} className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
@@ -277,7 +278,6 @@ export function SessionForm({
             />
           </fieldset>
         </Card>
-        {aside}
       </div>
     </div>
   )

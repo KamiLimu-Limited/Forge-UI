@@ -1,8 +1,9 @@
 'use client'
 
-import Link from 'next/link'
+import Link, { useLinkStatus } from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cx } from '@/lib/cx'
+import { Spinner } from './Spinner'
 
 export interface TabItem {
   label: string
@@ -13,6 +14,12 @@ interface TabsProps {
   items: TabItem[]
   // Names the tab row for screen readers, for example "Assignment type"
   label: string
+}
+
+// Shows straight away that a tab was clicked, while its page loads
+function TabPending() {
+  const { pending } = useLinkStatus()
+  return pending ? <Spinner size="sm" label="Opening tab" className="ml-2" /> : null
 }
 
 // A row of link tabs under the page header. The current route's tab is underlined in teal.
@@ -37,6 +44,7 @@ export function Tabs({ items, label }: TabsProps) {
                 )}
               >
                 {item.label}
+                <TabPending />
               </Link>
             </li>
           )

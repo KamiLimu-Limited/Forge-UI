@@ -10,7 +10,8 @@ interface TableProps {
 // Scrolls horizontally on narrow screens instead of squashing columns
 export function Table({ children, label }: TableProps) {
   return (
-    <div className="w-full overflow-x-auto">
+    // relative keeps absolutely positioned children (such as sr-only labels) inside the scroll box
+    <div className="relative w-full overflow-x-auto">
       <table aria-label={label} className="w-full border-collapse text-left">
         {children}
       </table>

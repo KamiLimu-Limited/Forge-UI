@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { cx } from '@/lib/cx'
 import { Button } from './Button'
 import { EmptyState } from './EmptyState'
@@ -39,7 +39,10 @@ interface DataTableProps<T> {
   error?: string | null
   onRetry?: () => void
   empty: { title: string; description?: string; icon?: IconName; action?: ReactNode }
+  // Server paging: the rows are one page of `total`
   pagination?: DataTablePagination
+  // Client paging: the rows are the whole list; sort it all, then show this many at a time
+  pageSize?: number
   highlightRow?: (row: T) => boolean
   initialSort?: { key: string; direction: SortDirection }
 }
@@ -63,11 +66,18 @@ export function DataTable<T>({
   error,
   onRetry,
   empty,
-  pagination,
+  pagination: serverPagination,
+  pageSize,
   highlightRow,
   initialSort,
 }: DataTableProps<T>) {
   const [sort, setSort] = useState(initialSort ?? null)
+  const [clientPage, setClientPage] = useState(1)
+
+  // A new filter or search starts again from the first page
+  useEffect(() => {
+    setClientPage(1)
+  }, [rows.length])
 
   const sortedRows = useMemo(() => {
     const column = sort && columns.find((c) => c.key === sort.key)
@@ -81,6 +91,13 @@ export function DataTable<T>({
       return String(av).localeCompare(String(bv)) * factor
     })
   }, [rows, columns, sort])
+
+  const pagination: DataTablePagination | undefined = pageSize
+    ? { page: clientPage, pageSize, total: rows.length, onPageChange: setClientPage }
+    : serverPagination
+  const visibleRows = pageSize
+    ? sortedRows.slice((clientPage - 1) * pageSize, clientPage * pageSize)
+    : sortedRows
 
   if (isLoading) return <LoadingState label={`Loading ${label.toLowerCase()}`} />
   if (error) return <ErrorState message={error} onRetry={onRetry} />
@@ -139,7 +156,7 @@ export function DataTable<T>({
           </TableRow>
         </TableHead>
         <TableBody>
-          {sortedRows.map((row) => (
+          {visibleRows.map((row) => (
             <TableRow key={rowKey(row)} highlight={highlightRow?.(row)}>
               {columns.map((column) => (
                 <TableCell

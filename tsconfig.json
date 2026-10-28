@@ -29,6 +29,7 @@
     ".storybook/*.tsx",
     ".next/types/**/*.ts",
     "next.config.ts",
+    "scripts/*.ts",
     "tailwind.config.ts"
   ],
   "exclude": ["node_modules"]

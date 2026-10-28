@@ -6,6 +6,7 @@
     "dev": "next dev -p 3000",
     "dev:links": "bash scripts/dev-links.sh",
     "dev:api-check": "bash scripts/dev-api-check.sh",
+    "dev:seed": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/dev-seed.ts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",

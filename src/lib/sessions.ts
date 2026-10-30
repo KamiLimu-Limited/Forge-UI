@@ -8,7 +8,9 @@ import type { SessionBrief, SessionResponse } from '@/types/session'
 
 // The API only stores a pillar for ICT sessions (track holds the ICT track name).
 // Other pillars have no field yet, so they get no badge. See docs/api-gaps.md.
-export function sessionPillar(session: SessionResponse | SessionBrief): Pillar | null {
+export function sessionPillar(
+  session: Pick<SessionResponse | SessionBrief, 'session_type' | 'track'>
+): Pillar | null {
   return session.session_type === 'ict' || session.track ? 'ict' : null
 }
 

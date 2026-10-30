@@ -1,4 +1,5 @@
 import type { IconName } from '@/components/ui/Icon'
+import { MENTEE_ROUTES } from '@/lib/menteeRoutes'
 import type { UserRole } from '@/types/auth'
 
 export interface NavItem {
@@ -24,7 +25,16 @@ export const NAV_BY_ROLE: Record<UserRole, NavGroup> = {
   },
   // Add links here as each role's screens are built, for example:
   // { label: 'Sessions', href: '/sessions', icon: 'home' }
-  mentee: { heading: 'As a mentee', items: [] },
+  mentee: {
+    heading: 'As a mentee',
+    items: [
+      { label: 'Home', href: MENTEE_ROUTES.home, icon: 'home' },
+      { label: 'Sessions', href: MENTEE_ROUTES.sessions, icon: 'calendar' },
+      { label: 'Activities', href: MENTEE_ROUTES.activities, icon: 'star' },
+      { label: 'Objectives', href: MENTEE_ROUTES.objectives, icon: 'target' },
+      { label: 'Leaderboard', href: MENTEE_ROUTES.leaderboard, icon: 'chart' },
+    ],
+  },
   'peer_mentor_1:1': { heading: 'As a peer mentor', items: [] },
   peer_mentor_ict: { heading: 'As an ICT peer mentor', items: [] },
   professional_mentor: { heading: 'As a professional mentor', items: [] },

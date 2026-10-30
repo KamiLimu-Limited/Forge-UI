@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useShellNav, type RoleContext, type ShellNav } from '@/hooks/useShellNav'
 import { Avatar } from '@/components/ui/Avatar'
@@ -10,6 +11,7 @@ import { Icon } from '@/components/ui/Icon'
 import { Modal } from '@/components/ui/Modal'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { cx } from '@/lib/cx'
+import { MENTEE_ROUTES } from '@/lib/menteeRoutes'
 import { Brand } from './Brand'
 
 interface AppShellProps {
@@ -66,7 +68,13 @@ function CohortPill({ context, canSwitch, onOpenSwitcher }: CohortControlProps) 
   const classes =
     'inline-flex h-control-sm min-w-0 max-w-full items-center gap-1 rounded-full border border-border bg-surface px-3 font-sans text-caption text-text-primary'
 
-  if (!canSwitch) return <span className={cx(classes, 'truncate')}>{label}</span>
+  if (!canSwitch) {
+    return (
+      <span className={classes}>
+        <span className="min-w-0 truncate">{label}</span>
+      </span>
+    )
+  }
   return (
     <button
       type="button"
@@ -77,8 +85,8 @@ function CohortPill({ context, canSwitch, onOpenSwitcher }: CohortControlProps) 
         "relative before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']"
       )}
     >
-      <span className="truncate">{label}</span>
-      <Icon name="chevron-down" className="size-4" />
+      <span className="min-w-0 truncate">{label}</span>
+      <Icon name="chevron-down" className="size-4 shrink-0" />
     </button>
   )
 }
@@ -90,11 +98,12 @@ function CohortPill({ context, canSwitch, onOpenSwitcher }: CohortControlProps) 
 interface SidebarProps {
   nav: ShellNav
   fullName: string
+  hasProfile: boolean
   onOpenSwitcher: () => void
   onSignOut: () => void
 }
 
-function Sidebar({ nav, fullName, onOpenSwitcher, onSignOut }: SidebarProps) {
+function Sidebar({ nav, fullName, hasProfile, onOpenSwitcher, onSignOut }: SidebarProps) {
   const showHeadings = nav.groups.length > 1
 
   return (
@@ -138,7 +147,8 @@ function Sidebar({ nav, fullName, onOpenSwitcher, onSignOut }: SidebarProps) {
                   )}
                 >
                   <Icon name={item.icon} />
-                  {item.label}
+                  {/* Hind Guntur's letters sit high in their line box, so nudge them level */}
+                  <span className="translate-y-0.5">{item.label}</span>
                 </Link>
               )
             })}
@@ -150,9 +160,18 @@ function Sidebar({ nav, fullName, onOpenSwitcher, onSignOut }: SidebarProps) {
       <div className="flex items-center gap-3 border-t border-border pt-4">
         <Avatar name={fullName} />
         <div className="flex min-w-0 flex-col">
-          <span className="truncate font-sans text-small font-semibold text-text-primary">
-            {fullName}
-          </span>
+          {hasProfile ? (
+            <Link
+              href={MENTEE_ROUTES.profile}
+              className="truncate font-sans text-small font-semibold text-text-primary no-underline hover:underline"
+            >
+              {fullName}
+            </Link>
+          ) : (
+            <span className="truncate font-sans text-small font-semibold text-text-primary">
+              {fullName}
+            </span>
+          )}
           {nav.active && (
             <span className="truncate font-sans text-caption text-text-muted">
               {nav.active.roleLabel}
@@ -177,36 +196,52 @@ function Sidebar({ nav, fullName, onOpenSwitcher, onSignOut }: SidebarProps) {
 
 interface MobileTopBarProps {
   nav: ShellNav
+  fullName: string
+  accountLabel: string
   onOpenSwitcher: () => void
+  onOpenAccount: () => void
 }
 
-function MobileTopBar({ nav, onOpenSwitcher }: MobileTopBarProps) {
+function MobileTopBar({
+  nav,
+  fullName,
+  accountLabel,
+  onOpenSwitcher,
+  onOpenAccount,
+}: MobileTopBarProps) {
   return (
     <header className="sticky top-0 z-sticky flex h-14 items-center justify-between gap-3 border-b border-border bg-surface px-4 md:hidden">
       <Brand />
-      {nav.active && (
-        <div className="flex min-w-0 justify-end">
+      <div className="flex min-w-0 items-center justify-end gap-2">
+        {nav.active && (
           <CohortPill
             context={nav.active}
             canSwitch={nav.canSwitch}
             onOpenSwitcher={onOpenSwitcher}
           />
-        </div>
-      )}
+        )}
+        <button
+          type="button"
+          onClick={onOpenAccount}
+          aria-label={accountLabel}
+          className="relative shrink-0 rounded-full before:absolute before:-inset-1 before:content-['']"
+        >
+          <Avatar name={fullName} />
+        </button>
+      </div>
     </header>
   )
 }
 
 interface BottomTabBarProps {
   nav: ShellNav
-  isMeOpen: boolean
-  onOpenMe: () => void
 }
 
 const tabClasses =
   'flex h-control-lg flex-1 flex-col items-center justify-center gap-0.5 font-sans text-tab no-underline hover:no-underline'
 
-function BottomTabBar({ nav, isMeOpen, onOpenMe }: BottomTabBarProps) {
+function BottomTabBar({ nav }: BottomTabBarProps) {
+  if (nav.items.length === 0) return null
   return (
     <nav
       aria-label="Main"
@@ -229,18 +264,6 @@ function BottomTabBar({ nav, isMeOpen, onOpenMe }: BottomTabBarProps) {
           </Link>
         )
       })}
-      <button
-        type="button"
-        onClick={onOpenMe}
-        aria-haspopup="dialog"
-        className={cx(
-          tabClasses,
-          isMeOpen ? 'font-semibold text-link' : 'text-text-muted hover:text-text-primary'
-        )}
-      >
-        <Icon name="user" className="size-tab-icon" />
-        Me
-      </button>
     </nav>
   )
 }
@@ -304,6 +327,7 @@ interface MeDialogProps {
   onSignOut: () => void
 }
 
+// The phone account menu, for roles without a profile screen yet
 function MeDialog({ isOpen, onClose, fullName, email, roleLabel, onSignOut }: MeDialogProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Your account" width="sm">
@@ -333,11 +357,18 @@ function MeDialog({ isOpen, onClose, fullName, email, roleLabel, onSignOut }: Me
 
 export function AppShell({ children }: AppShellProps) {
   const { user, logout } = useAuth()
+  const router = useRouter()
   const nav = useShellNav(user)
   const [isSwitcherOpen, setIsSwitcherOpen] = useState(false)
   const [isMeOpen, setIsMeOpen] = useState(false)
 
   const fullName = user ? `${user.first_name} ${user.last_name}`.trim() : ''
+  // Only mentees have a profile screen so far
+  const hasProfile = user?.roles.some((item) => item.role === 'mentee') ?? false
+  const openAccount = () => {
+    if (hasProfile) router.push(MENTEE_ROUTES.profile)
+    else setIsMeOpen(true)
+  }
   const signOut = () => {
     setIsMeOpen(false)
     void logout()
@@ -348,16 +379,23 @@ export function AppShell({ children }: AppShellProps) {
       <Sidebar
         nav={nav}
         fullName={fullName}
+        hasProfile={hasProfile}
         onOpenSwitcher={() => setIsSwitcherOpen(true)}
         onSignOut={signOut}
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <MobileTopBar nav={nav} onOpenSwitcher={() => setIsSwitcherOpen(true)} />
+        <MobileTopBar
+          nav={nav}
+          fullName={fullName}
+          accountLabel={hasProfile ? 'Your profile' : 'Your account'}
+          onOpenSwitcher={() => setIsSwitcherOpen(true)}
+          onOpenAccount={openAccount}
+        />
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-6 md:px-10 md:pb-12 md:pt-8">
           {children}
         </main>
-        <BottomTabBar nav={nav} isMeOpen={isMeOpen} onOpenMe={() => setIsMeOpen(true)} />
+        <BottomTabBar nav={nav} />
       </div>
 
       {nav.canSwitch && (

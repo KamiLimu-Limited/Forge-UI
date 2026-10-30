@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/require-await */
 import type { NextConfig } from 'next'
 import { PHASE_PRODUCTION_BUILD } from 'next/constants'
 
@@ -18,8 +19,6 @@ export default function config(phase: string): NextConfig {
   if (phase === PHASE_PRODUCTION_BUILD) assertApiBaseUrl()
   return {
     reactStrictMode: true,
-    // NEXT_DIST_DIR lets a local check build (for example .next-verify) run while
-    // `npm run dev` is using .next. Vercel leaves it unset.
     distDir: process.env.NEXT_DIST_DIR || '.next',
     // Sessions live in localStorage, so a framed copy in a browser without storage
     // partitioning is a signed-in admin session an outside page could click through.

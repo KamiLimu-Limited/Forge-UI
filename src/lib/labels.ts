@@ -6,7 +6,7 @@ import type { ActivityStatus, ActivityType, EventRole } from '@/types/activity'
 import type { AttendanceStatus, OverrideRequestStatus } from '@/types/attendance'
 import type { AccountState } from '@/types/auth'
 import type { CohortStatus } from '@/types/cohort'
-import type { SessionCategory, SessionMode, SessionStatus } from '@/types/session'
+import type { SessionCategory, SessionMode, SessionStatus, SessionType } from '@/types/session'
 
 export const CATEGORY_LABELS: Record<SessionCategory, string> = {
   thursday: 'Thursday session',
@@ -20,6 +20,14 @@ export const CATEGORY_OPTIONS: { value: SessionCategory; label: string }[] = [
   { value: 'saturday', label: 'Saturday' },
   { value: 'peer_mentorship', label: 'Peer mentorship task' },
 ]
+
+// The API's four session kinds, until it stores the PRD's Theory, Hands-on and so on
+export const SESSION_TYPE_LABELS: Record<SessionType, string> = {
+  core: 'Core',
+  ict: 'ICT',
+  professional: 'Professional',
+  peer_mentorship: 'Peer mentorship',
+}
 
 export const SESSION_STATUS_LABELS: Record<SessionStatus, string> = {
   draft: 'Draft',

@@ -5,6 +5,7 @@ export type IconName =
   | 'alert'
   | 'arrow-left'
   | 'calendar'
+  | 'chart'
   | 'check'
   | 'chevron-down'
   | 'chevron-left'
@@ -16,7 +17,9 @@ export type IconName =
   | 'monitor'
   | 'moon'
   | 'search'
+  | 'star'
   | 'sun'
+  | 'target'
   | 'upload'
   | 'eye'
   | 'eye-off'
@@ -43,6 +46,15 @@ const paths: Record<IconName, ReactNode> = {
     </>
   ),
   'arrow-left': <path d="M19 12H5M11 6l-6 6 6 6" />,
+  chart: <path d="M6 20V10M12 20V4M18 20v-7" />,
+  star: <path d="M12 3l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6L3.3 9.2l6.1-.6z" />,
+  target: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="5" />
+      <circle cx="12" cy="12" r="1" />
+    </>
+  ),
   calendar: (
     <>
       <rect x="4" y="5.5" width="16" height="14" rx="2" />

@@ -95,3 +95,47 @@ export interface ActivityListParams extends PageParams {
   status?: ActivityStatus
   mentee_id?: string
 }
+
+interface ActivityRequestBase {
+  cohort_id?: string | null
+  title: string
+  description?: string | null
+  date: string
+}
+
+export interface AcademicActivityRequest extends ActivityRequestBase {
+  details: { course_name: string; related_session_ids?: string[]; kami_limu_pillar?: string | null }
+}
+
+export interface ExternalEventRequest extends ActivityRequestBase {
+  details: {
+    event_role: EventRole
+    mode: EventMode
+    organizer?: string | null
+    learnings: string
+  }
+}
+
+export interface OpportunityApplicationRequest extends ActivityRequestBase {
+  details: {
+    organization: string
+    application_date: string
+    outcome_status?: OpportunityOutcome
+  }
+}
+
+export interface ConsultationSessionRequest extends ActivityRequestBase {
+  details: {
+    mentor_id?: string | null
+    mentor_name?: string | null
+    consultation_date: string
+    outcome: string
+  }
+}
+
+export interface ActivityUpdateRequest {
+  title?: string | null
+  description?: string | null
+  date?: string | null
+  details?: Record<string, unknown> | null
+}

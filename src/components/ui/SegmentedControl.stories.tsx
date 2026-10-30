@@ -11,7 +11,13 @@ const options: { value: Filter; label: string }[] = [
   { value: 'suspended', label: 'Suspended' },
 ]
 
-function Demo({ disabled = false }: { disabled?: boolean }) {
+function Demo({
+  disabled = false,
+  variant = 'pill',
+}: {
+  disabled?: boolean
+  variant?: 'pill' | 'joined'
+}) {
   const [value, setValue] = useState<Filter>('all')
   return (
     <SegmentedControl
@@ -20,6 +26,7 @@ function Demo({ disabled = false }: { disabled?: boolean }) {
       value={value}
       onChange={setValue}
       disabled={disabled}
+      variant={variant}
     />
   )
 }
@@ -36,3 +43,6 @@ type Story = StoryObj<typeof Demo>
 export const Default: Story = {}
 export const Disabled: Story = { args: { disabled: true } }
 export const Mobile: Story = { parameters: { viewport: { defaultViewport: 'mobile1' } } }
+
+// Fills the row with divided cells, as on the mentee forms
+export const Joined: Story = { args: { variant: 'joined' } }

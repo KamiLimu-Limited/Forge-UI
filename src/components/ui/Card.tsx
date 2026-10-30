@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { cx } from '@/lib/cx'
 
 interface CardProps {
-  title?: string
+  title?: ReactNode
   // Right side of the header row, such as a button or link
   action?: ReactNode
   children: ReactNode

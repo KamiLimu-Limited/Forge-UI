@@ -22,6 +22,8 @@ const shortDateFormat = new Intl.DateTimeFormat('en-GB', {
   year: 'numeric',
 })
 
+const dayMonthFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' })
+
 const timeFormat = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' })
 
 // "YYYY-MM-DD" as a local date, so it never shifts a day across time zones
@@ -33,6 +35,11 @@ export function parseDateOnly(value: string): Date {
 // "Thu 27 Aug"
 export function formatDay(value: string | Date): string {
   return dayFormat.format(typeof value === 'string' ? new Date(value) : value).replace(',', '')
+}
+
+// "2 Nov"
+export function formatDayMonth(value: string | Date): string {
+  return dayMonthFormat.format(typeof value === 'string' ? new Date(value) : value)
 }
 
 // "Thu 26 March 2026" from a date-only value

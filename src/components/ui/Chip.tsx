@@ -47,5 +47,9 @@ export function Chip({ variant = 'default', children, onClick, pressed, disabled
     )
   }
 
-  return <span className={cx(base, variantClasses[variant], 'px-2.5 py-0.5')}>{children}</span>
+  return (
+    <span className={cx(base, variantClasses[variant], 'px-2.5 py-1 leading-none')}>
+      {children}
+    </span>
+  )
 }

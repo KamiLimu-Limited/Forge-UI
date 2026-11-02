@@ -21,7 +21,7 @@ export function TrackBadge({ pillar, label }: TrackBadgeProps) {
   return (
     <span
       className={cx(
-        'inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 font-sans text-caption font-medium',
+        'inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-1 leading-none font-sans text-caption font-medium',
         pillarClasses[pillar]
       )}
     >

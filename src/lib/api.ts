@@ -94,12 +94,30 @@ export const tokenStore = {
 // Core request function
 // -----------------------------------------------------------------------------
 
-let isRefreshing = false
-let refreshSubscribers: Array<(token: string) => Promise<void>> = []
+// Requests that get a 401 while a refresh is running share it. Keyed by the
+// refresh token so a sign-out and a new sign-in never join the old session's refresh.
+let pendingRefresh: { refreshToken: string; accessToken: Promise<string> } | null = null
 
-function onTokenRefreshed(token: string) {
-  refreshSubscribers.forEach((cb) => void cb(token))
-  refreshSubscribers = []
+function unauthorized(): ApiError {
+  return new ApiError(401, { success: false, error: 'unauthorized' })
+}
+
+function refreshAccessToken(refreshToken: string): Promise<string> {
+  if (pendingRefresh?.refreshToken === refreshToken) return pendingRefresh.accessToken
+
+  const accessToken = api.auth
+    .refresh({ refresh_token: refreshToken })
+    .then((tokens) => {
+      // Signed out (or signed in as someone else) while the refresh was in flight
+      if (tokenStore.getRefresh() !== refreshToken) throw unauthorized()
+      tokenStore.set(tokens.access_token, tokens.refresh_token)
+      return tokens.access_token
+    })
+    .finally(() => {
+      if (pendingRefresh?.accessToken === accessToken) pendingRefresh = null
+    })
+  pendingRefresh = { refreshToken, accessToken }
+  return accessToken
 }
 
 // Reads a JSON body, or undefined for 204 and other empty responses
@@ -143,37 +161,25 @@ async function request<T>(
     if (!refresh) {
       tokenStore.clear()
       window.location.replace('/login')
-      throw new ApiError(401, { success: false, error: 'unauthorized' })
+      throw unauthorized()
     }
 
-    if (!isRefreshing) {
-      isRefreshing = true
-      try {
-        const refreshed = await api.auth.refresh({ refresh_token: refresh })
-        tokenStore.set(refreshed.access_token, refreshed.refresh_token)
-        onTokenRefreshed(refreshed.access_token)
-      } catch {
+    let newToken: string
+    try {
+      newToken = await refreshAccessToken(refresh)
+    } catch {
+      // Only end the session this request belonged to, not one started since
+      if (tokenStore.getRefresh() === refresh) {
         tokenStore.clear()
         window.location.replace('/login')
-        throw new ApiError(401, { success: false, error: 'unauthorized' })
-      } finally {
-        isRefreshing = false
       }
+      throw unauthorized()
     }
 
-    // Wait for the refresh then retry
-    return new Promise((resolve, reject) => {
-      refreshSubscribers.push(async (newToken: string) => {
-        try {
-          headers['Authorization'] = `Bearer ${newToken}`
-          const retried = await fetch(`${API_BASE_URL}${path}`, { ...options, headers })
-          if (!retried.ok) reject(await readError(retried))
-          else resolve(await readBody<T>(retried))
-        } catch (err) {
-          reject(err)
-        }
-      })
-    })
+    headers['Authorization'] = `Bearer ${newToken}`
+    const retried = await fetch(`${API_BASE_URL}${path}`, { ...options, headers })
+    if (!retried.ok) throw await readError(retried)
+    return readBody<T>(retried)
   }
 
   if (!res.ok) throw await readError(res)
@@ -246,10 +252,18 @@ export const api = {
         false
       ),
 
-    logout: (refreshToken?: string) => {
-      const query = refreshToken ? `?refresh_token=${encodeURIComponent(refreshToken)}` : ''
-      return request<SuccessResponse>(`/api/v1/auth/logout${query}`, { method: 'POST' })
-    },
+    // Takes the tokens explicitly because sign-out clears them from storage first.
+    // The API reads refresh_token from the body, never the query string.
+    logout: (accessToken: string, refreshToken?: string) =>
+      request<SuccessResponse>(
+        '/api/v1/auth/logout',
+        {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${accessToken}` },
+          body: JSON.stringify(refreshToken ? { refresh_token: refreshToken } : {}),
+        },
+        false
+      ),
 
     requestReset: (body: PasswordResetRequest) =>
       request<SuccessResponse>(

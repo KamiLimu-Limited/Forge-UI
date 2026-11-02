@@ -87,3 +87,6 @@ Desktop.ini
 
 # Design references (local only)
 design-reference/
+
+# Security audit output: finding details, local paths and test harnesses
+audits/

@@ -200,7 +200,11 @@ All of these are defined as tokens in global.css. Use the token names, not the h
 - JetBrains Mono — headings, page titles, card titles, the brand wordmark, buttons and numbers
 - Hind Guntur — body text, labels, table cells, hints and descriptions
 
-Both are loaded with `next/font/google` in `src/app/fonts.ts`. Use `font-mono` for JetBrains Mono and `font-sans` for Hind Guntur in Tailwind classes.
+JetBrains Mono is loaded with `next/font/google` and Hind Guntur with `next/font/local`, both in `src/app/fonts.ts`. Use `font-mono` for JetBrains Mono and `font-sans` for Hind Guntur in Tailwind classes.
+
+- The Hind Guntur files (Latin `.woff2`, weights 400, 500, 600 and 700, plus `OFL.txt`) live in `src/assets/fonts/hind-guntur/`. Load a new weight by adding its file to the `src` array in `fonts.ts`.
+- Hind Guntur has more empty space under the baseline than above the capitals, so text sits high in its line box. `fonts.ts` sets `ascent-override: 128.35%`, `descent-override: 60.45%` and `line-gap-override: 0%` to centre the capitals. Keep those overrides, and do not add padding or position nudges to centre text.
+- Storybook only finds the local font files through `staticDirs` in `.storybook/main.ts`: `{ from: '../src/assets/fonts', to: 'src/assets/fonts' }`. If Hind Guntur 404s or falls back to a system font in Storybook, check that entry first.
 
 ---
 

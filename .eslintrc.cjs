@@ -12,6 +12,7 @@ module.exports = {
     'node_modules',
     'storybook-static',
     'screenshots',
+    'audits',
     'next-env.d.ts',
     '*.cjs',
     'postcss.config.js',

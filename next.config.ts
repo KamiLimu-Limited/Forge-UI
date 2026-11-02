@@ -21,5 +21,18 @@ export default function config(phase: string): NextConfig {
     // NEXT_DIST_DIR lets a local check build (for example .next-verify) run while
     // `npm run dev` is using .next. Vercel leaves it unset.
     distDir: process.env.NEXT_DIST_DIR || '.next',
+    // Sessions live in localStorage, so a framed copy in a browser without storage
+    // partitioning is a signed-in admin session an outside page could click through.
+    headers() {
+      return Promise.resolve([
+        {
+          source: '/:path*',
+          headers: [
+            { key: 'Content-Security-Policy', value: "frame-ancestors 'none'" },
+            { key: 'X-Frame-Options', value: 'DENY' },
+          ],
+        },
+      ])
+    },
   }
 }

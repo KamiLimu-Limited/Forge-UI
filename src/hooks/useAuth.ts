@@ -103,15 +103,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [])
 
+  // Clears locally before telling the API, so a slow or failed revoke can never
+  // leave the session signed in on this device
   const logout = useCallback(async () => {
-    const refresh = tokenStore.getRefresh()
-    try {
-      await api.auth.logout(refresh ?? undefined)
-    } catch {
-      // Logout is best effort: clear locally regardless
-    }
+    const access = tokenStore.getAccess()
+    const refresh = tokenStore.getRefresh() ?? undefined
     tokenStore.clear()
     dispatch({ type: 'CLEAR_USER' })
+    if (!access) return
+    try {
+      await api.auth.logout(access, refresh)
+    } catch (err) {
+      // An expired access token can't authorize the revoke: rotate once and revoke the new pair
+      if (!refresh || !(err instanceof ApiError) || err.status !== 401) return
+      try {
+        const tokens = await api.auth.refresh({ refresh_token: refresh })
+        await api.auth.logout(tokens.access_token, tokens.refresh_token)
+      } catch {
+        // Best effort once local state is gone
+      }
+    }
   }, [])
 
   const clearError = useCallback(() => {

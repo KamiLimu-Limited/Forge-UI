@@ -87,3 +87,9 @@ Desktop.ini
 
 # Design references (local only)
 design-reference/
+
+# Security audit output: finding details, local paths and test harnesses
+audits/
+
+# Spreadsheets with real mentee data (scripts/fixtures holds the anonymised extract)
+*.xlsx

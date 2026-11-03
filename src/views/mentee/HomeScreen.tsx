@@ -1,6 +1,7 @@
 import { ChooseTrackCard } from '@/components/forge/ChooseTrackCard'
 import { NextSessionCard } from '@/components/forge/NextSessionCard'
 import { OpenNowCard } from '@/components/forge/OpenNowCard'
+import { NotificationBell } from '@/components/forge/NotificationBell'
 import { PEER_MENTOR_PENDING, PeerMentorCard } from '@/components/forge/PeerMentorCard'
 import { ProgressByMonthCard } from '@/components/forge/ProgressByMonthCard'
 import { RanksCard } from '@/components/forge/RanksCard'
@@ -40,6 +41,11 @@ export function HomeScreen({ data, isLoading = false, error = null, onRetry }: H
   return (
     <div className="flex flex-col gap-4 md:gap-5">
       <PageHeader
+        action={
+          <div className="hidden md:block">
+            <NotificationBell />
+          </div>
+        }
         title={`Hi, ${data.firstName}`}
         subtitle={
           <>

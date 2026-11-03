@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Notice } from '@/components/ui/Notice'
 import { useActivityForm } from '@/hooks/useActivityForm'
+import { useParticipantRole } from '@/hooks/useParticipantRole'
 import { cx } from '@/lib/cx'
 import { MENTEE_ROUTES } from '@/lib/menteeRoutes'
 import type { ActivityFormConfig } from '@/types/menteeActivities'
@@ -19,6 +20,7 @@ interface ActivityFormScreenProps {
 // One extra activity form, drawn from its settings in lib/activityForms.ts
 export function ActivityFormScreen({ config }: ActivityFormScreenProps) {
   const form = useActivityForm(config)
+  const { saveBlockedNote } = useParticipantRole()
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
@@ -58,7 +60,14 @@ export function ActivityFormScreen({ config }: ActivityFormScreenProps) {
                 a log that doesn&apos;t qualify.
               </p>
               {form.error && <Notice variant="danger">{form.error}</Notice>}
-              <Button type="submit" size="lg" fullWidth isLoading={form.isSaving}>
+              {saveBlockedNote && <Notice>{saveBlockedNote}</Notice>}
+              <Button
+                type="submit"
+                size="lg"
+                fullWidth
+                isLoading={form.isSaving}
+                disabled={Boolean(saveBlockedNote)}
+              >
                 {config.saveLabel}
               </Button>
             </div>

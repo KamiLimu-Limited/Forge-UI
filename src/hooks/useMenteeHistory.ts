@@ -3,6 +3,7 @@
 import { api, fetchAllPages } from '@/lib/api'
 import { historyRows, loadProgrammeMonth, monthLine } from '@/lib/menteeSessions'
 import type { MenteeHistoryData } from '@/types/menteeSessions'
+import { loadPeerHistory } from '@/lib/peerParticipation'
 import { useApiQuery, type ApiQuery } from './useApiQuery'
 
 async function loadHistory(): Promise<MenteeHistoryData> {
@@ -22,8 +23,9 @@ async function loadHistory(): Promise<MenteeHistoryData> {
   return { monthLine: monthLine(month), rows: historyRows(entries, records, sessions) }
 }
 
-export function useMenteeHistory(): ApiQuery<MenteeHistoryData> {
-  return useApiQuery(loadHistory, [], {
+// Peer mentors take part through the same screens, loaded from their group's cohort
+export function useMenteeHistory(isPeerMentor = false): ApiQuery<MenteeHistoryData> {
+  return useApiQuery(isPeerMentor ? () => loadPeerHistory() : loadHistory, [isPeerMentor], {
     fallbackError: "We couldn't load your session history. Try again.",
   })
 }

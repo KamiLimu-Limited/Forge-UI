@@ -3,6 +3,7 @@ import { RecentActivityList } from '@/components/forge/RecentActivityList'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { LoadingState } from '@/components/ui/LoadingState'
+import { Notice } from '@/components/ui/Notice'
 import type { MenteeActivitiesData } from '@/types/menteeActivities'
 
 interface ActivitiesScreenProps {
@@ -11,6 +12,8 @@ interface ActivitiesScreenProps {
   isLoading?: boolean
   error?: string | null
   onRetry?: () => void
+  // Shown at the top while saving is switched off, for example for peer mentors
+  saveBlockedNote?: string | null
 }
 
 function Total({ label, value }: { label: string; value: number }) {
@@ -28,6 +31,7 @@ export function ActivitiesScreen({
   isLoading = false,
   error = null,
   onRetry,
+  saveBlockedNote = null,
 }: ActivitiesScreenProps) {
   return (
     <div className="flex flex-col gap-4 md:gap-5">
@@ -43,6 +47,7 @@ export function ActivitiesScreen({
           ) : undefined
         }
       />
+      {saveBlockedNote && <Notice>{saveBlockedNote}</Notice>}
       {error ? (
         <ErrorState message={error} onRetry={onRetry} />
       ) : isLoading || !data ? (

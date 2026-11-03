@@ -1,10 +1,12 @@
 import { PeerMenteeCard } from '@/components/forge/PeerMenteeCard'
+import { PeerSessionCard } from '@/components/forge/PeerSessionCard'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { LoadingState } from '@/components/ui/LoadingState'
-import type { MenteeCardView } from '@/types/peerMentor'
+import type { MenteeCardView, PeerSessionView } from '@/types/peerMentor'
 
 interface MyMenteesScreenProps {
   // null until the group loads
@@ -12,6 +14,11 @@ interface MyMenteesScreenProps {
   isLoading?: boolean
   error?: string | null
   onRetry?: () => void
+  // The group's current peer mentorship session, null when there is none
+  peerSession: PeerSessionView | null
+  isPeerSessionLoading?: boolean
+  peerSessionError?: string | null
+  onRetryPeerSession?: () => void
 }
 
 function groupLine(count: number): string {
@@ -25,6 +32,10 @@ export function MyMenteesScreen({
   isLoading = false,
   error = null,
   onRetry,
+  peerSession,
+  isPeerSessionLoading = false,
+  peerSessionError = null,
+  onRetryPeerSession,
 }: MyMenteesScreenProps) {
   const hasMentees = mentees !== null && mentees.length > 0
   return (
@@ -46,11 +57,37 @@ export function MyMenteesScreen({
           />
         </Card>
       ) : (
-        <div className="grid gap-4 md:gap-5 lg:grid-cols-3">
-          {mentees.map((mentee) => (
-            <PeerMenteeCard key={mentee.id} mentee={mentee} />
-          ))}
-        </div>
+        <>
+          <Card>
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <p className="font-mono text-card-title font-semibold text-text-primary">
+                  Set your next group meeting
+                </p>
+                <p className="font-sans text-small text-text-secondary">
+                  Pick a time and your group gets a Google Meet invite.
+                </p>
+              </div>
+              <div className="flex flex-col gap-1 md:items-end">
+                <Button disabled fullWidth className="md:w-auto">
+                  Set meeting
+                </Button>
+                <p className="font-sans text-caption text-text-muted">Not available yet</p>
+              </div>
+            </div>
+          </Card>
+          <div className="grid gap-4 md:gap-5 lg:grid-cols-3">
+            {mentees.map((mentee) => (
+              <PeerMenteeCard key={mentee.id} mentee={mentee} />
+            ))}
+          </div>
+          <PeerSessionCard
+            session={peerSession}
+            isLoading={isPeerSessionLoading}
+            error={peerSessionError}
+            onRetry={onRetryPeerSession}
+          />
+        </>
       )}
     </div>
   )

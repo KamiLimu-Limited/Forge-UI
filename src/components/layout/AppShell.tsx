@@ -12,6 +12,7 @@ import { Modal } from '@/components/ui/Modal'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { cx } from '@/lib/cx'
 import { MENTEE_ROUTES } from '@/lib/menteeRoutes'
+import { NotificationBell } from '@/components/forge/NotificationBell'
 import { Brand } from './Brand'
 
 interface AppShellProps {
@@ -92,6 +93,62 @@ function CohortPill({ context, canSwitch, onOpenSwitcher }: CohortControlProps) 
 }
 
 // ---------------------------------------------------------------------------
+// Grouped links, shared by the desktop sidebar and the phone menu
+// ---------------------------------------------------------------------------
+
+interface NavLinksProps {
+  nav: ShellNav
+  // Lets the phone menu close once a link is chosen
+  onNavigate?: () => void
+  // The sidebar scrolls its own links; the phone menu's panel already scrolls
+  scrolls?: boolean
+}
+
+function NavLinks({ nav, onNavigate, scrolls = false }: NavLinksProps) {
+  const showHeadings = nav.groups.length > 1
+
+  return (
+    <nav
+      aria-label="Main"
+      className={cx('flex flex-col gap-4', scrolls && 'flex-1 overflow-y-auto')}
+    >
+      {nav.groups.length === 0 && (
+        <p className="px-3 font-sans text-caption text-text-muted">Your pages will show up here.</p>
+      )}
+      {nav.groups.map((group) => (
+        <div key={group.heading} className="flex flex-col gap-1">
+          {showHeadings && (
+            <p className="px-3 pb-1 font-sans text-caption text-text-muted">{group.heading}</p>
+          )}
+          {group.items.map((item) => {
+            const isActive = nav.isActive(item.href)
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onNavigate}
+                aria-current={isActive ? 'page' : undefined}
+                className={cx(
+                  // 40px tall; the ::before layer reaches 44px without overlapping the next item
+                  "relative flex h-10 items-center gap-3 rounded-md px-3 py-2 font-sans text-body no-underline transition-colors duration-fast before:absolute before:inset-x-0 before:-inset-y-0.5 before:content-[''] hover:no-underline",
+                  isActive
+                    ? 'bg-accent-bg font-semibold text-accent-text'
+                    : 'text-text-secondary hover:bg-background hover:text-text-primary'
+                )}
+              >
+                <Icon name={item.icon} />
+                {/* Hind Guntur's letters sit high in their line box, so nudge them level */}
+                <span className="translate-y-0.5">{item.label}</span>
+              </Link>
+            )
+          })}
+        </div>
+      ))}
+    </nav>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Desktop sidebar
 // ---------------------------------------------------------------------------
 
@@ -104,8 +161,6 @@ interface SidebarProps {
 }
 
 function Sidebar({ nav, fullName, hasProfile, onOpenSwitcher, onSignOut }: SidebarProps) {
-  const showHeadings = nav.groups.length > 1
-
   return (
     <aside className="sticky top-0 hidden h-screen w-sidebar shrink-0 flex-col gap-6 border-r border-border bg-surface px-4 py-6 md:flex">
       <div className="px-2">
@@ -120,41 +175,7 @@ function Sidebar({ nav, fullName, hasProfile, onOpenSwitcher, onSignOut }: Sideb
         />
       )}
 
-      <nav aria-label="Main" className="flex flex-1 flex-col gap-4 overflow-y-auto">
-        {nav.groups.length === 0 && (
-          <p className="px-3 font-sans text-caption text-text-muted">
-            Your pages will show up here.
-          </p>
-        )}
-        {nav.groups.map((group) => (
-          <div key={group.heading} className="flex flex-col gap-1">
-            {showHeadings && (
-              <p className="px-3 pb-1 font-sans text-caption text-text-muted">{group.heading}</p>
-            )}
-            {group.items.map((item) => {
-              const isActive = nav.isActive(item.href)
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={isActive ? 'page' : undefined}
-                  className={cx(
-                    // 40px tall; the ::before layer reaches 44px without overlapping the next item
-                    "relative flex h-10 items-center gap-3 rounded-md px-3 py-2 font-sans text-body no-underline transition-colors duration-fast before:absolute before:inset-x-0 before:-inset-y-0.5 before:content-[''] hover:no-underline",
-                    isActive
-                      ? 'bg-accent-bg font-semibold text-accent-text'
-                      : 'text-text-secondary hover:bg-background hover:text-text-primary'
-                  )}
-                >
-                  <Icon name={item.icon} />
-                  {/* Hind Guntur's letters sit high in their line box, so nudge them level */}
-                  <span className="translate-y-0.5">{item.label}</span>
-                </Link>
-              )
-            })}
-          </div>
-        ))}
-      </nav>
+      <NavLinks nav={nav} scrolls />
 
       <ThemeToggle className="self-start" />
       <div className="flex items-center gap-3 border-t border-border pt-4">
@@ -194,12 +215,20 @@ function Sidebar({ nav, fullName, hasProfile, onOpenSwitcher, onSignOut }: Sideb
 // Mobile top bar and bottom tab bar
 // ---------------------------------------------------------------------------
 
+// More links than this and the phone tab bar gets cramped, so they move to a side menu
+const MAX_PHONE_TABS = 5
+
+function usesPhoneMenu(nav: ShellNav): boolean {
+  return nav.items.length > MAX_PHONE_TABS
+}
+
 interface MobileTopBarProps {
   nav: ShellNav
   fullName: string
   accountLabel: string
   onOpenSwitcher: () => void
   onOpenAccount: () => void
+  onOpenMenu: () => void
 }
 
 function MobileTopBar({
@@ -208,12 +237,28 @@ function MobileTopBar({
   accountLabel,
   onOpenSwitcher,
   onOpenAccount,
+  onOpenMenu,
 }: MobileTopBarProps) {
   return (
     <header className="sticky top-0 z-sticky flex h-14 items-center justify-between gap-3 border-b border-border bg-surface px-4 md:hidden">
-      <Brand />
+      <div className="flex shrink-0 items-center gap-1">
+        {usesPhoneMenu(nav) && (
+          <button
+            type="button"
+            onClick={onOpenMenu}
+            aria-haspopup="dialog"
+            aria-label="Open menu"
+            className="-ml-2 flex size-control items-center justify-center rounded-md text-text-primary hover:bg-background"
+          >
+            <Icon name="menu" />
+          </button>
+        )}
+        <Brand />
+      </div>
       <div className="flex min-w-0 items-center justify-end gap-2">
-        {nav.active && (
+        <NotificationBell />
+        {/* With the side menu, the cohort moves into the menu so the header isn't crowded */}
+        {nav.active && !usesPhoneMenu(nav) && (
           <CohortPill
             context={nav.active}
             canSwitch={nav.canSwitch}
@@ -241,7 +286,7 @@ const tabClasses =
   'flex h-control-lg flex-1 flex-col items-center justify-center gap-0.5 font-sans text-tab no-underline hover:no-underline'
 
 function BottomTabBar({ nav }: BottomTabBarProps) {
-  if (nav.items.length === 0) return null
+  if (nav.items.length === 0 || usesPhoneMenu(nav)) return null
   return (
     <nav
       aria-label="Main"
@@ -318,6 +363,35 @@ function CohortSwitcher({ nav, isOpen, onClose }: CohortSwitcherProps) {
   )
 }
 
+interface PhoneMenuProps {
+  nav: ShellNav
+  isOpen: boolean
+  onClose: () => void
+  onOpenSwitcher: () => void
+}
+
+// The phone side menu, used in place of the tab bar when there are too many links.
+// It also carries the cohort, which the crowded header leaves out.
+function PhoneMenu({ nav, isOpen, onClose, onOpenSwitcher }: PhoneMenuProps) {
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title="Menu" width="sm" placement="side">
+      <div className="flex flex-col gap-5">
+        {nav.active && (
+          <CohortCard
+            context={nav.active}
+            canSwitch={nav.canSwitch}
+            onOpenSwitcher={() => {
+              onClose()
+              onOpenSwitcher()
+            }}
+          />
+        )}
+        <NavLinks nav={nav} onNavigate={onClose} />
+      </div>
+    </Modal>
+  )
+}
+
 interface MeDialogProps {
   isOpen: boolean
   onClose: () => void
@@ -361,6 +435,7 @@ export function AppShell({ children }: AppShellProps) {
   const nav = useShellNav(user)
   const [isSwitcherOpen, setIsSwitcherOpen] = useState(false)
   const [isMeOpen, setIsMeOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const fullName = user ? `${user.first_name} ${user.last_name}`.trim() : ''
   // Only mentees have a profile screen so far
@@ -391,6 +466,7 @@ export function AppShell({ children }: AppShellProps) {
           accountLabel={hasProfile ? 'Your profile' : 'Your account'}
           onOpenSwitcher={() => setIsSwitcherOpen(true)}
           onOpenAccount={openAccount}
+          onOpenMenu={() => setIsMenuOpen(true)}
         />
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-6 md:px-10 md:pb-12 md:pt-8">
           {children}
@@ -403,6 +479,14 @@ export function AppShell({ children }: AppShellProps) {
           nav={nav}
           isOpen={isSwitcherOpen}
           onClose={() => setIsSwitcherOpen(false)}
+        />
+      )}
+      {usesPhoneMenu(nav) && (
+        <PhoneMenu
+          nav={nav}
+          isOpen={isMenuOpen}
+          onClose={() => setIsMenuOpen(false)}
+          onOpenSwitcher={() => setIsSwitcherOpen(true)}
         />
       )}
       <MeDialog

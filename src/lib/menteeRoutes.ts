@@ -10,6 +10,11 @@ export const MENTEE_ROUTES = {
   leaderboard: '/dashboard/leaderboard',
   chooseTrack: '/dashboard/choose-track',
   profile: '/dashboard/profile',
+  notifications: '/dashboard/notifications',
+}
+
+export function menteeSessionRoute(sessionId: string): string {
+  return `${MENTEE_ROUTES.sessions}/${sessionId}`
 }
 
 export function menteeAttendanceRoute(sessionId: string): string {

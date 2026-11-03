@@ -1,10 +1,6 @@
-import { LeaderboardList } from '@/components/forge/LeaderboardList'
+import { LeaderboardBoards } from '@/components/forge/LeaderboardBoards'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { Chip } from '@/components/ui/Chip'
-import { ErrorState } from '@/components/ui/ErrorState'
-import { LoadingState } from '@/components/ui/LoadingState'
 import { myStanding } from '@/lib/leaderboard'
-import { RANK_BOARDS } from '@/lib/menteeDashboard'
 import type { DimensionEntry, LeaderboardDimension } from '@/types/leaderboard'
 
 interface LeaderboardScreenProps {
@@ -34,29 +30,14 @@ export function LeaderboardScreen({
         title="Leaderboard"
         subtitle={standing ? <span className="hidden md:inline">{standing}</span> : undefined}
       />
-      <div
-        role="group"
-        aria-label="Choose a leaderboard"
-        className="-mx-4 flex gap-2 overflow-x-auto px-4 py-1 md:mx-0 md:flex-wrap md:px-0"
-      >
-        {RANK_BOARDS.map((board) => (
-          <Chip
-            key={board.dimension}
-            variant={board.dimension === dimension ? 'on' : 'default'}
-            pressed={board.dimension === dimension}
-            onClick={() => onDimensionChange(board.dimension)}
-          >
-            {board.label}
-          </Chip>
-        ))}
-      </div>
-      {error ? (
-        <ErrorState message={error} onRetry={onRetry} />
-      ) : isLoading || !entries ? (
-        <LoadingState label="Loading the leaderboard" />
-      ) : (
-        <LeaderboardList key={dimension} dimension={dimension} entries={entries} />
-      )}
+      <LeaderboardBoards
+        dimension={dimension}
+        onDimensionChange={onDimensionChange}
+        entries={entries}
+        isLoading={isLoading}
+        error={error}
+        onRetry={onRetry}
+      />
     </div>
   )
 }

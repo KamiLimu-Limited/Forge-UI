@@ -74,6 +74,11 @@ import type {
 } from '@/types/enrollment'
 import type { InvitationListParams, InvitationResponse } from '@/types/invitation'
 import type { DimensionRankingResponse, LeaderboardDimension } from '@/types/leaderboard'
+import type {
+  MarkAllReadResponse,
+  NotificationListParams,
+  NotificationResponse,
+} from '@/types/notification'
 import type { Page } from '@/types/page'
 import type {
   MentorAssignment,
@@ -548,6 +553,26 @@ export const api = {
       request<AttendanceRateResponse>(
         `/api/v1/mentees/${menteeId}/attendance-rates${qs({ cohort_id: cohortId })}`
       ),
+  },
+
+  notifications: {
+    mine: (params?: NotificationListParams) =>
+      request<Page<NotificationResponse>>(`/api/v1/notifications/me${qs(params)}`),
+
+    // The API returns one count in an object; its key isn't documented
+    unreadCount: () =>
+      request<{ unread: number }>('/api/v1/notifications/me/unread-count').then(
+        (counts) => counts.unread
+      ),
+
+    markRead: (notificationId: string) =>
+      request<NotificationResponse>(
+        `/api/v1/notifications/${notificationId}/read`,
+        json('PATCH', {})
+      ),
+
+    markAllRead: () =>
+      request<MarkAllReadResponse>('/api/v1/notifications/read-all', json('PATCH', {})),
   },
 
   skills: {

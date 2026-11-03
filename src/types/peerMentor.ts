@@ -48,3 +48,85 @@ export interface MenteeDetailView {
   // null when the group's records couldn't be read
   feedback: MenteeFeedbackRow[] | null
 }
+
+// The peer mentorship session a peer mentor's group is on now, or just had
+export interface PeerSessionView {
+  id: string
+  title: string
+  // ISO date-times
+  startsAt: string
+  endsAt: string
+  // "Closes in 2h" while attendance is open, "Closed" after, null before it opens
+  windowLabel: string | null
+  isOpen: boolean
+  // Mentees who have sent their attendance, ratings and feedback
+  submitted: number
+  groupSize: number
+}
+
+export interface FeedbackQuestionView {
+  label: string
+  // Average out of 5, null when nobody has answered yet
+  average: number | null
+}
+
+export interface FeedbackGroupView {
+  // "Reaction", "Learning" or "Intended behaviour"
+  label: string
+  questions: FeedbackQuestionView[]
+}
+
+// What a peer mentor's own group said about one session. No names: feedback stays anonymous.
+export interface GroupFeedbackView {
+  id: string
+  title: string
+  // ISO date-times
+  startsAt: string
+  endsAt: string
+  // "Window closes Thu 27 Aug, 12:00 PM" or "Window closed …", null when unknown
+  windowLine: string | null
+  submitted: number
+  groupSize: number
+  // Average of every answer, out of 5
+  average: number | null
+  groups: FeedbackGroupView[]
+  feedback: string[]
+}
+
+export interface FacilitatorSessionRow {
+  id: string
+  title: string
+  // ISO date-time
+  startsAt: string
+  // Attendance is still open, so ratings are still coming in
+  isInProgress: boolean
+  // Average of the group's answers out of 5, null when nobody rated it
+  rating: number | null
+}
+
+export interface RatingPointView {
+  // Short name for the chart axis, such as "PM 3"
+  label: string
+  title: string
+  rating: number
+}
+
+// The peer mentorship sessions a peer mentor has run with their group, and how they were rated.
+// Worked out from the group's own answers. See docs/api-gaps.md.
+export interface FacilitatorView {
+  completed: number
+  inProgress: number
+  // Average of the completed sessions' ratings
+  average: number | null
+  best: FacilitatorSessionRow | null
+  // Newest first
+  sessions: FacilitatorSessionRow[]
+  // Completed and rated, oldest first
+  trend: RatingPointView[]
+}
+
+export interface SessionRatingsView {
+  session: GroupFeedbackView
+  // The peer mentor's average across all their completed sessions
+  averageAcrossSessions: number | null
+}

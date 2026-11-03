@@ -4,6 +4,7 @@ import { cx } from '@/lib/cx'
 export type IconName =
   | 'alert'
   | 'arrow-left'
+  | 'bell'
   | 'calendar'
   | 'chart'
   | 'check'
@@ -46,6 +47,12 @@ const paths: Record<IconName, ReactNode> = {
     </>
   ),
   'arrow-left': <path d="M19 12H5M11 6l-6 6 6 6" />,
+  bell: (
+    <>
+      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+    </>
+  ),
   chart: <path d="M6 20V10M12 20V4M18 20v-7" />,
   star: <path d="M12 3l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6L3.3 9.2l6.1-.6z" />,
   target: (

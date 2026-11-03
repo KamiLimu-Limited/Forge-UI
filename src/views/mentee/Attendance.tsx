@@ -1,5 +1,6 @@
 'use client'
 
+import { useParticipantRole } from '@/hooks/useParticipantRole'
 import { useSessionRecord } from '@/hooks/useSessionRecord'
 import { useSubmitAttendance } from '@/hooks/useSubmitAttendance'
 import { AttendanceScreen } from './AttendanceScreen'
@@ -12,6 +13,7 @@ interface AttendanceProps {
 export function Attendance({ sessionId }: AttendanceProps) {
   const { data, isLoading, error, refetch } = useSessionRecord(sessionId)
   const { submit, isSubmitting, error: submitError } = useSubmitAttendance(data)
+  const { saveBlockedNote } = useParticipantRole()
   return (
     <AttendanceScreen
       session={data}
@@ -21,6 +23,7 @@ export function Attendance({ sessionId }: AttendanceProps) {
       onSubmit={(answers) => void submit(answers)}
       isSubmitting={isSubmitting}
       submitError={submitError}
+      saveBlockedNote={saveBlockedNote}
     />
   )
 }

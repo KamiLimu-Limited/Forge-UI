@@ -1,8 +1,9 @@
+import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { ButtonLink } from '@/components/ui/ButtonLink'
 import { Chip } from '@/components/ui/Chip'
 import { formatDay, formatTimeRange, plural } from '@/lib/format'
-import { menteeAttendanceRoute, menteeNotesRoute } from '@/lib/menteeRoutes'
+import { menteeAttendanceRoute, menteeNotesRoute, menteeSessionRoute } from '@/lib/menteeRoutes'
 import type { OpenSession } from '@/types/home'
 import type { UpcomingSession } from '@/types/menteeSessions'
 import { TrackBadge } from './TrackBadge'
@@ -31,7 +32,11 @@ export function MenteeSessionRow(props: MenteeSessionRowProps) {
 
       <div className="min-w-0 md:flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-sans text-body font-semibold text-text-primary">{session.title}</h3>
+          <h3 className="font-sans text-body font-semibold text-text-primary">
+            <Link href={menteeSessionRoute(session.id)} className="text-inherit hover:underline">
+              {session.title}
+            </Link>
+          </h3>
           <span className="hidden md:inline">{badge}</span>
         </div>
         <p className="font-sans text-small text-text-secondary">{when}</p>

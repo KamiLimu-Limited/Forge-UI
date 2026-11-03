@@ -15,8 +15,9 @@ export interface NavGroup {
   items: NavItem[]
 }
 
-// Sidebar and bottom tab links per role. Only routes that exist are listed.
-export const NAV_BY_ROLE: Record<UserRole, NavGroup> = {
+// Sidebar and bottom tab links per role. Only routes that exist are listed. A role with two
+// groups, like the peer mentor's own participation, gets its links under two headings.
+export const NAV_BY_ROLE: Record<UserRole, NavGroup | NavGroup[]> = {
   admin: {
     heading: 'As an admin',
     items: [
@@ -36,10 +37,25 @@ export const NAV_BY_ROLE: Record<UserRole, NavGroup> = {
       { label: 'Leaderboard', href: MENTEE_ROUTES.leaderboard, icon: 'chart' },
     ],
   },
-  'peer_mentor_1:1': {
-    heading: 'As a peer mentor',
-    items: [{ label: 'My mentees', href: PEER_MENTOR_ROUTES.home, icon: 'users' }],
-  },
+  'peer_mentor_1:1': [
+    {
+      heading: 'As a peer mentor',
+      items: [
+        { label: 'My mentees', href: PEER_MENTOR_ROUTES.home, icon: 'users' },
+        { label: 'Facilitator view', href: PEER_MENTOR_ROUTES.facilitator, icon: 'chart' },
+        { label: 'Leaderboards', href: PEER_MENTOR_ROUTES.leaderboards, icon: 'star' },
+      ],
+    },
+    {
+      // The mentee screens, with saving switched off until the API lets peer mentors save
+      heading: 'My participation',
+      items: [
+        { label: 'Sessions', href: MENTEE_ROUTES.sessions, icon: 'calendar' },
+        { label: 'Activities', href: MENTEE_ROUTES.activities, icon: 'inbox' },
+        { label: 'Objectives', href: MENTEE_ROUTES.objectives, icon: 'target' },
+      ],
+    },
+  ],
   peer_mentor_ict: { heading: 'As an ICT peer mentor', items: [] },
   professional_mentor: { heading: 'As a professional mentor', items: [] },
   committee: { heading: 'As a committee member', items: [] },

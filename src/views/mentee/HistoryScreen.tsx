@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { LoadingState } from '@/components/ui/LoadingState'
+import { Notice } from '@/components/ui/Notice'
 import { Select } from '@/components/ui/Select'
 import { useHistoryFilters } from '@/hooks/useHistoryFilters'
 import type { HistoryFilters, MenteeHistoryData } from '@/types/menteeSessions'
@@ -28,6 +29,8 @@ interface HistoryScreenProps {
   isLoading?: boolean
   error?: string | null
   onRetry?: () => void
+  // Shown at the top while saving is switched off, for example for peer mentors
+  saveBlockedNote?: string | null
 }
 
 // Session history with filters. The page's hook loads the data; useHistoryFilters
@@ -37,6 +40,7 @@ export function HistoryScreen({
   isLoading = false,
   error = null,
   onRetry,
+  saveBlockedNote = null,
 }: HistoryScreenProps) {
   const rows = data?.rows ?? []
   const { filters, setFilter, options, visibleRows, selected, select } = useHistoryFilters(rows)
@@ -50,6 +54,7 @@ export function HistoryScreen({
         }
       />
       <SessionViewTabs />
+      {saveBlockedNote && <Notice>{saveBlockedNote}</Notice>}
       {error ? (
         <ErrorState message={error} onRetry={onRetry} />
       ) : isLoading || !data ? (

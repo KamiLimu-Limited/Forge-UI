@@ -1,10 +1,11 @@
+import Link from 'next/link'
 import { TrackBadge } from '@/components/forge/TrackBadge'
 import { buttonClasses } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { TextLink } from '@/components/ui/TextLink'
 import { cx } from '@/lib/cx'
 import { formatDay, formatTime, formatTimeRange } from '@/lib/format'
-import { MENTEE_ROUTES } from '@/lib/menteeRoutes'
+import { MENTEE_ROUTES, menteeSessionRoute } from '@/lib/menteeRoutes'
 import type { NextSession } from '@/types/home'
 
 interface NextSessionCardProps {
@@ -49,7 +50,12 @@ export function NextSessionCard({
     >
       {session ? (
         <>
-          <p className="font-sans text-body font-semibold text-text-primary">{session.title}</p>
+          <Link
+            href={menteeSessionRoute(session.id)}
+            className="font-sans text-body font-semibold text-text-primary hover:underline"
+          >
+            {session.title}
+          </Link>
           <p className="font-sans text-small text-text-secondary">
             {formatDay(session.startsAt)},{' '}
             {session.endsAt

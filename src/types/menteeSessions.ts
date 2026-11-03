@@ -110,3 +110,31 @@ export interface ExtensionView {
   // The mentee's latest request for this session
   request: ExtensionRequestView | null
 }
+
+export interface SessionPersonView {
+  name: string
+  // "Lead mentor" or "Co-mentor"
+  roleLabel: string
+}
+
+export interface SessionMaterialView {
+  url: string
+  title: string
+  // "Google Drive folder"
+  kindLabel: string
+}
+
+// Everything the session detail screen shows, on top of the attendance view
+export interface SessionDetailView extends SessionRecordView {
+  isVirtual: boolean
+  // "Virtual", or the venue for a physical session
+  whereLabel: string
+  typeLabel: string
+  month: number
+  // "Today, starts in 2 hours", or null once it has started
+  startsSoonLabel: string | null
+  // "Moved from Thu 20 Aug, 5:30 PM. Reason from the System Admin: …"
+  movedNote: string | null
+  mentors: SessionPersonView[]
+  materials: SessionMaterialView[]
+}

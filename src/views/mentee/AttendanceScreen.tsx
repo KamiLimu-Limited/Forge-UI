@@ -29,6 +29,8 @@ interface AttendanceScreenProps {
   onSubmit: (answers: AttendanceAnswers) => void
   isSubmitting?: boolean
   submitError?: string | null
+  // Shown at the top while saving is switched off, for example for peer mentors
+  saveBlockedNote?: string | null
 }
 
 const STATUS_OPTIONS: { value: AttendanceAnswers['status']; label: string }[] = [
@@ -65,11 +67,13 @@ function AttendanceForm({
   onSubmit,
   isSubmitting,
   submitError,
+  saveBlockedNote,
 }: {
   session: SessionRecordView
   onSubmit: (answers: AttendanceAnswers) => void
   isSubmitting: boolean
   submitError: string | null
+  saveBlockedNote: string | null
 }) {
   const form = useAttendanceAnswers()
 
@@ -149,7 +153,14 @@ function AttendanceForm({
               </p>
             )}
             {submitError && <Notice variant="danger">{submitError}</Notice>}
-            <Button type="submit" size="lg" fullWidth isLoading={isSubmitting}>
+            {saveBlockedNote && <Notice>{saveBlockedNote}</Notice>}
+            <Button
+              type="submit"
+              size="lg"
+              fullWidth
+              isLoading={isSubmitting}
+              disabled={Boolean(saveBlockedNote)}
+            >
               Submit attendance
             </Button>
           </div>
@@ -192,6 +203,7 @@ export function AttendanceScreen({
   onSubmit,
   isSubmitting = false,
   submitError = null,
+  saveBlockedNote = null,
 }: AttendanceScreenProps) {
   return (
     <div className="flex flex-col gap-4 md:gap-5">
@@ -224,6 +236,7 @@ export function AttendanceScreen({
               onSubmit={onSubmit}
               isSubmitting={isSubmitting}
               submitError={submitError}
+              saveBlockedNote={saveBlockedNote}
             />
           ) : (
             <FormUnavailable session={session} />

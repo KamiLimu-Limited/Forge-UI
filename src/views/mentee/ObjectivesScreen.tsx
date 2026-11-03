@@ -25,6 +25,8 @@ interface ObjectivesScreenProps {
   onSave: (ratings: Record<string, number>) => void
   isSaving?: boolean
   saveError?: string | null
+  // Shown at the top while saving is switched off, for example for peer mentors
+  saveBlockedNote?: string | null
 }
 
 function openLine(data: MenteeObjectivesData): string {
@@ -44,6 +46,7 @@ export function ObjectivesScreen({
   onSave,
   isSaving = false,
   saveError = null,
+  saveBlockedNote = null,
 }: ObjectivesScreenProps) {
   const form = useObjectiveRatings(data)
   const openWindow = data?.openWindow ?? null
@@ -59,7 +62,14 @@ export function ObjectivesScreen({
   }
 
   const saveButton = (fullWidth: boolean) => (
-    <Button type="submit" form={FORM_ID} size="lg" fullWidth={fullWidth} isLoading={isSaving}>
+    <Button
+      type="submit"
+      form={FORM_ID}
+      size="lg"
+      fullWidth={fullWidth}
+      isLoading={isSaving}
+      disabled={Boolean(saveBlockedNote)}
+    >
       {saveLabel}
     </Button>
   )
@@ -114,6 +124,7 @@ export function ObjectivesScreen({
           className="flex flex-col gap-4 md:gap-5"
         >
           {saveError && <Notice variant="danger">{saveError}</Notice>}
+          {saveBlockedNote && <Notice>{saveBlockedNote}</Notice>}
           {OBJECTIVE_GROUPS.map((group) => {
             const objectives = data.objectives.filter((objective) => objective.group === group)
             if (objectives.length === 0) return null

@@ -20,6 +20,7 @@ export interface SessionBuckets {
 }
 
 export interface NextSession {
+  id: string
   title: string
   // ISO date-times
   startsAt: string

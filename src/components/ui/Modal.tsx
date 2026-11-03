@@ -11,6 +11,8 @@ interface ModalProps {
   children: ReactNode
   footer?: ReactNode
   width?: 'sm' | 'md' | 'lg'
+  // "side" opens as a full-height panel from the left, like a phone menu
+  placement?: 'center' | 'side'
 }
 
 const widthClasses = {
@@ -22,7 +24,16 @@ const widthClasses = {
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
-export function Modal({ isOpen, onClose, title, children, footer, width = 'md' }: ModalProps) {
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  children,
+  footer,
+  width = 'md',
+  placement = 'center',
+}: ModalProps) {
+  const isSide = placement === 'side'
   const titleId = useId()
   const dialogRef = useRef<HTMLDivElement>(null)
   const onCloseRef = useRef(onClose)
@@ -77,7 +88,12 @@ export function Modal({ isOpen, onClose, title, children, footer, width = 'md' }
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-modal flex items-end justify-center p-4 md:items-center">
+    <div
+      className={cx(
+        'fixed inset-0 z-modal flex',
+        isSide ? 'items-stretch justify-start' : 'items-end justify-center p-4 md:items-center'
+      )}
+    >
       <div className="absolute inset-0 bg-overlay" onClick={onClose} aria-hidden="true" />
 
       <div
@@ -87,7 +103,10 @@ export function Modal({ isOpen, onClose, title, children, footer, width = 'md' }
         aria-labelledby={titleId}
         tabIndex={-1}
         className={cx(
-          'relative flex max-h-[90vh] w-full flex-col rounded-xl border border-border bg-surface shadow-card',
+          'relative flex flex-col border-border bg-surface shadow-card',
+          isSide
+            ? 'h-full w-4/5 rounded-r-xl border-r pt-2'
+            : 'max-h-[90vh] w-full rounded-xl border',
           widthClasses[width]
         )}
       >

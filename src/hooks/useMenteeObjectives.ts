@@ -3,6 +3,7 @@
 import { api } from '@/lib/api'
 import { objectivesData } from '@/lib/menteeObjectives'
 import type { MenteeObjectivesData } from '@/types/menteeObjectives'
+import { loadPeerObjectives } from '@/lib/peerParticipation'
 import { useApiQuery, type ApiQuery } from './useApiQuery'
 
 async function loadObjectives(): Promise<MenteeObjectivesData> {
@@ -15,8 +16,9 @@ async function loadObjectives(): Promise<MenteeObjectivesData> {
   return objectivesData(cohortId, progress, windows)
 }
 
-export function useMenteeObjectives(): ApiQuery<MenteeObjectivesData> {
-  return useApiQuery(loadObjectives, [], {
+// Peer mentors take part through the same screens, loaded from their group's cohort
+export function useMenteeObjectives(isPeerMentor = false): ApiQuery<MenteeObjectivesData> {
+  return useApiQuery(isPeerMentor ? () => loadPeerObjectives() : loadObjectives, [isPeerMentor], {
     fallbackError: "We couldn't load your objectives. Try again.",
   })
 }

@@ -17,6 +17,7 @@ async function loadNextSession(brief: SessionBrief | null): Promise<NextSession 
   if (!brief) return null
   const detail = await api.sessions.getById(brief.id).catch(() => null)
   return {
+    id: brief.id,
     title: brief.title,
     startsAt: brief.starts_at,
     endsAt: detail?.ends_at ?? null,

@@ -30,7 +30,7 @@ function Detail({ label, value }: { label: string; value: string }) {
 }
 
 // The mentee's profile. The API stores none of the profile details and has no way to change
-// a password, so those two cards are built as designed but disabled. See docs/api-gaps.md.
+// a password or a calendar feed, so those cards are built as designed but disabled. See docs/api-gaps.md.
 export function ProfileScreen({
   data,
   isLoading = false,
@@ -117,6 +117,30 @@ export function ProfileScreen({
               <Button variant="secondary" disabled fullWidth className="md:w-auto md:self-start">
                 Update password
               </Button>
+            </div>
+          </Card>
+
+          <Card title="Your calendar">
+            <div className="flex flex-col gap-4">
+              <p className="font-sans text-small text-text-secondary">
+                Add your KamiLimu sessions to Google Calendar, Apple Calendar or Outlook. Changes to
+                a session show up there on their own.
+              </p>
+              <Notice>Not available yet.</Notice>
+              <Input
+                label="Calendar link"
+                hint="Anyone with this link can see your sessions. Get a new link if you shared it by mistake."
+                readOnly
+                disabled
+              />
+              <div className="flex flex-col gap-3 md:flex-row">
+                <Button variant="secondary" disabled fullWidth className="md:w-auto">
+                  Copy link
+                </Button>
+                <Button variant="ghost" disabled fullWidth className="md:w-auto">
+                  Get a new link
+                </Button>
+              </div>
             </div>
           </Card>
 

@@ -1,30 +1,35 @@
 // =============================================================================
-// Loads one session with the mentee's window and record, for the attendance and
-// notes screens, and turns form answers into API requests.
+// Loads one session with the mentee's window and record, for the session detail,
+// attendance, notes and extension screens, and turns form answers into API requests.
 // =============================================================================
 
 import { api } from '@/lib/api'
 import { RATING_FIELDS } from '@/lib/attendanceQuestions'
-import { formatDateTime, fullName } from '@/lib/format'
+import { formatDateTime, fullName, plural } from '@/lib/format'
+import { SESSION_TYPE_LABELS } from '@/lib/labels'
 import { closesInLabel } from '@/lib/menteeDashboard'
 import { upcomingSession } from '@/lib/menteeSessions'
 import { sessionPillar } from '@/lib/sessions'
-import type { AttendanceRatings } from '@/types/attendance'
+import type {
+  AttendanceRatings,
+  MyAttendanceResponse,
+  WindowStatusResponse,
+} from '@/types/attendance'
 import type {
   AttendanceAnswers,
   ExtensionView,
+  SessionDetailView,
   SessionRecordView,
   WindowState,
 } from '@/types/menteeSessions'
+import type { MentorRole, ResourceType, SessionDetailResponse } from '@/types/session'
 
-export async function loadSessionRecord(sessionId: string): Promise<SessionRecordView> {
-  const session = await api.sessions.getById(sessionId)
-  const [window, records] = await Promise.all([
-    api.sessions.attendanceWindow(sessionId).catch(() => null),
-    api.attendance.mine({ session_id: sessionId, cohort_id: session.cohort_id, page_size: 1 }),
-  ])
-  const record = records.items[0] ?? null
-  const now = new Date()
+function recordView(
+  session: SessionDetailResponse,
+  window: WindowStatusResponse | null,
+  record: MyAttendanceResponse | null,
+  now: Date
+): SessionRecordView {
   const hasStarted = new Date(session.starts_at) <= now
   const windowState: WindowState = window?.is_open ? 'open' : hasStarted ? 'closed' : 'upcoming'
   const leader = session.mentors[0]?.user
@@ -47,6 +52,75 @@ export async function loadSessionRecord(sessionId: string): Promise<SessionRecor
     notes: record?.personal_notes ?? null,
     // The record's own time, so it only means something once there are notes
     savedAt: record?.personal_notes ? record.updated_at : null,
+  }
+}
+
+async function loadParts(sessionId: string) {
+  const session = await api.sessions.getById(sessionId)
+  const [window, records] = await Promise.all([
+    api.sessions.attendanceWindow(sessionId).catch(() => null),
+    api.attendance.mine({ session_id: sessionId, cohort_id: session.cohort_id, page_size: 1 }),
+  ])
+  return { session, window, record: records.items[0] ?? null }
+}
+
+export async function loadSessionRecord(sessionId: string): Promise<SessionRecordView> {
+  const { session, window, record } = await loadParts(sessionId)
+  return recordView(session, window, record, new Date())
+}
+
+const MENTOR_ROLE_LABELS: Record<MentorRole, string> = {
+  lead: 'Lead mentor',
+  co_mentor: 'Co-mentor',
+}
+
+const RESOURCE_LABELS: Record<ResourceType, string> = {
+  drive_folder: 'Google Drive folder',
+  slides: 'Slides',
+  recording: 'Recording',
+  document: 'Document',
+  other: 'Link',
+}
+
+// "Today, starts in 2 hours" for a session starting today, otherwise null
+function startsSoonLabel(startsAt: string, now: Date): string | null {
+  const start = new Date(startsAt)
+  if (start <= now || start.toDateString() !== now.toDateString()) return null
+  const minutes = Math.round((start.getTime() - now.getTime()) / 60000)
+  return minutes < 60
+    ? `Today, starts in ${plural(minutes, 'minute')}`
+    : `Today, starts in ${plural(Math.round(minutes / 60), 'hour')}`
+}
+
+function movedNote(session: SessionDetailResponse): string | null {
+  const last = session.reschedule_history?.[session.reschedule_history.length - 1]
+  if (!last) return null
+  const reason = last.reason?.trim()
+  return `Moved from ${formatDateTime(last.from)}.${reason ? ` Reason from the System Admin: ${reason}` : ''}`
+}
+
+export async function loadSessionDetail(sessionId: string): Promise<SessionDetailView> {
+  const { session, window, record } = await loadParts(sessionId)
+  const now = new Date()
+  // The PRD has no hybrid sessions any more; the API still allows them, so treat them as virtual
+  const isVirtual = session.mode !== 'physical'
+  return {
+    ...recordView(session, window, record, now),
+    isVirtual,
+    whereLabel: isVirtual ? 'Virtual' : session.location?.trim() || 'In person',
+    typeLabel: SESSION_TYPE_LABELS[session.session_type],
+    month: session.kami_limu_month,
+    startsSoonLabel: startsSoonLabel(session.starts_at, now),
+    movedNote: movedNote(session),
+    mentors: session.mentors.map((mentor) => ({
+      name: fullName(mentor.user),
+      roleLabel: MENTOR_ROLE_LABELS[mentor.mentor_role],
+    })),
+    materials: session.resources.map((resource) => ({
+      url: resource.url,
+      title: resource.description?.trim() || 'Session materials',
+      kindLabel: RESOURCE_LABELS[resource.resource_type],
+    })),
   }
 }
 

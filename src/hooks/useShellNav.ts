@@ -98,8 +98,8 @@ export function useShellNav(user: UserProfileResponse | null): ShellNav {
     if (!active) return []
     const seen = new Set<string>()
     return active.roles
-      .map((role) => {
-        const group = NAV_BY_ROLE[role]
+      .flatMap((role) => [NAV_BY_ROLE[role]].flat())
+      .map((group) => {
         const items = group.items.filter((item) => {
           if (seen.has(item.href)) return false
           seen.add(item.href)

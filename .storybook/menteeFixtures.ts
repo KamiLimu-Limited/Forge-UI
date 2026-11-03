@@ -1,12 +1,14 @@
 import { PILLAR_LABELS } from '../src/lib/labels'
 import type { MenteeHomeData } from '../src/types/home'
 import type { DimensionEntry } from '../src/types/leaderboard'
+import type { NotificationResponse } from '../src/types/notification'
 import type { MenteeObjectivesData } from '../src/types/menteeObjectives'
 import type { ApplicationView, MenteeActivitiesData } from '../src/types/menteeActivities'
 import type {
   HistoryRow,
   MenteeSessionsData,
   ExtensionView,
+  SessionDetailView,
   SessionRecordView,
   UpcomingSession,
 } from '../src/types/menteeSessions'
@@ -82,6 +84,7 @@ export const sampleHome: MenteeHomeData = {
   standing: { coreRate: 86, overallRate: 79, pointsEarned: 320, pointsPossible: 410 },
   buckets: { attended: 38, inProgress: 2, missed: 6, remaining: 55 },
   nextSession: {
+    id: 's-next',
     title: 'Cybersecurity: ICT Training 8',
     startsAt: '2026-08-27T17:30:00+03:00',
     endsAt: '2026-08-27T20:00:00+03:00',
@@ -119,6 +122,7 @@ export const sampleHomeFirstMonth: MenteeHomeData = {
   standing: { coreRate: 100, overallRate: 100, pointsEarned: 40, pointsPossible: 40 },
   buckets: { attended: 4, inProgress: 1, missed: 0, remaining: 96 },
   nextSession: {
+    id: 's-next',
     title: 'Getting started with your mentorship',
     startsAt: '2026-03-12T17:30:00+03:00',
     endsAt: '2026-03-12T19:00:00+03:00',
@@ -411,3 +415,72 @@ export const sampleBoard: DimensionEntry[] = Array.from({ length: 20 }, (_, inde
   is_me: index === 11,
   value: 98 - index,
 }))
+
+// ---- Session detail and notifications ----
+
+export const sampleSessionDetail: SessionDetailView = {
+  ...sampleSessionRecord,
+  id: 's-up-1',
+  title: 'Cybersecurity: ICT Training 8',
+  startsAt: '2026-08-27T17:30:00+03:00',
+  endsAt: '2026-08-27T20:00:00+03:00',
+  pillar: 'ict',
+  windowState: 'upcoming',
+  closesInLabel: null,
+  windowClosesLabel: 'Fri 28 Aug, 10:00 AM',
+  opensLabel: 'Opens at 5:30 PM',
+  isVirtual: true,
+  whereLabel: 'Virtual',
+  typeLabel: 'ICT',
+  month: 5,
+  startsSoonLabel: 'Today, starts in 2 hours',
+  movedNote:
+    'Moved from Thu 20 Aug, 5:30 PM. Reason from the System Admin: The venue was unavailable.',
+  mentors: [
+    { name: 'Sample Professional Mentor', roleLabel: 'Lead mentor' },
+    { name: 'Wanjiru Mwangi', roleLabel: 'Co-mentor' },
+  ],
+  materials: [
+    {
+      url: 'https://example.com/materials',
+      title: 'Session materials',
+      kindLabel: 'Google Drive folder',
+    },
+  ],
+}
+
+export const sampleNotifications: NotificationResponse[] = [
+  {
+    id: 'n-1',
+    notification_type: 'attendance_window_opening',
+    title: 'Attendance is open: Cybersecurity: ICT Training 8',
+    message: 'Record your attendance by Fri 28 Aug, 10:00 AM.',
+    meta_data: null,
+    related_resource_type: 'session',
+    related_resource_id: 's-up-1',
+    read_at: null,
+    created_at: '2026-08-27T17:35:00+03:00',
+  },
+  {
+    id: 'n-2',
+    notification_type: 'override_request_approved',
+    title: 'Your extension was approved',
+    message: 'User Validation and the Competitions Ahead.',
+    meta_data: null,
+    related_resource_type: null,
+    related_resource_id: null,
+    read_at: null,
+    created_at: '2026-08-27T15:40:00+03:00',
+  },
+  {
+    id: 'n-3',
+    notification_type: 'session_cancelled',
+    title: 'Session cancelled: Career Development',
+    message: "It won't count towards your attendance rate.",
+    meta_data: null,
+    related_resource_type: 'session',
+    related_resource_id: 's-2',
+    read_at: '2026-08-25T10:00:00+03:00',
+    created_at: '2026-08-24T09:00:00+03:00',
+  },
+]

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
+import { PEER_MENTOR_SAVE_NOTE } from '@/lib/participation'
 import { menteeUser } from '../../../.storybook/fixtures'
 import { sampleHistory } from '../../../.storybook/menteeFixtures'
 import { HistoryScreen } from './HistoryScreen'
@@ -28,3 +29,5 @@ export const WithError: Story = {
     onRetry: () => undefined,
   },
 }
+// A 1:1 peer mentor using the same screen: everything shows, saving is switched off
+export const AsPeerMentor: Story = { args: { saveBlockedNote: PEER_MENTOR_SAVE_NOTE } }

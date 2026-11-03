@@ -73,6 +73,7 @@ import type {
   EnrollmentUpdateRequest,
 } from '@/types/enrollment'
 import type { InvitationListParams, InvitationResponse } from '@/types/invitation'
+import type { TrackOverviewResponse, TrackSessionEntry } from '@/types/ictPeerMentor'
 import type { DimensionRankingResponse, LeaderboardDimension } from '@/types/leaderboard'
 import type {
   MarkAllReadResponse,
@@ -552,6 +553,18 @@ export const api = {
     attendanceRates: (menteeId: string, cohortId: string) =>
       request<AttendanceRateResponse>(
         `/api/v1/mentees/${menteeId}/attendance-rates${qs({ cohort_id: cohortId })}`
+      ),
+  },
+
+  ictPeerMentor: {
+    trackOverview: (cohortId: string) =>
+      request<TrackOverviewResponse>(
+        `/api/v1/dashboard/ict-peer-mentor/track-overview${qs({ cohort_id: cohortId })}`
+      ),
+
+    sessions: (cohortId: string) =>
+      request<TrackSessionEntry[]>(
+        `/api/v1/dashboard/ict-peer-mentor/sessions${qs({ cohort_id: cohortId })}`
       ),
   },
 

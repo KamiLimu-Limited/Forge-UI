@@ -23,9 +23,13 @@ async function loadHistory(): Promise<MenteeHistoryData> {
   return { monthLine: monthLine(month), rows: historyRows(entries, records, sessions) }
 }
 
-// Peer mentors take part through the same screens, loaded from their group's cohort
-export function useMenteeHistory(isPeerMentor = false): ApiQuery<MenteeHistoryData> {
-  return useApiQuery(isPeerMentor ? () => loadPeerHistory() : loadHistory, [isPeerMentor], {
-    fallbackError: "We couldn't load your session history. Try again.",
-  })
+// Peer mentors take part through the same screens, loaded from their role's cohort
+export function useMenteeHistory(peerCohortId: string | null = null): ApiQuery<MenteeHistoryData> {
+  return useApiQuery(
+    peerCohortId ? () => loadPeerHistory(peerCohortId) : loadHistory,
+    [peerCohortId],
+    {
+      fallbackError: "We couldn't load your session history. Try again.",
+    }
+  )
 }

@@ -6,8 +6,8 @@ import { SessionsScreen } from './SessionsScreen'
 
 // Loads the mentee's sessions and hands them to the screen
 export function Sessions() {
-  const { isPeerMentor, saveBlockedNote } = useParticipantRole()
-  const { data, isLoading, error, refetch } = useMenteeSessions(isPeerMentor)
+  const { peerCohortId, saveBlockedNote } = useParticipantRole()
+  const { data, isLoading, error, refetch } = useMenteeSessions(peerCohortId)
   return (
     <SessionsScreen
       data={data}

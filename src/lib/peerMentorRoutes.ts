@@ -17,3 +17,9 @@ export function groupFeedbackRoute(sessionId: string): string {
 export function sessionRatingsRoute(sessionId: string): string {
   return `/dashboard/facilitator/${sessionId}`
 }
+
+// ICT peer mentors: My track is their home page
+export const ICT_PEER_MENTOR_ROUTES = {
+  track: '/dashboard',
+  trackSessions: '/dashboard/track/sessions',
+}

@@ -4,18 +4,20 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { useAuth } from '@/hooks/useAuth'
-import { participantRole } from '@/lib/participation'
+import { participation } from '@/lib/participation'
 import { Home as MenteeHome } from '@/views/mentee/Home'
+import { MyTrack } from '@/views/ictPeerMentor/MyTrack'
 import { MyMentees } from '@/views/peerMentor/MyMentees'
 
 // /dashboard shows the screen for the signed-in user's role
 export function DashboardHome() {
   const { user } = useAuth()
 
-  const role = participantRole(user)
+  const role = participation(user)?.role
 
   if (user && role === 'mentee') return <MenteeHome user={user} />
   if (role === 'peer_mentor') return <MyMentees />
+  if (role === 'ict_peer_mentor') return <MyTrack />
 
   return (
     <>

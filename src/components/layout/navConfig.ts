@@ -1,6 +1,6 @@
 import type { IconName } from '@/components/ui/Icon'
 import { MENTEE_ROUTES } from '@/lib/menteeRoutes'
-import { PEER_MENTOR_ROUTES } from '@/lib/peerMentorRoutes'
+import { ICT_PEER_MENTOR_ROUTES, PEER_MENTOR_ROUTES } from '@/lib/peerMentorRoutes'
 import type { UserRole } from '@/types/auth'
 
 export interface NavItem {
@@ -13,6 +13,17 @@ export interface NavGroup {
   // Shown above the group only when the user has more than one group, e.g. "As a peer mentor"
   heading: string
   items: NavItem[]
+}
+
+// Peer mentors take part through the mentee screens, with saving switched off until the
+// API lets them save
+const PARTICIPATION_NAV: NavGroup = {
+  heading: 'My participation',
+  items: [
+    { label: 'Sessions', href: MENTEE_ROUTES.sessions, icon: 'calendar' },
+    { label: 'Activities', href: MENTEE_ROUTES.activities, icon: 'inbox' },
+    { label: 'Objectives', href: MENTEE_ROUTES.objectives, icon: 'target' },
+  ],
 }
 
 // Sidebar and bottom tab links per role. Only routes that exist are listed. A role with two
@@ -47,17 +58,19 @@ export const NAV_BY_ROLE: Record<UserRole, NavGroup | NavGroup[]> = {
         { label: 'Leaderboards', href: PEER_MENTOR_ROUTES.leaderboards, icon: 'star' },
       ],
     },
+    PARTICIPATION_NAV,
+  ],
+  peer_mentor_ict: [
     {
-      // The mentee screens, with saving switched off until the API lets peer mentors save
-      heading: 'My participation',
+      heading: 'As an ICT peer mentor',
       items: [
-        { label: 'Sessions', href: MENTEE_ROUTES.sessions, icon: 'calendar' },
-        { label: 'Activities', href: MENTEE_ROUTES.activities, icon: 'inbox' },
-        { label: 'Objectives', href: MENTEE_ROUTES.objectives, icon: 'target' },
+        { label: 'My track', href: ICT_PEER_MENTOR_ROUTES.track, icon: 'code' },
+        { label: 'ICT sessions', href: ICT_PEER_MENTOR_ROUTES.trackSessions, icon: 'calendar' },
+        { label: 'Leaderboards', href: PEER_MENTOR_ROUTES.leaderboards, icon: 'star' },
       ],
     },
+    PARTICIPATION_NAV,
   ],
-  peer_mentor_ict: { heading: 'As an ICT peer mentor', items: [] },
   professional_mentor: { heading: 'As a professional mentor', items: [] },
   committee: { heading: 'As a committee member', items: [] },
   partner: { heading: 'As a partner', items: [] },

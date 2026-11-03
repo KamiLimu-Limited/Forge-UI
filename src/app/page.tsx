@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation'
+import { Landing } from '@/views/Landing'
 
 export default function RootPage() {
-  redirect('/login')
+  return <Landing />
 }

@@ -1,6 +1,6 @@
 // =============================================================================
-// The mentee screens' data for a 1:1 peer mentor. The mentee overview and history routes
-// refuse peer mentors, so these start from the peer mentor's group and the cohort instead.
+// The mentee screens' data for a 1:1 or ICT peer mentor. The mentee overview and history
+// routes refuse peer mentors, so these start from the cohort of the peer mentor's role.
 // =============================================================================
 
 import { api, fetchAllPages } from '@/lib/api'
@@ -19,11 +19,6 @@ import type { MenteeHistoryData, MenteeSessionsData } from '@/types/menteeSessio
 import type { SessionResponse } from '@/types/session'
 import type { RatingPoint, SkillRatingWindowStatus } from '@/types/skills'
 
-async function loadCohort(): Promise<CohortDetailResponse> {
-  const group = await api.peerMentor.group()
-  return api.cohorts.getById(group.cohort_id)
-}
-
 function cohortMonthLine(cohort: CohortDetailResponse, now: Date): string | null {
   const total = monthBoundaries(cohort).length
   return monthLine({
@@ -38,8 +33,11 @@ function loadPublishedSessions(cohortId: string): Promise<SessionResponse[]> {
   )
 }
 
-export async function loadPeerSessions(now: Date = new Date()): Promise<MenteeSessionsData> {
-  const cohort = await loadCohort()
+export async function loadPeerSessions(
+  cohortId: string,
+  now: Date = new Date()
+): Promise<MenteeSessionsData> {
+  const cohort = await api.cohorts.getById(cohortId)
   const sessions = await loadPublishedSessions(cohort.id)
   const started = sessions.filter((session) => new Date(session.starts_at) <= now)
   const windows = await Promise.allSettled(
@@ -75,8 +73,11 @@ export async function loadPeerSessions(now: Date = new Date()): Promise<MenteeSe
 
 // The past sessions with whatever the peer mentor has on record. Without a record a session
 // shows as pending, since the API gives peer mentors no outcome or points.
-export async function loadPeerHistory(now: Date = new Date()): Promise<MenteeHistoryData> {
-  const cohort = await loadCohort()
+export async function loadPeerHistory(
+  cohortId: string,
+  now: Date = new Date()
+): Promise<MenteeHistoryData> {
+  const cohort = await api.cohorts.getById(cohortId)
   const [sessions, records] = await Promise.all([
     loadPublishedSessions(cohort.id),
     fetchAllPages((page, page_size) =>
@@ -105,10 +106,9 @@ export async function loadPeerHistory(now: Date = new Date()): Promise<MenteeHis
   return { monthLine: cohortMonthLine(cohort, now), rows }
 }
 
-export async function loadPeerActivities(): Promise<MenteeActivitiesData> {
-  const group = await api.peerMentor.group()
+export async function loadPeerActivities(cohortId: string): Promise<MenteeActivitiesData> {
   const activities = await fetchAllPages((page, page_size) =>
-    api.extraActivities.mine({ page, page_size, cohort_id: group.cohort_id })
+    api.extraActivities.mine({ page, page_size, cohort_id: cohortId })
   )
   return activitiesData(activities)
 }
@@ -117,8 +117,11 @@ const RATING_POINTS: RatingPoint[] = ['early', 'mid', 'late']
 
 // The cohort's skills and rating windows, with no ratings, since the API keeps ratings
 // against a mentee enrollment
-export async function loadPeerObjectives(now: Date = new Date()): Promise<MenteeObjectivesData> {
-  const cohort = await loadCohort()
+export async function loadPeerObjectives(
+  cohortId: string,
+  now: Date = new Date()
+): Promise<MenteeObjectivesData> {
+  const cohort = await api.cohorts.getById(cohortId)
   const statuses: SkillRatingWindowStatus[] = RATING_POINTS.flatMap((point) => {
     const window = cohort.skill_rating_windows?.[point]
     if (!window) return []

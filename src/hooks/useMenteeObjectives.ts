@@ -16,9 +16,15 @@ async function loadObjectives(): Promise<MenteeObjectivesData> {
   return objectivesData(cohortId, progress, windows)
 }
 
-// Peer mentors take part through the same screens, loaded from their group's cohort
-export function useMenteeObjectives(isPeerMentor = false): ApiQuery<MenteeObjectivesData> {
-  return useApiQuery(isPeerMentor ? () => loadPeerObjectives() : loadObjectives, [isPeerMentor], {
-    fallbackError: "We couldn't load your objectives. Try again.",
-  })
+// Peer mentors take part through the same screens, loaded from their role's cohort
+export function useMenteeObjectives(
+  peerCohortId: string | null = null
+): ApiQuery<MenteeObjectivesData> {
+  return useApiQuery(
+    peerCohortId ? () => loadPeerObjectives(peerCohortId) : loadObjectives,
+    [peerCohortId],
+    {
+      fallbackError: "We couldn't load your objectives. Try again.",
+    }
+  )
 }

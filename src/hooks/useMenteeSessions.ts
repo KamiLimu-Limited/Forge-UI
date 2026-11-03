@@ -37,9 +37,15 @@ async function loadSessions(): Promise<MenteeSessionsData> {
   }
 }
 
-// Peer mentors take part through the same screens, loaded from their group's cohort
-export function useMenteeSessions(isPeerMentor = false): ApiQuery<MenteeSessionsData> {
-  return useApiQuery(isPeerMentor ? () => loadPeerSessions() : loadSessions, [isPeerMentor], {
-    fallbackError: "We couldn't load your sessions. Try again.",
-  })
+// Peer mentors take part through the same screens, loaded from their role's cohort
+export function useMenteeSessions(
+  peerCohortId: string | null = null
+): ApiQuery<MenteeSessionsData> {
+  return useApiQuery(
+    peerCohortId ? () => loadPeerSessions(peerCohortId) : loadSessions,
+    [peerCohortId],
+    {
+      fallbackError: "We couldn't load your sessions. Try again.",
+    }
+  )
 }

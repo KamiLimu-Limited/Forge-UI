@@ -6,8 +6,8 @@ import { HistoryScreen } from './HistoryScreen'
 
 // Loads the mentee's session history and hands it to the screen
 export function History() {
-  const { isPeerMentor, saveBlockedNote } = useParticipantRole()
-  const { data, isLoading, error, refetch } = useMenteeHistory(isPeerMentor)
+  const { peerCohortId, saveBlockedNote } = useParticipantRole()
+  const { data, isLoading, error, refetch } = useMenteeHistory(peerCohortId)
   return (
     <HistoryScreen
       data={data}

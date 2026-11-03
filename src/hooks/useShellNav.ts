@@ -24,6 +24,8 @@ export interface ShellNav {
   // True only when the user has roles in more than one cohort
   canSwitch: boolean
   setActiveKey: (key: string) => void
+  // The first page of a cohort's links, so switching cohort can open it
+  firstPageFor: (key: string) => string | null
   // Groups that have at least one link; headings matter only when there is more than one
   groups: NavGroup[]
   // Flat list for the mobile tab bar
@@ -83,6 +85,22 @@ function buildContexts(
   })
 }
 
+// The links for one cohort's roles, without repeats
+function navGroups(context: RoleContext): NavGroup[] {
+  const seen = new Set<string>()
+  return context.roles
+    .flatMap((role) => [NAV_BY_ROLE[role]].flat())
+    .map((group) => {
+      const items = group.items.filter((item) => {
+        if (seen.has(item.href)) return false
+        seen.add(item.href)
+        return true
+      })
+      return { heading: group.heading, items }
+    })
+    .filter((group) => group.items.length > 0)
+}
+
 export function useShellNav(user: UserProfileResponse | null): ShellNav {
   const pathname = usePathname()
   const [activeKey, setActiveKey] = useState<string | null>(null)
@@ -94,27 +112,17 @@ export function useShellNav(user: UserProfileResponse | null): ShellNav {
   const contexts = useMemo(() => buildContexts(user, names.data ?? {}), [user, names.data])
   const active = contexts.find((c) => c.key === activeKey) ?? contexts[0] ?? null
 
-  const groups = useMemo(() => {
-    if (!active) return []
-    const seen = new Set<string>()
-    return active.roles
-      .flatMap((role) => [NAV_BY_ROLE[role]].flat())
-      .map((group) => {
-        const items = group.items.filter((item) => {
-          if (seen.has(item.href)) return false
-          seen.add(item.href)
-          return true
-        })
-        return { heading: group.heading, items }
-      })
-      .filter((group) => group.items.length > 0)
-  }, [active])
+  const groups = useMemo(() => (active ? navGroups(active) : []), [active])
 
   return {
     contexts,
     active,
     canSwitch: contexts.length > 1,
     setActiveKey,
+    firstPageFor: (key) => {
+      const context = contexts.find((c) => c.key === key)
+      return context ? (navGroups(context)[0]?.items[0]?.href ?? null) : null
+    },
     groups,
     items: groups.flatMap((g) => g.items),
     // /dashboard is the home tab, so it only matches exactly

@@ -11,6 +11,7 @@ import type { ActivityType } from '@/types/activity'
 import type { AttendanceRatings, AttendanceResponse, AttendanceStatus } from '@/types/attendance'
 import type { MenteeDrilldown, MenteeSummary, SessionPointsEntry } from '@/types/dashboard'
 import type {
+  MenteeActivityCount,
   MenteeAttendanceRow,
   MenteeCardView,
   MenteeDetailView,
@@ -34,6 +35,14 @@ const ACTIVITY_ROWS: { type: ActivityType; label: string }[] = [
   { type: 'academic', label: 'KamiLimu to Academia' },
 ]
 
+// How many activities of each type, in the order the screens list them
+export function activityCounts(types: ActivityType[]): MenteeActivityCount[] {
+  return ACTIVITY_ROWS.map(({ type, label }) => ({
+    label,
+    count: types.filter((item) => item === type).length,
+  }))
+}
+
 export function menteeCard(summary: MenteeSummary): MenteeCardView {
   const { first_name, last_name, id } = summary.mentee
   return {
@@ -55,7 +64,7 @@ function attendanceState(
   return 'missed'
 }
 
-function attendanceRows(
+export function attendanceRows(
   entries: SessionPointsEntry[],
   records: AttendanceResponse[]
 ): MenteeAttendanceRow[] {
@@ -72,7 +81,7 @@ function attendanceRows(
     }))
 }
 
-function objectiveRows(progress: SkillProgressResponse): MenteeObjectiveRow[] {
+export function objectiveRows(progress: SkillProgressResponse): MenteeObjectiveRow[] {
   return progress.skill_names.map((skill) => {
     const scores = RATING_POINTS.flatMap((point) => {
       const score = progress.ratings.find((rating) => rating.rating_point === point)?.ratings[skill]
@@ -110,10 +119,7 @@ export function menteeDetail(
     card: menteeCard(drilldown.summary),
     attendance: attendanceRows(drilldown.points.sessions, records ?? []),
     objectives: progress ? objectiveRows(progress) : null,
-    activities: ACTIVITY_ROWS.map(({ type, label }) => ({
-      label,
-      count: drilldown.points.extra_activities.filter((activity) => activity.type === type).length,
-    })),
+    activities: activityCounts(drilldown.points.extra_activities.map((activity) => activity.type)),
     feedback: records ? feedbackRows(records) : null,
   }
 }

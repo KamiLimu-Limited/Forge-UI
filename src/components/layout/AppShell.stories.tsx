@@ -74,7 +74,7 @@ export const TwoCohortsMobile: Story = {
 export const AdminDesktop: Story = {
   parameters: { ...Admin.parameters, viewport: { defaultViewport: 'responsive' } },
 }
-// Six links: phones show a menu button that opens the links from the side
+// Seven links: phones show a menu button that opens the Menu dialog, as in the admin shell
 export const PeerMentorMobile: Story = {
   parameters: {
     auth: { user: peerMentorUser },

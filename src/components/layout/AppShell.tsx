@@ -54,7 +54,7 @@ function CohortCard({ context, canSwitch, onOpenSwitcher }: CohortControlProps) 
     <button
       type="button"
       onClick={onOpenSwitcher}
-      aria-label={`${contextTitle(context)}. Switch cohort`}
+      aria-label={`${contextTitle(context)}. Switch view`}
       className={cx(classes, 'hover:border-border-strong')}
     >
       {content}
@@ -80,7 +80,7 @@ function CohortPill({ context, canSwitch, onOpenSwitcher }: CohortControlProps) 
     <button
       type="button"
       onClick={onOpenSwitcher}
-      aria-label={`${label}. Switch cohort`}
+      aria-label={`${label}. Switch view`}
       className={cx(
         classes,
         "relative before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']"
@@ -241,23 +241,10 @@ function MobileTopBar({
 }: MobileTopBarProps) {
   return (
     <header className="sticky top-0 z-sticky flex h-14 items-center justify-between gap-3 border-b border-border bg-surface px-4 md:hidden">
-      <div className="flex shrink-0 items-center gap-1">
-        {usesPhoneMenu(nav) && (
-          <button
-            type="button"
-            onClick={onOpenMenu}
-            aria-haspopup="dialog"
-            aria-label="Open menu"
-            className="-ml-2 flex size-control items-center justify-center rounded-md text-text-primary hover:bg-background"
-          >
-            <Icon name="menu" />
-          </button>
-        )}
-        <Brand />
-      </div>
+      <Brand />
       <div className="flex min-w-0 items-center justify-end gap-2">
         <NotificationBell />
-        {/* With the side menu, the cohort moves into the menu so the header isn't crowded */}
+        {/* With the phone menu, the cohort moves into the menu so the header isn't crowded */}
         {nav.active && !usesPhoneMenu(nav) && (
           <CohortPill
             context={nav.active}
@@ -273,6 +260,18 @@ function MobileTopBar({
         >
           <Avatar name={fullName} />
         </button>
+        {/* The same menu button and dialog as the admin shell */}
+        {usesPhoneMenu(nav) && (
+          <button
+            type="button"
+            onClick={onOpenMenu}
+            aria-haspopup="dialog"
+            aria-label="Open menu"
+            className="-mr-2 flex size-control shrink-0 items-center justify-center rounded-md text-text-primary hover:bg-background"
+          >
+            <Icon name="menu" />
+          </button>
+        )}
       </div>
     </header>
   )
@@ -321,11 +320,16 @@ interface CohortSwitcherProps {
   nav: ShellNav
   isOpen: boolean
   onClose: () => void
+  // Opens the chosen cohort's first page
+  onSwitched: (href: string) => void
 }
 
-function CohortSwitcher({ nav, isOpen, onClose }: CohortSwitcherProps) {
+function CohortSwitcher({ nav, isOpen, onClose, onSwitched }: CohortSwitcherProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Switch cohort" width="sm">
+    <Modal isOpen={isOpen} onClose={onClose} title="Switch view" width="sm">
+      <p className="mb-4 font-sans text-small text-text-secondary">
+        You have roles in more than one cohort. Pick which one to see.
+      </p>
       <ul className="flex flex-col gap-2">
         {nav.contexts.map((context) => {
           const isCurrent = context.key === nav.active?.key
@@ -337,6 +341,8 @@ function CohortSwitcher({ nav, isOpen, onClose }: CohortSwitcherProps) {
                 onClick={() => {
                   nav.setActiveKey(context.key)
                   onClose()
+                  const href = nav.firstPageFor(context.key)
+                  if (href) onSwitched(href)
                 }}
                 className={cx(
                   'flex min-h-control w-full items-center justify-between gap-3 rounded-control border px-3 py-2 text-left font-sans text-body',
@@ -368,13 +374,15 @@ interface PhoneMenuProps {
   isOpen: boolean
   onClose: () => void
   onOpenSwitcher: () => void
+  onSignOut: () => void
 }
 
-// The phone side menu, used in place of the tab bar when there are too many links.
-// It also carries the cohort, which the crowded header leaves out.
-function PhoneMenu({ nav, isOpen, onClose, onOpenSwitcher }: PhoneMenuProps) {
+// The phone menu, used in place of the tab bar when there are too many links. It is the
+// same dialog as the admin shell's menu, and also carries the cohort, which the crowded
+// header leaves out.
+function PhoneMenu({ nav, isOpen, onClose, onOpenSwitcher, onSignOut }: PhoneMenuProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Menu" width="sm" placement="side">
+    <Modal isOpen={isOpen} onClose={onClose} title="Menu" width="sm">
       <div className="flex flex-col gap-5">
         {nav.active && (
           <CohortCard
@@ -387,6 +395,12 @@ function PhoneMenu({ nav, isOpen, onClose, onOpenSwitcher }: PhoneMenuProps) {
           />
         )}
         <NavLinks nav={nav} onNavigate={onClose} />
+        <div className="flex flex-col gap-4 border-t border-border pt-4">
+          <ThemeToggle className="self-start" />
+          <Button variant="secondary" fullWidth onClick={onSignOut}>
+            Sign out
+          </Button>
+        </div>
       </div>
     </Modal>
   )
@@ -446,6 +460,7 @@ export function AppShell({ children }: AppShellProps) {
   }
   const signOut = () => {
     setIsMeOpen(false)
+    setIsMenuOpen(false)
     void logout()
   }
 
@@ -479,6 +494,7 @@ export function AppShell({ children }: AppShellProps) {
           nav={nav}
           isOpen={isSwitcherOpen}
           onClose={() => setIsSwitcherOpen(false)}
+          onSwitched={(href) => router.push(href)}
         />
       )}
       {usesPhoneMenu(nav) && (
@@ -487,6 +503,7 @@ export function AppShell({ children }: AppShellProps) {
           isOpen={isMenuOpen}
           onClose={() => setIsMenuOpen(false)}
           onOpenSwitcher={() => setIsSwitcherOpen(true)}
+          onSignOut={signOut}
         />
       )}
       <MeDialog

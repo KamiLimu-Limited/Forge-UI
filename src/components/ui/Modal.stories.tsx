@@ -39,6 +39,3 @@ export const WithoutFooter: Story = {
 
 export const Narrow: Story = { args: { ...Default.args, title: 'Suspend user', width: 'sm' } }
 export const Wide: Story = { args: { ...Default.args, title: 'Invite users', width: 'lg' } }
-export const Side: Story = {
-  args: { ...WithoutFooter.args, title: 'Menu', width: 'sm', placement: 'side' },
-}

@@ -73,6 +73,7 @@ import type {
   EnrollmentUpdateRequest,
 } from '@/types/enrollment'
 import type { InvitationListParams, InvitationResponse } from '@/types/invitation'
+import type { FinalStatusResponse } from '@/types/alumni'
 import type { TrackOverviewResponse, TrackSessionEntry } from '@/types/ictPeerMentor'
 import type { DimensionRankingResponse, LeaderboardDimension } from '@/types/leaderboard'
 import type {
@@ -530,7 +531,11 @@ export const api = {
       ),
 
     mentee: {
-      overview: () => request<MenteeOverviewResponse>('/api/v1/dashboard/mentee/overview'),
+      // A past cohort's id gives an alumnus their old numbers
+      overview: (cohortId?: string) =>
+        request<MenteeOverviewResponse>(
+          `/api/v1/dashboard/mentee/overview${qs({ cohort_id: cohortId })}`
+        ),
 
       history: (cohortId: string) =>
         request<SessionPointsEntry[]>(
@@ -550,6 +555,11 @@ export const api = {
   },
 
   mentees: {
+    finalStatus: (menteeId: string, cohortId: string) =>
+      request<FinalStatusResponse>(
+        `/api/v1/mentees/${menteeId}/graduation-status${qs({ cohort_id: cohortId })}`
+      ),
+
     attendanceRates: (menteeId: string, cohortId: string) =>
       request<AttendanceRateResponse>(
         `/api/v1/mentees/${menteeId}/attendance-rates${qs({ cohort_id: cohortId })}`

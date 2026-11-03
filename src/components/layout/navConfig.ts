@@ -1,4 +1,5 @@
 import type { IconName } from '@/components/ui/Icon'
+import { ALUMNI_ROUTES } from '@/lib/alumniRoutes'
 import { MENTEE_ROUTES } from '@/lib/menteeRoutes'
 import { ICT_PEER_MENTOR_ROUTES, PEER_MENTOR_ROUTES } from '@/lib/peerMentorRoutes'
 import type { UserRole } from '@/types/auth'
@@ -74,7 +75,13 @@ export const NAV_BY_ROLE: Record<UserRole, NavGroup | NavGroup[]> = {
   professional_mentor: { heading: 'As a professional mentor', items: [] },
   committee: { heading: 'As a committee member', items: [] },
   partner: { heading: 'As a partner', items: [] },
-  alumni: { heading: 'As an alumnus', items: [] },
+  alumni: {
+    heading: 'As an alumnus',
+    items: [
+      { label: 'Home', href: ALUMNI_ROUTES.home, icon: 'home' },
+      { label: 'History', href: ALUMNI_ROUTES.history, icon: 'clock' },
+    ],
+  },
 }
 
 // The System Admin sidebar and mobile menu, in design order.

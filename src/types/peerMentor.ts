@@ -130,3 +130,18 @@ export interface SessionRatingsView {
   // The peer mentor's average across all their completed sessions
   averageAcrossSessions: number | null
 }
+
+export type MeetingMode = 'physical' | 'virtual'
+
+// The peer mentorship session a group meeting is being set for
+export interface GroupMeetingView {
+  sessionId: string
+  title: string
+  // "Open Mon 17 Aug to Thu 27 Aug, 12:00 PM"
+  windowLine: string
+  // The first and last day the group can meet, as YYYY-MM-DD for the date field
+  firstDay: string
+  lastDay: string
+  // The peer mentor's group, by name
+  group: { id: string; name: string }[]
+}

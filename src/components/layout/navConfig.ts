@@ -42,6 +42,7 @@ export const NAV_BY_ROLE: Record<UserRole, NavGroup | NavGroup[]> = {
       heading: 'As a peer mentor',
       items: [
         { label: 'My mentees', href: PEER_MENTOR_ROUTES.home, icon: 'users' },
+        { label: 'Group meeting', href: PEER_MENTOR_ROUTES.groupMeeting, icon: 'calendar' },
         { label: 'Facilitator view', href: PEER_MENTOR_ROUTES.facilitator, icon: 'chart' },
         { label: 'Leaderboards', href: PEER_MENTOR_ROUTES.leaderboards, icon: 'star' },
       ],

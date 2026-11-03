@@ -1,4 +1,5 @@
 import type {
+  GroupMeetingView,
   FacilitatorView,
   GroupFeedbackView,
   PeerSessionView,
@@ -174,4 +175,13 @@ export const sampleFacilitator: FacilitatorView = {
     { label: 'PM 2', title: 'Peer Mentorship 2', rating: 4.2 },
     { label: 'PM 3', title: 'Peer Mentorship 3', rating: 4.5 },
   ],
+}
+
+export const sampleGroupMeeting: GroupMeetingView = {
+  sessionId: 'pm-4',
+  title: 'Peer Mentorship 4',
+  windowLine: 'Open Mon 17 Aug to Thu 27 Aug, 12:00 PM',
+  firstDay: '2026-08-17',
+  lastDay: '2026-08-27',
+  group: sampleGroup.map(({ id, name }) => ({ id, name })),
 }

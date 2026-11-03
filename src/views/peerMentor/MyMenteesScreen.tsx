@@ -1,11 +1,12 @@
 import { PeerMenteeCard } from '@/components/forge/PeerMenteeCard'
 import { PeerSessionCard } from '@/components/forge/PeerSessionCard'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { Button } from '@/components/ui/Button'
+import { ButtonLink } from '@/components/ui/ButtonLink'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { LoadingState } from '@/components/ui/LoadingState'
+import { PEER_MENTOR_ROUTES } from '@/lib/peerMentorRoutes'
 import type { MenteeCardView, PeerSessionView } from '@/types/peerMentor'
 
 interface MyMenteesScreenProps {
@@ -68,12 +69,9 @@ export function MyMenteesScreen({
                   Pick a time and your group gets a Google Meet invite.
                 </p>
               </div>
-              <div className="flex flex-col gap-1 md:items-end">
-                <Button disabled fullWidth className="md:w-auto">
-                  Set meeting
-                </Button>
-                <p className="font-sans text-caption text-text-muted">Not available yet</p>
-              </div>
+              <ButtonLink href={PEER_MENTOR_ROUTES.groupMeeting} fullWidth className="md:w-auto">
+                Set meeting
+              </ButtonLink>
             </div>
           </Card>
           <div className="grid gap-4 md:gap-5 lg:grid-cols-3">

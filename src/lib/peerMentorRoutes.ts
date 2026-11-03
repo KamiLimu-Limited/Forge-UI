@@ -1,6 +1,7 @@
 // Peer mentor paths in one place, like lib/menteeRoutes.ts
 export const PEER_MENTOR_ROUTES = {
   home: '/dashboard',
+  groupMeeting: '/dashboard/group-meeting',
   facilitator: '/dashboard/facilitator',
   leaderboards: '/dashboard/leaderboards',
 }

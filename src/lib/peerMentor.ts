@@ -3,7 +3,7 @@
 // =============================================================================
 
 import { api, fetchAllPages } from '@/lib/api'
-import { formatDateTime } from '@/lib/format'
+import { formatDateTime, formatDay, toDateTimeLocal } from '@/lib/format'
 import { closesInLabel } from '@/lib/menteeDashboard'
 import { ratingsOf } from '@/lib/menteeSessions'
 import { RATING_POINTS, skillLabel } from '@/lib/menteeObjectives'
@@ -17,6 +17,7 @@ import type {
   MenteeFeedbackRow,
   FeedbackGroupView,
   GroupFeedbackView,
+  GroupMeetingView,
   MenteeObjectiveRow,
   PeerSessionView,
 } from '@/types/peerMentor'
@@ -252,4 +253,39 @@ export async function loadGroupFeedback(sessionId: string): Promise<GroupFeedbac
     records.items,
     group.mentees.length
   )
+}
+
+// The group meeting is for the first peer mentorship session whose window hasn't closed.
+// null when there is none to plan for.
+export async function loadGroupMeeting(now: Date = new Date()): Promise<GroupMeetingView | null> {
+  const group = await api.peerMentor.group()
+  const sessions = await fetchAllPages((page, pageSize) =>
+    api.sessions.list({
+      cohort_id: group.cohort_id,
+      category: 'peer_mentorship',
+      status: 'published',
+      page,
+      page_size: pageSize,
+    })
+  )
+  const byStart = [...sessions].sort((a, b) => a.starts_at.localeCompare(b.starts_at))
+  for (const session of byStart) {
+    const window = await api.sessions.attendanceWindow(session.id).catch(() => null)
+    const closesAt = window?.effective_closes_at ?? session.ends_at
+    if (new Date(closesAt) <= now) continue
+    return {
+      sessionId: session.id,
+      title: session.title,
+      windowLine: `Open ${formatDay(session.starts_at)} to ${formatDateTime(closesAt)}`,
+      firstDay: toDateTimeLocal(session.starts_at).slice(0, 10),
+      lastDay: toDateTimeLocal(closesAt).slice(0, 10),
+      group: group.mentees
+        .map((summary) => menteeCard(summary))
+        .map(({ id, name }) => ({
+          id,
+          name,
+        })),
+    }
+  }
+  return null
 }

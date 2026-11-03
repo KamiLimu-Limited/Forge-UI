@@ -65,6 +65,9 @@ When a gap is closed, remove its row here and switch the UI on in the file liste
 | M26 | Leaderboard | Each mentee's university | `university` on `DimensionEntry` | University column shows "Not available yet" | `components/forge/LeaderboardList.tsx` |
 | M27 | Profile | University, programme, degree level, gender, phone, birthday, LinkedIn, GitHub and Instagram. `PATCH /users/me` only takes first and last name | Those fields on `GET` and `PATCH /users/me`, with phone and birthday visible to the owner and System Admin only | Card built as designed, disabled with "Not available yet" | `views/mentee/ProfileScreen.tsx` |
 | M28 | Profile | Changing a password while signed in. There is only the emailed reset | `POST /auth/change-password` with the current and new password | Card built as designed, disabled with "Not available yet" | `views/mentee/ProfileScreen.tsx` |
+| M29 | My mentees, Mentee detail | Each mentee's university | `university` on `MenteeSummary` | Shows "University not available yet" | `components/forge/PeerMenteeCard.tsx` |
+| M30 | Mentee detail | Separate job and scholarship counts. `ActivityPointsEntry` only says `opportunity` | The five log types (row M17) | One "Applications" row in place of two | `lib/peerMentor.ts` |
+| M31 | My mentees | At-risk data the PRD rules out. `GET /dashboard/peer-mentor/at-risk`, `status`, `at_risk` and `warning` still come back | Remove them, as in PRD Appendix B | Never called or shown; left out of the frontend types | `types/dashboard.ts` |
 
 ## Notes for the backend team
 

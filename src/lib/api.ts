@@ -62,6 +62,8 @@ import type {
 import type {
   AttendanceRateResponse,
   CohortHealthResponse,
+  GroupOverview,
+  MenteeDrilldown,
   MenteeOverviewResponse,
   SessionPointsEntry,
 } from '@/types/dashboard'
@@ -529,6 +531,16 @@ export const api = {
           `/api/v1/dashboard/mentee/attendance/history${qs({ cohort_id: cohortId })}`
         ),
     },
+  },
+
+  peerMentor: {
+    group: () => request<GroupOverview>('/api/v1/dashboard/peer-mentor/group'),
+
+    mentee: (menteeId: string) =>
+      request<MenteeDrilldown>(`/api/v1/dashboard/peer-mentor/mentees/${menteeId}`),
+
+    groupAttendance: (params?: AttendanceListParams) =>
+      request<Page<AttendanceResponse>>(`/api/v1/peer-mentors/me/attendance${qs(params)}`),
   },
 
   mentees: {

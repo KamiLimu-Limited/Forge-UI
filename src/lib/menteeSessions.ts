@@ -6,7 +6,7 @@ import { api } from '@/lib/api'
 import { formatDateTime, formatDay, formatTime, fullName } from '@/lib/format'
 import { closesInLabel } from '@/lib/menteeDashboard'
 import { monthBoundaries, monthForDate, sessionPillar } from '@/lib/sessions'
-import type { AttendanceStatus, MyAttendanceResponse } from '@/types/attendance'
+import type { AttendanceRatings, AttendanceStatus, MyAttendanceResponse } from '@/types/attendance'
 import type { MenteeOverviewResponse, SessionPointsEntry } from '@/types/dashboard'
 import type { OpenSession } from '@/types/home'
 import type { HistoryFilters, HistoryRow, UpcomingSession } from '@/types/menteeSessions'
@@ -105,7 +105,7 @@ function historyState(
   return 'missed'
 }
 
-function ratingsOf(record: MyAttendanceResponse | undefined): HistoryRow['ratings'] {
+export function ratingsOf(record: AttendanceRatings | undefined): HistoryRow['ratings'] {
   if (!record) return []
   return [
     { label: 'Quality', value: record.quality_rating },
@@ -113,7 +113,7 @@ function ratingsOf(record: MyAttendanceResponse | undefined): HistoryRow['rating
     { label: 'Understanding', value: record.understanding_score },
     { label: 'Academic application', value: record.academic_application_score },
     { label: 'Career application', value: record.career_application_score },
-  ].flatMap(({ label, value }) => (value === null ? [] : [{ label, value }]))
+  ].flatMap(({ label, value }) => (value === null || value === undefined ? [] : [{ label, value }]))
 }
 
 // Joins the history list with the mentee's own records and the session details

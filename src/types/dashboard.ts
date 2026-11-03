@@ -2,7 +2,8 @@
 // Dashboard types, mapped directly from the Forge API OpenAPI schema
 // =============================================================================
 
-import type { SessionBrief, SessionType } from '@/types/session'
+import type { ActivityType } from '@/types/activity'
+import type { SessionBrief, SessionType, UserSummary } from '@/types/session'
 
 export interface CohortHealthResponse {
   cohort_id: string
@@ -83,4 +84,41 @@ export interface SessionPointsEntry {
   points: number
   outcome: SessionOutcome
   points_earned: number
+}
+
+export interface ActivityPointsEntry {
+  activity_id: string
+  type: ActivityType
+  title: string
+  points_awarded: number
+}
+
+export interface PointsDetailResponse extends PointsBreakdownResponse {
+  sessions: SessionPointsEntry[]
+  extra_activities: ActivityPointsEntry[]
+}
+
+// `status` and the at-risk counts are left out on purpose: the PRD says standing labels
+// are never shown
+export interface MenteeSummary {
+  mentee: UserSummary
+  ict_track: string | null
+  total_points: number
+  core_rate: number
+  combined_rate: number
+  sessions_attended: number
+  sessions_due: number
+}
+
+export interface GroupOverview {
+  cohort_id: string
+  mentees: MenteeSummary[]
+  average_combined_rate: number
+}
+
+export interface MenteeDrilldown {
+  summary: MenteeSummary
+  points: PointsDetailResponse
+  rates: AttendanceRateResponse
+  graduation: GraduationStatusResponse
 }

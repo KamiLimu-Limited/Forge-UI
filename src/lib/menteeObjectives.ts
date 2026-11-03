@@ -19,7 +19,7 @@ const POINT_LABELS: Record<RatingPoint, string> = { early: 'Start', mid: 'Mid', 
 export const OBJECTIVE_GROUPS: ObjectiveGroup[] = ['Human', 'Technical']
 
 // "problem_solving" to "Problem solving"
-function skillLabel(skill: string): string {
+export function skillLabel(skill: string): string {
   const words = skill.replace(/_/g, ' ')
   return words.charAt(0).toUpperCase() + words.slice(1)
 }

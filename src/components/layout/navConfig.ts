@@ -1,5 +1,6 @@
 import type { IconName } from '@/components/ui/Icon'
 import { MENTEE_ROUTES } from '@/lib/menteeRoutes'
+import { PEER_MENTOR_ROUTES } from '@/lib/peerMentorRoutes'
 import type { UserRole } from '@/types/auth'
 
 export interface NavItem {
@@ -35,7 +36,10 @@ export const NAV_BY_ROLE: Record<UserRole, NavGroup> = {
       { label: 'Leaderboard', href: MENTEE_ROUTES.leaderboard, icon: 'chart' },
     ],
   },
-  'peer_mentor_1:1': { heading: 'As a peer mentor', items: [] },
+  'peer_mentor_1:1': {
+    heading: 'As a peer mentor',
+    items: [{ label: 'My mentees', href: PEER_MENTOR_ROUTES.home, icon: 'users' }],
+  },
   peer_mentor_ict: { heading: 'As an ICT peer mentor', items: [] },
   professional_mentor: { heading: 'As a professional mentor', items: [] },
   committee: { heading: 'As a committee member', items: [] },

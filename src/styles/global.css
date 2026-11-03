@@ -212,6 +212,7 @@
   --size-control: 2.75rem; /* 44px */
   --size-control-lg: 3.25rem; /* 52px */
   --size-sidebar: 15.5rem; /* 248px */
+  --size-calendar-preview: 48rem; /* 768px: the month calendar on the cover page */
   --size-avatar: 2.25rem; /* 36px */
   --size-brand-mark: 1.875rem; /* 30px */
   --size-auth-card-max: 27.5rem; /* 440px */

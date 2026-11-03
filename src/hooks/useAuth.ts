@@ -21,12 +21,16 @@ interface AuthState {
   user: UserProfileResponse | null
   isLoading: boolean
   error: string | null
+  // True after the user signs out on purpose, so the guards send them to the cover page
+  // rather than to sign in
+  hasSignedOut: boolean
 }
 
 type AuthAction =
   | { type: 'LOADING' }
   | { type: 'SET_USER'; user: UserProfileResponse }
   | { type: 'CLEAR_USER' }
+  | { type: 'SIGNED_OUT' }
   | { type: 'ERROR'; message: string }
 
 function authReducer(state: AuthState, action: AuthAction): AuthState {
@@ -34,9 +38,11 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
     case 'LOADING':
       return { ...state, isLoading: true, error: null }
     case 'SET_USER':
-      return { user: action.user, isLoading: false, error: null }
+      return { user: action.user, isLoading: false, error: null, hasSignedOut: false }
     case 'CLEAR_USER':
-      return { user: null, isLoading: false, error: null }
+      return { user: null, isLoading: false, error: null, hasSignedOut: false }
+    case 'SIGNED_OUT':
+      return { user: null, isLoading: false, error: null, hasSignedOut: true }
     case 'ERROR':
       return { ...state, isLoading: false, error: action.message }
   }
@@ -51,6 +57,8 @@ export interface AuthContextValue {
   isAuthenticated: boolean
   isLoading: boolean
   error: string | null
+  // True after a deliberate sign out
+  hasSignedOut: boolean
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   clearError: () => void
@@ -71,6 +79,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     user: null,
     isLoading: true,
     error: null,
+    hasSignedOut: false,
   })
 
   // On mount: if a token exists, fetch the current user to restore session
@@ -135,6 +144,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isAuthenticated: state.user !== null,
       isLoading: state.isLoading,
       error: state.error,
+      hasSignedOut: state.hasSignedOut,
       login,
       logout,
       clearError,

@@ -161,6 +161,7 @@ const config: Config = {
         control: 'var(--size-control)', // 44px, minimum touch target
         'control-lg': 'var(--size-control-lg)', // 52px
         sidebar: 'var(--size-sidebar)', // 248px
+        'calendar-preview': 'var(--size-calendar-preview)', // 768px: cover page preview
         avatar: 'var(--size-avatar)', // 36px
         'brand-mark': 'var(--size-brand-mark)', // 30px
         'tab-icon': 'var(--size-tab-icon)', // 22px

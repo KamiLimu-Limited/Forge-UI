@@ -7,8 +7,8 @@ interface TrackBadgeProps {
   label?: string
 }
 
-// The six pillar colours from global.css
-const pillarClasses: Record<Pillar, string> = {
+// The six pillar colours from global.css, also used for session chips
+export const pillarClasses: Record<Pillar, string> = {
   ict: 'bg-track-ict-bg text-accent-text',
   innovation: 'bg-track-innovation-bg text-info-text',
   'personal-dev': 'bg-track-personal-dev-bg text-warning-text',

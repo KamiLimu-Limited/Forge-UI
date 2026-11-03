@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import { AppPreview } from '@/components/forge/AppPreview'
 import { KamiLimuLogo } from '@/components/layout/KamiLimuLogo'
 import { ButtonLink } from '@/components/ui/ButtonLink'
 import { Icon } from '@/components/ui/Icon'
@@ -21,16 +21,9 @@ export function Landing() {
             </span>
           </ButtonLink>
         </div>
-        {/* A preview of the app. Decorative, so screen readers skip it */}
-        <div className="relative min-h-80 flex-1 md:min-h-0">
-          <Image
-            src="/landing/app-preview.png"
-            alt=""
-            fill
-            priority
-            sizes="(min-width: 768px) 50vw, 100vw"
-            className="object-cover object-left-top md:object-contain md:object-right-top"
-          />
+        {/* A preview of the app, drawn from its own styles so it stays sharp */}
+        <div className="relative min-h-96 flex-1 overflow-hidden md:min-h-0 md:pt-10">
+          <AppPreview />
         </div>
       </main>
     </div>

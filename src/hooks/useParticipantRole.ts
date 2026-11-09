@@ -17,7 +17,10 @@ export interface UseParticipantRoleReturn {
 // Sessions, activities and objectives for the view picked in "Switch view"
 export function useParticipantRole(): UseParticipantRoleReturn {
   const view = useActiveView()
-  const role = view.role === 'alumni' ? null : view.role
+  const role =
+    view.role === 'mentee' || view.role === 'peer_mentor' || view.role === 'ict_peer_mentor'
+      ? view.role
+      : null
   const isPeerMentor = role === 'peer_mentor' || role === 'ict_peer_mentor'
   return {
     role,

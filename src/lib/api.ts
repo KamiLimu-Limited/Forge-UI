@@ -85,7 +85,16 @@ import type {
   NotificationListParams,
   NotificationResponse,
 } from '@/types/notification'
+import type {
+  ActivityEngagementResponse,
+  AttendanceTrendResponse,
+  CrossCohortResponse,
+  LeaderboardResponse,
+  SessionQualityResponse,
+  TrackPerformanceResponse,
+} from '@/types/analytics'
 import type { Page } from '@/types/page'
+import type { SessionAttendanceSummary } from '@/types/proMentor'
 import type { SessionFeedbackResponse } from '@/types/sessionFeedback'
 import type {
   MentorAssignment,
@@ -175,7 +184,9 @@ async function readError(res: Response): Promise<ApiError> {
 async function request<T>(
   path: string,
   options: RequestInit = {},
-  authenticated = true
+  authenticated = true,
+  // How to read a successful response; CSV downloads read plain text
+  read: (res: Response) => Promise<T> = readBody
 ): Promise<T> {
   // FormData sets its own multipart Content-Type with the boundary
   const isForm = typeof FormData !== 'undefined' && options.body instanceof FormData
@@ -215,15 +226,24 @@ async function request<T>(
     headers['Authorization'] = `Bearer ${newToken}`
     const retried = await fetch(`${API_BASE_URL}${path}`, { ...options, headers })
     if (!retried.ok) throw await readError(retried)
-    return readBody<T>(retried)
+    return read(retried)
   }
 
   if (!res.ok) throw await readError(res)
 
-  return readBody<T>(res)
+  return read(res)
 }
 
 type QueryValue = string | number | boolean | null | undefined
+
+function readText(res: Response): Promise<string> {
+  return res.text()
+}
+
+// A CSV file's text, from a GET or POST export route
+function requestCsv(path: string, method: 'GET' | 'POST' = 'GET'): Promise<string> {
+  return request<string>(path, { method, headers: { Accept: 'text/csv' } }, true, readText)
+}
 
 // "?a=1&b=2" from the defined values, or "" when there are none
 function qs(params?: object): string {
@@ -587,6 +607,12 @@ export const api = {
       ),
   },
 
+  proMentor: {
+    // Sessions the caller leads or co-mentors. Professional mentors only.
+    sessions: () =>
+      request<SessionAttendanceSummary[]>('/api/v1/dashboard/professional-mentor/sessions'),
+  },
+
   ictPeerMentor: {
     trackOverview: (cohortId: string) =>
       request<TrackOverviewResponse>(
@@ -637,5 +663,40 @@ export const api = {
   leaderboard: {
     dimension: (cohortId: string, dimension: LeaderboardDimension) =>
       request<DimensionRankingResponse>(`/api/v1/cohorts/${cohortId}/leaderboard/${dimension}`),
+
+    full: (cohortId: string) =>
+      request<LeaderboardResponse>(`/api/v1/cohorts/${cohortId}/leaderboard`),
+
+    // Committee of the cohort
+    exportCsv: (cohortId: string) => requestCsv(`/api/v1/cohorts/${cohortId}/leaderboard/export`),
+  },
+
+  analytics: {
+    attendanceTrends: (cohortId: string) =>
+      request<AttendanceTrendResponse>(`/api/v1/analytics/cohorts/${cohortId}/attendance-trends`),
+
+    trackPerformance: (cohortId: string) =>
+      request<TrackPerformanceResponse>(`/api/v1/analytics/cohorts/${cohortId}/track-performance`),
+
+    sessionQuality: (cohortId: string) =>
+      request<SessionQualityResponse>(`/api/v1/analytics/cohorts/${cohortId}/session-quality`),
+
+    activities: (cohortId: string) =>
+      request<ActivityEngagementResponse>(`/api/v1/analytics/cohorts/${cohortId}/extra-activities`),
+
+    // cohort_ids repeats once per cohort
+    crossCohort: (cohortIds: string[]) =>
+      request<CrossCohortResponse>(
+        `/api/v1/analytics/cross-cohort?${cohortIds
+          .map((id) => `cohort_ids=${encodeURIComponent(id)}`)
+          .join('&')}`
+      ),
+  },
+
+  exports: {
+    attendance: (cohortId: string) => requestCsv(`/api/v1/exports/attendance/${cohortId}`, 'POST'),
+    fullReport: (cohortId: string) => requestCsv(`/api/v1/exports/full-report/${cohortId}`, 'POST'),
+    leaderboard: (cohortId: string) =>
+      requestCsv(`/api/v1/exports/leaderboard/${cohortId}`, 'POST'),
   },
 }

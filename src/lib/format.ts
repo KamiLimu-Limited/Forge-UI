@@ -120,3 +120,8 @@ export function fullName(person: { first_name: string | null; last_name: string 
 export function plural(count: number, one: string, many = `${one}s`): string {
   return `${count} ${count === 1 ? one : many}`
 }
+
+// "12,400"
+export function formatCount(value: number): string {
+  return value.toLocaleString('en-GB')
+}

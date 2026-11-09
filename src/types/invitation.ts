@@ -22,3 +22,12 @@ export interface InvitationResponse {
 export interface InvitationListParams extends PageParams {
   pending_only?: boolean
 }
+
+// GET /auth/invitations/{token}: who a still-valid invitation is for
+export interface InvitationPreview {
+  email: string
+  first_name: string | null
+  last_name: string | null
+  intended_roles: UserRole[] | null
+  expires_at: string
+}

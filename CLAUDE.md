@@ -27,9 +27,9 @@ The following are complete and must not be rebuilt or duplicated.
 
 ### Auth Infrastructure
 - `src/hooks/useAuth.ts` — Auth context and hook. Exports `<AuthProvider>` (mounted in `src/app/providers.tsx`) and `useAuth()` which returns `{ user, isAuthenticated, isLoading, error, login, logout, clearError }`. Do not create another auth state mechanism.
-- `src/components/layout/guards.tsx` — `<RequireAuth>`, `<RedirectIfAuthed>` and `<RequireAdmin>` client guards. Use them in route layouts and pages.
+- `src/components/layout/guards.tsx` — `<RequireAuth>`, `<RedirectIfAuthed>`, `<RequireRole>` and `<RequireAdmin>` client guards. Use them in route layouts and pages.
 - `src/components/layout/AppShell.tsx` — Role-aware shell for signed-in routes. Nav links per role live in `src/components/layout/navConfig.ts`.
-- `src/lib/roles.ts` — `ROLE_LABELS`, `roleLabel()` and `ALL_ROLES`. Use these wherever a role is shown.
+- `src/lib/roles.ts` — `ROLE_LABELS`, `roleLabel()`, `ALL_ROLES` (the pickers), `hasRole()`, `ADMIN_ROLES`, `isProgramLead()` and `homeFor()`. Use these wherever a role is shown or checked.
 
 ### Auth Pages
 All four auth screens are complete. Do not rebuild them. Their form logic lives in hooks in `src/hooks/`.
@@ -65,8 +65,53 @@ Every admin route is built. `src/app/admin/layout.tsx` wraps them in `<RequireAd
 | `/admin/rosters/professional-mentors` | `views/admin/rosters/ProMentors.tsx` | SA-ProMentors |
 | `/admin/rosters/consultants` | `views/admin/rosters/Consultants.tsx` | SA-Consultants |
 | `/admin/audit-trail` | `views/admin/AuditTrail.tsx` | SA-AuditTrail |
+| `/admin/group-meetings` | `views/deliveryLead/GroupMeetings.tsx` | SA-GroupMeetings |
+| `/admin/messages` | `views/admin/messages/Messages.tsx` | SA-Broadcast |
+| `/admin/email-delivery` | `views/admin/integrations/EmailDelivery.tsx` | SA-FailedEmails |
+| `/admin/google-sync` | `views/admin/integrations/GoogleSyncScreen.tsx` | SA-GoogleSync |
+| `/admin/sessions/[sessionId]/meet` | `views/admin/integrations/MeetUnmatched.tsx` | SA-MeetUnmatched (opened from Session attendance) |
 
-"Graduation preview" is not in the admin nav yet; it ships with the Program Lead screens.
+The System Admin nav is `ADMIN_NAV_GROUPS` in `navConfig.ts`, in SA-Broadcast's order, with a "Messages and integrations" group.
+
+### Program Lead screens
+The Program Lead (`program_lead`, typed ahead of the API) has every System Admin permission plus graduating a cohort. They use `/admin` and the `AdminShell`, which shows `PROGRAM_LEAD_NAV_GROUPS` (Overview, Graduation, the System Admin screens, and an Oversight group) when `isProgramLead(user)`. Graduation is built from `GET /cohorts/{id}/graduation-report`; confirming, corrections, closing and saving the reveal order wait on the API and are disabled.
+
+| Route | Screen | Design |
+| --- | --- | --- |
+| `/admin` | `views/programLead/ProgramLeadHome.tsx` for the Program Lead (`views/admin/AdminHome.tsx` picks) | PL-Home |
+| `/admin/graduation` | `views/programLead/Graduation.tsx`: the preview, or the record once the cohort is completed | PL-Graduation, PL-ConfirmGraduation, PL-Graduated, PL-CloseCohort |
+| `/admin/graduation/reveal-order` | `views/programLead/RevealOrder.tsx` (Program Lead only) | PL-RevealOrder |
+| `/admin/graduation/correction` | `views/programLead/Correction.tsx` (Program Lead only) | PL-Correction |
+| `/admin/trends` | `views/committee/Trends.tsx` | COM-Trends |
+| `/admin/cross-cohort` | `views/committee/CrossCohort.tsx` | COM-CrossCohort |
+| `/admin/leaderboards` | `views/committee/CommitteeLeaderboards.tsx` | COM-Leaderboards |
+| `/graduation/[cohortId]` | `views/graduation/Sequence.tsx`, full screen with no shell, for projecting | Seq-1-Opening to Seq-5-Closing |
+
+The sequence plays in a labelled rehearsal mode from the live report until the API has a sequence route. Motion runs only under `motion-safe:` (the `seq-*` animations in `tailwind.config.ts`), and its type uses the `text-seq-*` tokens, which grow with the screen.
+
+### Committee, Program Delivery Lead and professional mentor screens
+These live under `/dashboard` in the `AppShell`. Their links are in `NAV_BY_ROLE`, and `/dashboard` shows each role's home through the active view. The committee screens read their cohort with `useOversightCohort()`, so the same screens work in the admin shell (the Program Lead's Oversight pages) and on `/dashboard`. The committee is read only: no status labels such as on track, warning or at risk ever appear.
+
+| Route | Screen | Who | Design |
+| --- | --- | --- | --- |
+| `/dashboard` | `views/committee/CommitteeOverview.tsx` | Committee | COM-Overview |
+| `/dashboard/committee/trends` | `views/committee/Trends.tsx` | Committee | COM-Trends |
+| `/dashboard/committee/cross-cohort` | `views/committee/CrossCohort.tsx` | Committee | COM-CrossCohort |
+| `/dashboard/committee/leaderboards` | `views/committee/CommitteeLeaderboards.tsx` | Committee | COM-Leaderboards |
+| `/dashboard/tasks` | `views/deliveryLead/PeerTasks.tsx` | Program Delivery Lead | COM-Tasks |
+| `/dashboard/tasks/new`, `/dashboard/tasks/[sessionId]` | `views/deliveryLead/PeerTaskForm.tsx` | Program Delivery Lead | COM-TaskForm |
+| `/dashboard/group-meetings` | `views/deliveryLead/GroupMeetings.tsx` | Program Delivery Lead | SA-GroupMeetings |
+| `/dashboard` | `views/proMentor/ProSessions.tsx` | Professional mentor | PRO-Sessions |
+| `/dashboard/mentor/feedback` | `views/proMentor/ProFeedback.tsx` (reads `?session=`) | Professional mentor | PRO-Feedback |
+| `/dashboard/mentor/resources` | `views/proMentor/ProResources.tsx` | Professional mentor | PRO-Resources |
+
+The Program Delivery Lead (`program_delivery_lead`, typed ahead of the API) is a committee member who creates and edits peer mentorship tasks. Their nav group shows only to holders, and saving is disabled until the API has a permission for it.
+
+### Sign-in and error states
+- `src/lib/authErrors.ts` tells the dead-link and suspended-account answers apart by their message text (the API has no codes for them yet).
+- `/activate` checks the token on load with `GET /auth/invitations/{token}` and shows `views/InviteExpiredScreen.tsx` for an expired, used or invalid invitation. `/reset-password` shows `views/ResetExpiredScreen.tsx` for a dead reset link. `views/LoginScreen.tsx` shows the suspended message (SignInSuspended).
+- `src/app/not-found.tsx` renders `views/NotFound.tsx` (NotFound).
+- `<RequireRole roles area>` in `guards.tsx` shows `views/NoAccessScreen.tsx` (NoAccess) to anyone without the role, with a way to their own home. `RequireAdmin` uses it and lets the Program Lead in. Use `RequireRole` for every role-guarded area.
 
 ### Mentee, peer mentor, ICT peer mentor and alumni screens
 Every `/dashboard` route is built. `src/app/dashboard/layout.tsx` wraps them in `<RequireAuth>`, `<ActiveViewProvider>` and `<AppShell>`. Each `page.tsx` renders a screen from `src/views/`. Screens are a props-only `XScreen` plus a client wrapper that calls the hook. Paths live in `lib/menteeRoutes.ts`, `lib/peerMentorRoutes.ts` and `lib/alumniRoutes.ts`.
@@ -88,6 +133,7 @@ Every `/dashboard` route is built. `src/app/dashboard/layout.tsx` wraps them in 
 | `/dashboard/objectives` | `views/mentee/Objectives.tsx` | Mentee, peer mentors |
 | `/dashboard/leaderboard` | `views/mentee/Leaderboard.tsx` | Mentee |
 | `/dashboard/choose-track` | `views/mentee/ChooseTrack.tsx` | Mentee |
+| `/dashboard/result` | `views/mentee/GraduationResult.tsx`, also Home once the cohort's result is final | Mentee, alumni |
 | `/dashboard/profile` | `views/mentee/Profile.tsx` | Mentee |
 | `/dashboard/notifications` | `views/mentee/Notifications.tsx` | Everyone on `/dashboard` |
 | `/dashboard/mentees/[menteeId]` | `views/peerMentor/MenteeDetail.tsx` | 1:1 peer mentor |
@@ -244,7 +290,7 @@ Both are loaded with `next/font/google` in `src/app/fonts.ts`. Use `font-mono` f
 
 - Routes live in `src/app/`. Each route folder has a `page.tsx` that only renders a screen from `src/views/`. Shared wrappers (guards, `AppShell`) go in that route's `layout.tsx`.
 - Do not create `src/pages/`. Next.js treats it as the Pages Router.
-- The auth screens sit in the `(auth)` route group. `/dashboard` uses `RequireAuth` plus `AppShell`; everything under `/admin` uses `RequireAdmin`, `ActiveCohortProvider` and `AdminShell`.
+- The auth screens sit in the `(auth)` route group. `/dashboard` uses `RequireAuth`, `ActiveViewProvider` and `AppShell`, with `RequireRole` layouts on the role areas (`committee`, `tasks`, `group-meetings`, `mentor`, `result`); everything under `/admin` uses `RequireAdmin`, `ActiveCohortProvider` and `AdminShell`. `/graduation/[cohortId]` has no shell.
 - A screen that reads `useSearchParams()` must be wrapped in `<Suspense>` in its `page.tsx`, or the static build fails.
 - Navigate with `useRouter`, `usePathname` and `useSearchParams` from `next/navigation`, and link with `next/link`. Never use a plain `<a href>` for an internal link.
 - Auth tokens are in `localStorage`, so auth is client-side only. Do not move it to cookies or middleware.

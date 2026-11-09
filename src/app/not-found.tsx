@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation'
+import { NotFound } from '@/views/NotFound'
 
-export default function NotFound() {
-  redirect('/login')
+export default function NotFoundPage() {
+  return <NotFound />
 }

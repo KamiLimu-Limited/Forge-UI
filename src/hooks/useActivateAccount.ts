@@ -1,11 +1,16 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { api, tokenStore } from '@/lib/api'
+import { isDeadInvitation } from '@/lib/authErrors'
 import { validateNewPassword } from '@/lib/password'
 import { ApiError } from '@/types/auth'
 
+// checking: the link is being looked up. dead: it expired, was used, or was never valid.
+export type InvitationLinkState = 'checking' | 'ready' | 'dead'
+
 interface UseActivateAccountReturn {
+  linkState: InvitationLinkState
   password: string
   confirm: string
   error: string | null
@@ -21,6 +26,25 @@ export function useActivateAccount(token: string): UseActivateAccountReturn {
   const [confirm, setConfirmValue] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [linkState, setLinkState] = useState<InvitationLinkState>(token ? 'checking' : 'dead')
+
+  // Only a dead link ends the form; if the check itself fails, the form still works and
+  // the activation call gives the answer
+  useEffect(() => {
+    if (!token) return
+    let cancelled = false
+    api.auth
+      .previewInvitation(token)
+      .then(() => {
+        if (!cancelled) setLinkState('ready')
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) setLinkState(isDeadInvitation(err) ? 'dead' : 'ready')
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [token])
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
@@ -36,12 +60,15 @@ export function useActivateAccount(token: string): UseActivateAccountReturn {
       // reach RequireAuth before the provider knows the user and bounce to /login.
       window.location.replace('/dashboard')
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
+      if (isDeadInvitation(err)) setLinkState('dead')
+      else
+        setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
       setIsSubmitting(false)
     }
   }
 
   return {
+    linkState,
     password,
     confirm,
     error,

@@ -4,24 +4,15 @@ import { useSearchParams } from 'next/navigation'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { Button } from '@/components/ui/Button'
 import { PasswordInput } from '@/components/ui/PasswordInput'
-import { TextLink } from '@/components/ui/TextLink'
 import { useResetPassword } from '@/hooks/useResetPassword'
 import { PASSWORD_RULES } from '@/lib/password'
+import { ResetExpiredScreen } from './ResetExpiredScreen'
 
 export function ResetPassword() {
   const token = useSearchParams().get('token') ?? ''
   const form = useResetPassword(token)
 
-  if (!token) {
-    return (
-      <AuthLayout title="Set a new password">
-        <p role="alert" className="font-sans text-body text-danger-text">
-          This reset link is missing or invalid.
-        </p>
-        <TextLink href="/forgot-password">Request a new link</TextLink>
-      </AuthLayout>
-    )
-  }
+  if (!token || form.status === 'expired') return <ResetExpiredScreen />
 
   if (form.status === 'done') {
     return (

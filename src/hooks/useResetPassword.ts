@@ -3,10 +3,12 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
+import { isDeadResetLink } from '@/lib/authErrors'
 import { validateNewPassword } from '@/lib/password'
 import { ApiError } from '@/types/auth'
 
-type ResetStatus = 'idle' | 'submitting' | 'done'
+// expired: the link expired, was used, or was never valid
+type ResetStatus = 'idle' | 'submitting' | 'done' | 'expired'
 
 const REDIRECT_DELAY_MS = 2500
 
@@ -48,6 +50,10 @@ export function useResetPassword(token: string): UseResetPasswordReturn {
       setStatus('done')
       timer.current = setTimeout(() => router.replace('/login'), REDIRECT_DELAY_MS)
     } catch (err) {
+      if (isDeadResetLink(err)) {
+        setStatus('expired')
+        return
+      }
       setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
       setStatus('idle')
     }

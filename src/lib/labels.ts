@@ -2,6 +2,7 @@
 // Plain-language labels for API enum values. Use these wherever a value is shown.
 // =============================================================================
 
+import type { NotificationType } from '@/types/notification'
 import type { ActivityStatus, ActivityType, EventRole } from '@/types/activity'
 import type { AttendanceStatus, OverrideRequestStatus } from '@/types/attendance'
 import type { AccountState } from '@/types/auth'
@@ -170,3 +171,23 @@ export const AUDIT_RESOURCE_FILTERS: { value: string; label: string }[] = [
   { value: 'invitation', label: 'Invitations' },
   { value: 'cohort', label: 'Cohort settings' },
 ]
+
+// What each email is about, as the Email delivery screen lists it
+export const NOTIFICATION_TYPE_LABELS: Record<NotificationType, string> = {
+  session_published: 'Session published',
+  session_rescheduled: 'Session rescheduled',
+  session_cancelled: 'Session cancelled',
+  attendance_window_opening: 'Attendance window opens',
+  attendance_window_closing_soon: 'Attendance window closing soon',
+  graduation_warning: 'Graduation warning',
+  graduation_at_risk: 'Graduation warning',
+  override_request_submitted: 'Extension request sent',
+  override_request_approved: 'Extension approved',
+  override_request_denied: 'Extension denied',
+  extra_activity_approved: 'Activity approved',
+  extra_activity_rejected: 'Activity rejected',
+  peer_task_launched: 'Peer mentorship task opens',
+  peer_task_deadline_reminder: 'Peer mentorship task due soon',
+  cohort_onboarding_invitation: 'Invitation',
+  broadcast: 'Message',
+}

@@ -36,3 +36,6 @@ export function menteeApplicationUpdateRoute(activityId: string): string {
 export function menteeNotesRoute(sessionId: string): string {
   return `${MENTEE_ROUTES.sessions}/${sessionId}/notes`
 }
+
+// The final graduation result, once a cohort is graduated
+export const MENTEE_RESULT_ROUTE = '/dashboard/result'

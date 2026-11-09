@@ -13,6 +13,11 @@ export type UserRole =
   | 'partner'
   | 'alumni'
   | 'admin'
+  // Not in the API yet (docs/api-gaps.md). The Program Lead has every System Admin power
+  // plus graduating a cohort; the Program Delivery Lead is a committee member who creates
+  // and edits peer mentorship tasks. Typed ahead of the API so the screens can be guarded.
+  | 'program_lead'
+  | 'program_delivery_lead'
 
 export interface UserRoleResponse {
   id: string

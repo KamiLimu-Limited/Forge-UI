@@ -18,18 +18,35 @@ export interface RoleContext {
 }
 
 // The screens /dashboard can show for a view
-export type ViewRole = 'mentee' | 'peer_mentor' | 'ict_peer_mentor' | 'alumni'
+export type ViewRole =
+  | 'mentee'
+  | 'peer_mentor'
+  | 'ict_peer_mentor'
+  | 'alumni'
+  | 'professional_mentor'
+  | 'committee'
 
 const VIEW_ROLES: Partial<Record<UserRole, ViewRole>> = {
   mentee: 'mentee',
   'peer_mentor_1:1': 'peer_mentor',
   peer_mentor_ict: 'ict_peer_mentor',
   alumni: 'alumni',
+  professional_mentor: 'professional_mentor',
+  committee: 'committee',
+  // A committee member who also runs peer mentorship tasks
+  program_delivery_lead: 'committee',
 }
 
 // Someone who graduated keeps their mentee role in that cohort, so alumni comes before
 // mentee. Peer mentor roles come first because they are only held in a current cohort.
-const VIEW_ROLE_ORDER: ViewRole[] = ['peer_mentor', 'ict_peer_mentor', 'alumni', 'mentee']
+const VIEW_ROLE_ORDER: ViewRole[] = [
+  'peer_mentor',
+  'ict_peer_mentor',
+  'alumni',
+  'mentee',
+  'professional_mentor',
+  'committee',
+]
 
 export function viewRole(context: RoleContext | null): ViewRole | null {
   if (!context) return null

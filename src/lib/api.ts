@@ -72,16 +72,33 @@ import type {
   EnrollmentResponse,
   EnrollmentUpdateRequest,
 } from '@/types/enrollment'
-import type { InvitationListParams, InvitationResponse } from '@/types/invitation'
+import type {
+  InvitationListParams,
+  InvitationPreview,
+  InvitationResponse,
+} from '@/types/invitation'
 import type { FinalStatusResponse } from '@/types/alumni'
 import type { TrackOverviewResponse, TrackSessionEntry } from '@/types/ictPeerMentor'
 import type { DimensionRankingResponse, LeaderboardDimension } from '@/types/leaderboard'
 import type {
+  AdminNotificationResponse,
+  BroadcastRequest,
+  BroadcastResponse,
   MarkAllReadResponse,
   NotificationListParams,
   NotificationResponse,
 } from '@/types/notification'
-import type { Page } from '@/types/page'
+import type {
+  ActivityEngagementResponse,
+  AttendanceTrendResponse,
+  CrossCohortResponse,
+  LeaderboardResponse,
+  SessionQualityResponse,
+  TrackPerformanceResponse,
+} from '@/types/analytics'
+import type { GraduationReportResponse } from '@/types/graduation'
+import type { Page, PageParams } from '@/types/page'
+import type { SessionAttendanceSummary } from '@/types/proMentor'
 import type { SessionFeedbackResponse } from '@/types/sessionFeedback'
 import type {
   MentorAssignment,
@@ -171,7 +188,9 @@ async function readError(res: Response): Promise<ApiError> {
 async function request<T>(
   path: string,
   options: RequestInit = {},
-  authenticated = true
+  authenticated = true,
+  // How to read a successful response; CSV downloads read plain text
+  read: (res: Response) => Promise<T> = readBody
 ): Promise<T> {
   // FormData sets its own multipart Content-Type with the boundary
   const isForm = typeof FormData !== 'undefined' && options.body instanceof FormData
@@ -211,15 +230,24 @@ async function request<T>(
     headers['Authorization'] = `Bearer ${newToken}`
     const retried = await fetch(`${API_BASE_URL}${path}`, { ...options, headers })
     if (!retried.ok) throw await readError(retried)
-    return readBody<T>(retried)
+    return read(retried)
   }
 
   if (!res.ok) throw await readError(res)
 
-  return readBody<T>(res)
+  return read(res)
 }
 
 type QueryValue = string | number | boolean | null | undefined
+
+function readText(res: Response): Promise<string> {
+  return res.text()
+}
+
+// A CSV file's text, from a GET or POST export route
+function requestCsv(path: string, method: 'GET' | 'POST' = 'GET'): Promise<string> {
+  return request<string>(path, { method, headers: { Accept: 'text/csv' } }, true, readText)
+}
 
 // "?a=1&b=2" from the defined values, or "" when there are none
 function qs(params?: object): string {
@@ -261,6 +289,14 @@ export const api = {
           method: 'POST',
           body: JSON.stringify(body),
         },
+        false
+      ),
+
+    // Checks an invitation link before the person sets a password
+    previewInvitation: (token: string) =>
+      request<InvitationPreview>(
+        `/api/v1/auth/invitations/${encodeURIComponent(token)}`,
+        {},
         false
       ),
 
@@ -403,6 +439,10 @@ export const api = {
 
     update: (cohortId: string, body: CohortUpdateRequest) =>
       request<CohortResponse>(`/api/v1/cohorts/${cohortId}`, json('PATCH', body)),
+
+    // Committee of the cohort. The only graduation route the API has so far.
+    graduationReport: (cohortId: string) =>
+      request<GraduationReportResponse>(`/api/v1/cohorts/${cohortId}/graduation-report`),
 
     calendar: (cohortId: string) =>
       request<CalendarMonth[]>(`/api/v1/cohorts/${cohortId}/calendar`),
@@ -575,6 +615,12 @@ export const api = {
       ),
   },
 
+  proMentor: {
+    // Sessions the caller leads or co-mentors. Professional mentors only.
+    sessions: () =>
+      request<SessionAttendanceSummary[]>('/api/v1/dashboard/professional-mentor/sessions'),
+  },
+
   ictPeerMentor: {
     trackOverview: (cohortId: string) =>
       request<TrackOverviewResponse>(
@@ -603,6 +649,13 @@ export const api = {
         json('PATCH', {})
       ),
 
+    // Emails that failed after every retry, with the last error. Admin only.
+    failed: (params?: PageParams) =>
+      request<Page<AdminNotificationResponse>>(`/api/v1/notifications/failed${qs(params)}`),
+
+    broadcast: (body: BroadcastRequest) =>
+      request<BroadcastResponse>('/api/v1/notifications/broadcast', json('POST', body)),
+
     markAllRead: () =>
       request<MarkAllReadResponse>('/api/v1/notifications/read-all', json('PATCH', {})),
   },
@@ -625,5 +678,40 @@ export const api = {
   leaderboard: {
     dimension: (cohortId: string, dimension: LeaderboardDimension) =>
       request<DimensionRankingResponse>(`/api/v1/cohorts/${cohortId}/leaderboard/${dimension}`),
+
+    full: (cohortId: string) =>
+      request<LeaderboardResponse>(`/api/v1/cohorts/${cohortId}/leaderboard`),
+
+    // Committee of the cohort
+    exportCsv: (cohortId: string) => requestCsv(`/api/v1/cohorts/${cohortId}/leaderboard/export`),
+  },
+
+  analytics: {
+    attendanceTrends: (cohortId: string) =>
+      request<AttendanceTrendResponse>(`/api/v1/analytics/cohorts/${cohortId}/attendance-trends`),
+
+    trackPerformance: (cohortId: string) =>
+      request<TrackPerformanceResponse>(`/api/v1/analytics/cohorts/${cohortId}/track-performance`),
+
+    sessionQuality: (cohortId: string) =>
+      request<SessionQualityResponse>(`/api/v1/analytics/cohorts/${cohortId}/session-quality`),
+
+    activities: (cohortId: string) =>
+      request<ActivityEngagementResponse>(`/api/v1/analytics/cohorts/${cohortId}/extra-activities`),
+
+    // cohort_ids repeats once per cohort
+    crossCohort: (cohortIds: string[]) =>
+      request<CrossCohortResponse>(
+        `/api/v1/analytics/cross-cohort?${cohortIds
+          .map((id) => `cohort_ids=${encodeURIComponent(id)}`)
+          .join('&')}`
+      ),
+  },
+
+  exports: {
+    attendance: (cohortId: string) => requestCsv(`/api/v1/exports/attendance/${cohortId}`, 'POST'),
+    fullReport: (cohortId: string) => requestCsv(`/api/v1/exports/full-report/${cohortId}`, 'POST'),
+    leaderboard: (cohortId: string) =>
+      requestCsv(`/api/v1/exports/leaderboard/${cohortId}`, 'POST'),
   },
 }

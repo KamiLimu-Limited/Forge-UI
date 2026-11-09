@@ -1,7 +1,10 @@
 import type { IconName } from '@/components/ui/Icon'
+import { ADMIN_ROUTES, PROGRAM_LEAD_ROUTES } from '@/lib/adminRoutes'
 import { ALUMNI_ROUTES } from '@/lib/alumniRoutes'
+import { COMMITTEE_ROUTES, DELIVERY_LEAD_ROUTES } from '@/lib/committeeRoutes'
 import { MENTEE_ROUTES } from '@/lib/menteeRoutes'
 import { ICT_PEER_MENTOR_ROUTES, PEER_MENTOR_ROUTES } from '@/lib/peerMentorRoutes'
+import { PRO_MENTOR_ROUTES } from '@/lib/proMentorRoutes'
 import type { UserRole } from '@/types/auth'
 
 export interface NavItem {
@@ -72,8 +75,35 @@ export const NAV_BY_ROLE: Record<UserRole, NavGroup | NavGroup[]> = {
     },
     PARTICIPATION_NAV,
   ],
-  professional_mentor: { heading: 'As a professional mentor', items: [] },
-  committee: { heading: 'As a committee member', items: [] },
+  professional_mentor: {
+    heading: 'As a professional mentor',
+    items: [
+      { label: 'My sessions', href: PRO_MENTOR_ROUTES.home, icon: 'calendar' },
+      { label: 'Feedback', href: PRO_MENTOR_ROUTES.feedback, icon: 'chart' },
+      { label: 'Resources', href: PRO_MENTOR_ROUTES.resources, icon: 'inbox' },
+    ],
+  },
+  committee: {
+    heading: 'As a committee member',
+    items: [
+      { label: 'Overview', href: COMMITTEE_ROUTES.home, icon: 'home' },
+      { label: 'Trends', href: COMMITTEE_ROUTES.trends, icon: 'chart' },
+      { label: 'Cross-cohort', href: COMMITTEE_ROUTES.crossCohort, icon: 'swap' },
+      { label: 'Leaderboards and exports', href: COMMITTEE_ROUTES.leaderboards, icon: 'star' },
+    ],
+  },
+  // The one committee member who can change something: peer mentorship tasks
+  program_delivery_lead: {
+    heading: 'Program Delivery Lead',
+    items: [
+      { label: 'Peer mentorship tasks', href: DELIVERY_LEAD_ROUTES.tasks, icon: 'calendar' },
+      { label: 'Group meetings', href: DELIVERY_LEAD_ROUTES.groupMeetings, icon: 'users' },
+    ],
+  },
+  program_lead: {
+    heading: 'As the Program Lead',
+    items: [{ label: 'Admin', href: '/admin', icon: 'home' }],
+  },
   partner: { heading: 'As a partner', items: [] },
   alumni: {
     heading: 'As an alumnus',
@@ -84,20 +114,64 @@ export const NAV_BY_ROLE: Record<UserRole, NavGroup | NavGroup[]> = {
   },
 }
 
-// The System Admin sidebar and mobile menu, in design order.
-// "Graduation preview" ships with the Program Lead screens.
-export const ADMIN_NAV: NavItem[] = [
-  { label: 'Overview', href: '/admin', icon: 'home' },
-  { label: 'All cohorts', href: '/admin/cohorts', icon: 'inbox' },
-  { label: 'Sessions', href: '/admin/sessions', icon: 'calendar' },
-  { label: 'Attendance queue', href: '/admin/attendance-queue', icon: 'inbox' },
-  { label: 'Extra activities', href: '/admin/extra-activities', icon: 'check' },
-  { label: 'Users', href: '/admin/users', icon: 'users' },
-  { label: 'ICT tracks', href: '/admin/ict-tracks', icon: 'swap' },
-  { label: 'Mentor assignments', href: '/admin/assignments', icon: 'users' },
-  { label: 'Rosters', href: '/admin/rosters/professional-mentors', icon: 'user' },
-  { label: 'Cohort settings', href: '/admin/settings', icon: 'menu' },
-  { label: 'Audit trail', href: '/admin/audit-trail', icon: 'search' },
+// The System Admin sidebar and mobile menu, in design order (SA-Broadcast)
+export const ADMIN_NAV_GROUPS: NavGroup[] = [
+  {
+    heading: '',
+    items: [
+      { label: 'Overview', href: ADMIN_ROUTES.home, icon: 'home' },
+      { label: 'All cohorts', href: '/admin/cohorts', icon: 'inbox' },
+      { label: 'Sessions', href: '/admin/sessions', icon: 'calendar' },
+      { label: 'Group meetings', href: ADMIN_ROUTES.groupMeetings, icon: 'users' },
+      { label: 'Attendance queue', href: '/admin/attendance-queue', icon: 'inbox' },
+      { label: 'Extra activities', href: '/admin/extra-activities', icon: 'check' },
+      { label: 'Users', href: '/admin/users', icon: 'users' },
+      { label: 'ICT tracks', href: '/admin/ict-tracks', icon: 'swap' },
+      { label: 'Mentor assignments', href: '/admin/assignments', icon: 'users' },
+      { label: 'Rosters', href: '/admin/rosters/professional-mentors', icon: 'user' },
+      { label: 'Cohort settings', href: '/admin/settings', icon: 'menu' },
+      { label: 'Graduation preview', href: PROGRAM_LEAD_ROUTES.graduation, icon: 'star' },
+      { label: 'Audit trail', href: '/admin/audit-trail', icon: 'search' },
+    ],
+  },
+  {
+    heading: 'Messages and integrations',
+    items: [
+      { label: 'Messages', href: ADMIN_ROUTES.messages, icon: 'bell' },
+      { label: 'Email delivery', href: ADMIN_ROUTES.emailDelivery, icon: 'inbox' },
+      { label: 'Google sync', href: ADMIN_ROUTES.googleSync, icon: 'calendar' },
+    ],
+  },
+]
+
+// The Program Lead's sidebar, in design order (PL-Home): the System Admin screens plus
+// Graduation and the committee's oversight screens
+export const PROGRAM_LEAD_NAV_GROUPS: NavGroup[] = [
+  {
+    heading: '',
+    items: [
+      { label: 'Overview', href: ADMIN_ROUTES.home, icon: 'home' },
+      { label: 'Graduation', href: PROGRAM_LEAD_ROUTES.graduation, icon: 'star' },
+      { label: 'All cohorts', href: '/admin/cohorts', icon: 'inbox' },
+      { label: 'Sessions', href: '/admin/sessions', icon: 'calendar' },
+      { label: 'Attendance queue', href: '/admin/attendance-queue', icon: 'inbox' },
+      { label: 'Extra activities', href: '/admin/extra-activities', icon: 'check' },
+      { label: 'Users', href: '/admin/users', icon: 'users' },
+      { label: 'ICT tracks', href: '/admin/ict-tracks', icon: 'swap' },
+      { label: 'Mentor assignments', href: '/admin/assignments', icon: 'users' },
+      { label: 'Rosters', href: '/admin/rosters/professional-mentors', icon: 'user' },
+      { label: 'Cohort settings', href: '/admin/settings', icon: 'menu' },
+      { label: 'Audit trail', href: '/admin/audit-trail', icon: 'search' },
+    ],
+  },
+  {
+    heading: 'Oversight',
+    items: [
+      { label: 'Trends', href: PROGRAM_LEAD_ROUTES.trends, icon: 'chart' },
+      { label: 'Cross-cohort', href: PROGRAM_LEAD_ROUTES.crossCohort, icon: 'swap' },
+      { label: 'Leaderboards and exports', href: PROGRAM_LEAD_ROUTES.leaderboards, icon: 'star' },
+    ],
+  },
 ]
 
 // The section a path belongs to, so nested pages keep their nav item highlighted.

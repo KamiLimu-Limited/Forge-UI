@@ -13,13 +13,20 @@ import { useActiveCohort, type ActiveCohortContextValue } from '@/hooks/useActiv
 import { useAuth } from '@/hooks/useAuth'
 import { cx } from '@/lib/cx'
 import { Brand } from './Brand'
-import { ADMIN_NAV, adminNavMatches } from './navConfig'
+import { isProgramLead } from '@/lib/roles'
+import {
+  ADMIN_NAV_GROUPS,
+  PROGRAM_LEAD_NAV_GROUPS,
+  adminNavMatches,
+  type NavGroup,
+} from './navConfig'
 
 interface AdminShellProps {
   children: ReactNode
 }
 
-const ROLE_LABEL = 'System Admin'
+const ADMIN_LABEL = 'System Admin'
+const PROGRAM_LEAD_LABEL = 'Program Lead'
 
 // ---------------------------------------------------------------------------
 // Cohort card (sidebar) and cohort pill (mobile top bar)
@@ -27,6 +34,7 @@ const ROLE_LABEL = 'System Admin'
 
 interface CohortControlProps {
   active: ActiveCohortContextValue
+  roleLabel: string
   onOpenPicker: () => void
 }
 
@@ -36,7 +44,7 @@ function cohortTitle(active: ActiveCohortContextValue): string {
   return active.cohort?.name ?? 'No cohorts yet'
 }
 
-function CohortCard({ active, onOpenPicker }: CohortControlProps) {
+function CohortCard({ active, roleLabel, onOpenPicker }: CohortControlProps) {
   const canSwitch = active.cohorts.length > 1
   const content = (
     <>
@@ -45,7 +53,7 @@ function CohortCard({ active, onOpenPicker }: CohortControlProps) {
         <span className="truncate">{cohortTitle(active)}</span>
       </span>
       <span className="flex shrink-0 items-center gap-1 font-sans text-caption text-text-muted">
-        {ROLE_LABEL}
+        {roleLabel}
         {canSwitch && <Icon name="swap" className="size-4 text-text-secondary" />}
       </span>
     </>
@@ -99,14 +107,36 @@ function NavPending() {
 }
 
 interface NavListProps {
+  groups: NavGroup[]
   pathname: string
   onNavigate?: () => void
 }
 
-function NavList({ pathname, onNavigate }: NavListProps) {
+function NavList({ groups, pathname, onNavigate }: NavListProps) {
+  return (
+    <div className="flex flex-col gap-4">
+      {groups.map((group) => (
+        <div key={group.heading || 'main'} className="flex flex-col gap-1">
+          {group.heading && (
+            <p className="px-3 pb-1 font-sans text-caption text-text-muted">{group.heading}</p>
+          )}
+          <NavItems items={group.items} pathname={pathname} onNavigate={onNavigate} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+interface NavItemsProps {
+  items: NavGroup['items']
+  pathname: string
+  onNavigate?: () => void
+}
+
+function NavItems({ items, pathname, onNavigate }: NavItemsProps) {
   return (
     <ul className="flex flex-col gap-0.5">
-      {ADMIN_NAV.map((item) => {
+      {items.map((item) => {
         const isActive = adminNavMatches(item.href, pathname)
         return (
           <li key={item.href}>
@@ -181,19 +211,20 @@ function CohortPicker({ active, isOpen, onClose }: CohortPickerProps) {
 interface UserBlockProps {
   fullName: string
   cohortName: string | null
+  roleLabel: string
   onSignOut: () => void
 }
 
-function UserBlock({ fullName, cohortName, onSignOut }: UserBlockProps) {
+function UserBlock({ fullName, cohortName, roleLabel, onSignOut }: UserBlockProps) {
   return (
     <div className="flex items-center gap-3">
-      <Avatar name={fullName || ROLE_LABEL} />
+      <Avatar name={fullName || roleLabel} />
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="truncate font-sans text-small font-semibold text-text-primary">
           {fullName}
         </span>
         <span className="truncate font-sans text-caption text-text-muted">
-          {cohortName ?? ROLE_LABEL}
+          {cohortName ?? roleLabel}
         </span>
       </div>
       <button
@@ -218,6 +249,9 @@ export function AdminShell({ children }: AdminShellProps) {
   const [isPickerOpen, setIsPickerOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
+  const isLead = isProgramLead(user)
+  const roleLabel = isLead ? PROGRAM_LEAD_LABEL : ADMIN_LABEL
+  const navGroups = isLead ? PROGRAM_LEAD_NAV_GROUPS : ADMIN_NAV_GROUPS
   const fullName = user ? `${user.first_name} ${user.last_name}`.trim() : ''
   const cohortName = active.cohort?.name ?? null
   const signOut = () => {
@@ -231,13 +265,22 @@ export function AdminShell({ children }: AdminShellProps) {
         <div className="px-2">
           <Brand href="/admin" />
         </div>
-        <CohortCard active={active} onOpenPicker={() => setIsPickerOpen(true)} />
+        <CohortCard
+          active={active}
+          roleLabel={roleLabel}
+          onOpenPicker={() => setIsPickerOpen(true)}
+        />
         <nav aria-label="Main" className="flex-1 overflow-y-auto">
-          <NavList pathname={pathname} />
+          <NavList groups={navGroups} pathname={pathname} />
         </nav>
         <div className="flex flex-col gap-3 border-t border-border pt-4">
           <ThemeToggle className="self-start" />
-          <UserBlock fullName={fullName} cohortName={cohortName} onSignOut={signOut} />
+          <UserBlock
+            fullName={fullName}
+            cohortName={cohortName}
+            roleLabel={roleLabel}
+            onSignOut={signOut}
+          />
         </div>
       </aside>
 
@@ -245,7 +288,11 @@ export function AdminShell({ children }: AdminShellProps) {
         <header className="sticky top-0 z-sticky flex h-14 items-center justify-between gap-2 border-b border-border bg-surface pl-4 pr-1 md:hidden">
           <Brand href="/admin" />
           <div className="flex min-w-0 items-center gap-1">
-            <CohortPill active={active} onOpenPicker={() => setIsPickerOpen(true)} />
+            <CohortPill
+              active={active}
+              roleLabel={roleLabel}
+              onOpenPicker={() => setIsPickerOpen(true)}
+            />
             <button
               type="button"
               onClick={() => setIsMenuOpen(true)}
@@ -274,11 +321,20 @@ export function AdminShell({ children }: AdminShellProps) {
       <Modal isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} title="Menu" width="sm">
         <div className="flex flex-col gap-5">
           <nav aria-label="Main">
-            <NavList pathname={pathname} onNavigate={() => setIsMenuOpen(false)} />
+            <NavList
+              groups={navGroups}
+              pathname={pathname}
+              onNavigate={() => setIsMenuOpen(false)}
+            />
           </nav>
           <div className="flex flex-col gap-4 border-t border-border pt-4">
             <ThemeToggle className="self-start" />
-            <UserBlock fullName={fullName} cohortName={cohortName} onSignOut={signOut} />
+            <UserBlock
+              fullName={fullName}
+              cohortName={cohortName}
+              roleLabel={roleLabel}
+              onSignOut={signOut}
+            />
           </div>
         </div>
       </Modal>

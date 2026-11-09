@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { isSuspendedAccount } from '@/lib/authErrors'
 import { ApiError } from '@/types/auth'
 
 interface UseLoginFormReturn {
@@ -10,6 +11,8 @@ interface UseLoginFormReturn {
   password: string
   emailError: string | null
   passwordError: string | null
+  // The account exists but is suspended, which gets its own message above the form
+  isSuspended: boolean
   isSubmitting: boolean
   setEmail: (value: string) => void
   setPassword: (value: string) => void
@@ -24,6 +27,7 @@ export function useLoginForm(): UseLoginFormReturn {
   const [emailError, setEmailError] = useState<string | null>(null)
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSuspended, setIsSuspended] = useState(false)
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
@@ -35,10 +39,15 @@ export function useLoginForm(): UseLoginFormReturn {
     if (emailProblem || passwordProblem) return
 
     setIsSubmitting(true)
+    setIsSuspended(false)
     try {
       await login(email.trim(), password)
       router.replace('/dashboard')
     } catch (err) {
+      if (isSuspendedAccount(err)) {
+        setIsSuspended(true)
+        return
+      }
       setPasswordError(
         err instanceof ApiError ? err.message : 'Something went wrong. Please try again.'
       )
@@ -52,6 +61,7 @@ export function useLoginForm(): UseLoginFormReturn {
     password,
     emailError,
     passwordError,
+    isSuspended,
     isSubmitting,
     setEmail: (value) => {
       setEmailValue(value)

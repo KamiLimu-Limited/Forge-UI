@@ -72,6 +72,11 @@ export interface AttendanceAnswers {
   feedback: string
 }
 
+// The form while it's being filled in: nothing is picked for attendance until the mentee does
+export interface AttendanceDraft extends Omit<AttendanceAnswers, 'status'> {
+  status: AttendanceAnswers['status'] | null
+}
+
 // One session as the attendance and notes screens draw it
 export interface SessionRecordView {
   id: string

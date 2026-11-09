@@ -10,7 +10,8 @@ export interface SegmentedOption<T extends string> {
 
 interface SegmentedControlProps<T extends string> {
   options: SegmentedOption<T>[]
-  value: T
+  // null when nothing is chosen yet
+  value: T | null
   onChange: (value: T) => void
   // Names the group for screen readers, for example "Filter users by status"
   label: string
@@ -62,7 +63,8 @@ export function SegmentedControl<T extends string>({
             type="button"
             role="tab"
             aria-selected={isSelected}
-            tabIndex={isSelected ? 0 : -1}
+            // With nothing chosen the first option takes the tab stop, so the group can be reached
+            tabIndex={isSelected || (value === null && index === 0) ? 0 : -1}
             disabled={disabled}
             onClick={() => onChange(option.value)}
             onKeyDown={(e) => handleKeyDown(e, index)}

@@ -79,7 +79,8 @@ function AttendanceForm({
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
-    if (form.check()) onSubmit(form.answers)
+    const ready = form.check()
+    if (ready) onSubmit(ready)
   }
 
   return (
@@ -99,6 +100,11 @@ function AttendanceForm({
               variant="joined"
             />
           </div>
+          {form.showErrors && !form.hasStatus && (
+            <p role="alert" className="mt-2 font-sans text-caption text-danger-text">
+              Choose Present or Absent
+            </p>
+          )}
         </Card>
 
         {form.isPresent &&

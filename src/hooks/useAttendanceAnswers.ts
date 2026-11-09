@@ -2,36 +2,41 @@
 
 import { useState } from 'react'
 import { RATING_FIELDS } from '@/lib/attendanceQuestions'
-import type { AttendanceAnswers, RatingField } from '@/types/menteeSessions'
+import type { AttendanceAnswers, AttendanceDraft, RatingField } from '@/types/menteeSessions'
 
-const EMPTY: AttendanceAnswers = { status: 'attended', ratings: {}, feedback: '' }
+const EMPTY: AttendanceDraft = { status: null, ratings: {}, feedback: '' }
 
 interface UseAttendanceAnswersReturn {
-  answers: AttendanceAnswers
+  answers: AttendanceDraft
   setStatus: (status: AttendanceAnswers['status']) => void
   setRating: (field: RatingField, value: number) => void
   setFeedback: (feedback: string) => void
   isPresent: boolean
+  hasStatus: boolean
   ratedCount: number
   totalRatings: number
   isFeedbackWritten: boolean
   isComplete: boolean
   // Turns on the per-question messages after a failed submit
   showErrors: boolean
-  // True when the answers can be sent; otherwise shows what's missing
-  check: () => boolean
+  // The answers ready to send, or null after showing what's missing
+  check: () => AttendanceAnswers | null
 }
 
-// The attendance form's answers and what is still missing. Present needs every rating and
-// the feedback. Absent needs nothing else, since the API only takes ratings for Present.
+// The attendance form's answers and what is still missing. Present or Absent must be
+// picked; nothing starts selected, so nobody is marked present by default. Present needs
+// every rating and the feedback. Absent needs nothing else, since the API only takes
+// ratings for Present.
 export function useAttendanceAnswers(): UseAttendanceAnswersReturn {
-  const [answers, setAnswers] = useState<AttendanceAnswers>(EMPTY)
+  const [answers, setAnswers] = useState<AttendanceDraft>(EMPTY)
   const [showErrors, setShowErrors] = useState(false)
 
   const isPresent = answers.status === 'attended'
+  const hasStatus = answers.status !== null
   const ratedCount = RATING_FIELDS.filter((field) => answers.ratings[field] !== undefined).length
   const isFeedbackWritten = answers.feedback.trim().length > 0
-  const isComplete = !isPresent || (ratedCount === RATING_FIELDS.length && isFeedbackWritten)
+  const isComplete =
+    hasStatus && (!isPresent || (ratedCount === RATING_FIELDS.length && isFeedbackWritten))
 
   return {
     answers,
@@ -43,6 +48,7 @@ export function useAttendanceAnswers(): UseAttendanceAnswersReturn {
       })),
     setFeedback: (feedback) => setAnswers((current) => ({ ...current, feedback })),
     isPresent,
+    hasStatus,
     ratedCount,
     totalRatings: RATING_FIELDS.length,
     isFeedbackWritten,
@@ -50,7 +56,8 @@ export function useAttendanceAnswers(): UseAttendanceAnswersReturn {
     showErrors,
     check: () => {
       setShowErrors(!isComplete)
-      return isComplete
+      const { status } = answers
+      return isComplete && status !== null ? { ...answers, status } : null
     },
   }
 }

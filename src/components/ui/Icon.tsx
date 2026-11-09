@@ -33,6 +33,11 @@ export type IconName =
   | 'swap'
   | 'user'
   | 'users'
+  | 'pause'
+  | 'play'
+  | 'maximize'
+  | 'minimize'
+  | 'replay'
 
 interface IconProps {
   name: IconName
@@ -78,6 +83,16 @@ const paths: Record<IconName, ReactNode> = {
   'chevron-left': <path d="M15 6l-6 6 6 6" />,
   'chevron-right': <path d="M9 6l6 6-6 6" />,
   'chevron-up': <path d="M6 15l6-6 6 6" />,
+  pause: <path d="M9 5v14M15 5v14" />,
+  play: <path d="M7 5l12 7-12 7z" />,
+  maximize: <path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" />,
+  minimize: <path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5" />,
+  replay: (
+    <>
+      <path d="M4 12a8 8 0 1 0 2.3-5.6" />
+      <path d="M4 4v4h4" />
+    </>
+  ),
   grip: (
     <>
       <path d="M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01" strokeWidth={3} />

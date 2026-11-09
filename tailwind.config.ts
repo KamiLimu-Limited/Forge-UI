@@ -45,6 +45,9 @@ const config: Config = {
         'disabled-bg': 'var(--color-disabled-bg)',
         'disabled-text': 'var(--color-disabled-text)',
 
+        // Brand ivory, fixed in both themes: text on the dark graduation sequence
+        ivory: 'var(--color-ivory)',
+
         // Brand secondary colours
         auburn: 'var(--color-auburn)',
         gamboge: 'var(--color-gamboge)',
@@ -211,6 +214,27 @@ const config: Config = {
         fast: '150ms',
         normal: '250ms',
         slow: '400ms',
+      },
+
+      // -------------------------------------------------------------------------
+      // Graduation sequence motion. Screens use these with motion-safe: so they stop
+      // for anyone who asks for reduced motion.
+      // -------------------------------------------------------------------------
+      keyframes: {
+        'seq-dawn': { from: { filter: 'brightness(0.15)' }, to: { filter: 'brightness(1)' } },
+        'seq-rise': {
+          from: { opacity: '0', transform: 'translateY(1.5rem)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        'seq-fall': {
+          from: { transform: 'translateY(-10vh) rotate(0deg)', opacity: '1' },
+          to: { transform: 'translateY(110vh) rotate(540deg)', opacity: '0.9' },
+        },
+      },
+      animation: {
+        'seq-dawn': 'seq-dawn 3s ease-out forwards',
+        'seq-rise': 'seq-rise 900ms ease-out both',
+        'seq-fall': 'seq-fall 4.5s linear infinite',
       },
 
       // -------------------------------------------------------------------------

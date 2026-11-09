@@ -6,6 +6,7 @@ import { loadOpenSessions, loadProgrammeMonth } from '@/lib/menteeSessions'
 import { sessionPillar } from '@/lib/sessions'
 import type { MenteeHomeData, NextSession } from '@/types/home'
 import type { SessionBrief } from '@/types/session'
+import { useActiveView } from './useActiveView'
 import { useApiQuery, type ApiQuery } from './useApiQuery'
 
 // The value, or null if the request failed, so one missing part can't hide the page
@@ -26,9 +27,13 @@ async function loadNextSession(brief: SessionBrief | null): Promise<NextSession 
   }
 }
 
-async function loadHome(userId: string, firstName: string): Promise<MenteeHomeData> {
+async function loadHome(
+  userId: string,
+  firstName: string,
+  activeCohortId: string | null
+): Promise<MenteeHomeData> {
   // The overview is the core of the page. Everything else can be missing.
-  const overview = await api.dashboard.mentee.overview()
+  const overview = await api.dashboard.mentee.overview(activeCohortId ?? undefined)
   const cohortId = overview.cohort_id
 
   const [rates, month, enrollments, nextSession, openSessions, future, ...boards] =
@@ -95,7 +100,8 @@ async function loadHome(userId: string, firstName: string): Promise<MenteeHomeDa
 }
 
 export function useMenteeHome(userId: string, firstName: string): ApiQuery<MenteeHomeData> {
-  return useApiQuery(() => loadHome(userId, firstName), [userId], {
+  const { cohortId } = useActiveView()
+  return useApiQuery(() => loadHome(userId, firstName, cohortId), [userId, cohortId], {
     fallbackError: "We couldn't load your home. Try again.",
   })
 }

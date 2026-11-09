@@ -43,8 +43,11 @@ export function facilitatorView(rows: FacilitatorSessionRow[]): FacilitatorView 
   }
 }
 
-export async function loadFacilitator(now: Date = new Date()): Promise<FacilitatorView> {
-  const group = await api.peerMentor.group()
+export async function loadFacilitator(
+  cohortId: string | null,
+  now: Date = new Date()
+): Promise<FacilitatorView> {
+  const group = await api.peerMentor.group(cohortId)
   const sessions = await fetchAllPages((page, pageSize) =>
     api.sessions.list({
       cohort_id: group.cohort_id,
@@ -74,10 +77,13 @@ export async function loadFacilitator(now: Date = new Date()): Promise<Facilitat
   return facilitatorView(rows)
 }
 
-export async function loadSessionRatings(sessionId: string): Promise<SessionRatingsView> {
+export async function loadSessionRatings(
+  sessionId: string,
+  cohortId: string | null
+): Promise<SessionRatingsView> {
   const [session, facilitator] = await Promise.all([
-    loadGroupFeedback(sessionId),
-    loadFacilitator(),
+    loadGroupFeedback(sessionId, cohortId),
+    loadFacilitator(cohortId),
   ])
   return { session, averageAcrossSessions: facilitator.average }
 }

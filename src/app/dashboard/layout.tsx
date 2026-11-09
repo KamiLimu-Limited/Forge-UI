@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { AppShell } from '@/components/layout/AppShell'
 import { RequireAuth } from '@/components/layout/guards'
+import { ActiveViewProvider } from '@/hooks/useActiveView'
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -9,7 +10,9 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <RequireAuth>
-      <AppShell>{children}</AppShell>
+      <ActiveViewProvider>
+        <AppShell>{children}</AppShell>
+      </ActiveViewProvider>
     </RequireAuth>
   )
 }

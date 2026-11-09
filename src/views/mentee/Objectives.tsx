@@ -7,8 +7,8 @@ import { ObjectivesScreen } from './ObjectivesScreen'
 
 // Loads the mentee's objectives and saves their ratings
 export function Objectives() {
-  const { peerCohortId, saveBlockedNote } = useParticipantRole()
-  const { data, isLoading, error, refetch } = useMenteeObjectives(peerCohortId)
+  const participant = useParticipantRole()
+  const { data, isLoading, error, refetch } = useMenteeObjectives(participant)
   const { save, isSaving, error: saveError } = useSaveObjectives(data, refetch)
   return (
     <ObjectivesScreen
@@ -19,7 +19,7 @@ export function Objectives() {
       onSave={(ratings) => void save(ratings)}
       isSaving={isSaving}
       saveError={saveError}
-      saveBlockedNote={saveBlockedNote}
+      saveBlockedNote={participant.saveBlockedNote}
     />
   )
 }

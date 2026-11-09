@@ -2,6 +2,7 @@ import { createElement } from 'react'
 import type { Preview } from '@storybook/react'
 import { fontMono, fontSans } from '../src/app/fonts'
 import type { UserProfileResponse } from '../src/types/auth'
+import { ActiveViewProvider } from '../src/hooks/useActiveView'
 import { ToastProvider } from '../src/hooks/useToast'
 import { MockActiveCohortProvider, type ActiveCohortParameters } from './MockActiveCohortProvider'
 import { MockAuthProvider } from './MockAuthProvider'
@@ -32,7 +33,7 @@ const preview: Preview = {
     },
     controls: { matchers: { color: /(background|color)$/i } },
   },
-  // Every story gets auth, an active cohort and toasts. Override with
+  // Every story gets auth, an active cohort, the dashboard's active view and toasts. Override with
   // parameters.auth.user and parameters.activeCohort.
   decorators: [
     (Story, context) => {
@@ -48,7 +49,11 @@ const preview: Preview = {
         createElement(
           MockActiveCohortProvider,
           cohort,
-          createElement(ToastProvider, null, createElement(Story))
+          createElement(
+            ActiveViewProvider,
+            null,
+            createElement(ToastProvider, null, createElement(Story))
+          )
         )
       )
     },

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { loadGroupMeeting } from '@/lib/peerMentor'
 import type { GroupMeetingView, MeetingMode } from '@/types/peerMentor'
+import { useActiveView } from './useActiveView'
 import { useApiQuery } from './useApiQuery'
 
 export interface GroupMeetingDraft {
@@ -36,7 +37,8 @@ const EMPTY_DRAFT: GroupMeetingDraft = {
 // The form is kept here so it's ready to send once the API can save a group meeting.
 // See docs/api-gaps.md.
 export function useGroupMeeting(): UseGroupMeetingReturn {
-  const query = useApiQuery(() => loadGroupMeeting(), [], {
+  const { cohortId } = useActiveView()
+  const query = useApiQuery(() => loadGroupMeeting(cohortId), [cohortId], {
     fallbackError: "We couldn't load your group meeting. Try again.",
   })
   const [draft, setDraftState] = useState<GroupMeetingDraft>(EMPTY_DRAFT)

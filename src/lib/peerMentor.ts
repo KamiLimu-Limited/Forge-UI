@@ -133,8 +133,11 @@ function currentSession(sessions: SessionResponse[], now: Date): SessionResponse
 
 // The group's current peer mentorship session and how many mentees have submitted.
 // null when the cohort has none.
-export async function loadPeerSession(now: Date = new Date()): Promise<PeerSessionView | null> {
-  const group = await api.peerMentor.group()
+export async function loadPeerSession(
+  cohortId: string | null,
+  now: Date = new Date()
+): Promise<PeerSessionView | null> {
+  const group = await api.peerMentor.group(cohortId)
   const sessions = await fetchAllPages((page, pageSize) =>
     api.sessions.list({
       cohort_id: group.cohort_id,
@@ -246,9 +249,12 @@ export function groupFeedback(
   }
 }
 
-export async function loadGroupFeedback(sessionId: string): Promise<GroupFeedbackView> {
+export async function loadGroupFeedback(
+  sessionId: string,
+  cohortId: string | null
+): Promise<GroupFeedbackView> {
   const [group, session, window, records] = await Promise.all([
-    api.peerMentor.group(),
+    api.peerMentor.group(cohortId),
     api.sessions.getById(sessionId),
     api.sessions.attendanceWindow(sessionId).catch(() => null),
     api.peerMentor.groupAttendance({ session_id: sessionId, page_size: 100 }),
@@ -263,8 +269,11 @@ export async function loadGroupFeedback(sessionId: string): Promise<GroupFeedbac
 
 // The group meeting is for the first peer mentorship session whose window hasn't closed.
 // null when there is none to plan for.
-export async function loadGroupMeeting(now: Date = new Date()): Promise<GroupMeetingView | null> {
-  const group = await api.peerMentor.group()
+export async function loadGroupMeeting(
+  cohortId: string | null,
+  now: Date = new Date()
+): Promise<GroupMeetingView | null> {
+  const group = await api.peerMentor.group(cohortId)
   const sessions = await fetchAllPages((page, pageSize) =>
     api.sessions.list({
       cohort_id: group.cohort_id,

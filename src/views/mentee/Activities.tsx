@@ -6,15 +6,15 @@ import { ActivitiesScreen } from './ActivitiesScreen'
 
 // Loads the mentee's activities and hands them to the screen
 export function Activities() {
-  const { peerCohortId, saveBlockedNote } = useParticipantRole()
-  const { data, isLoading, error, refetch } = useMenteeActivities(peerCohortId)
+  const participant = useParticipantRole()
+  const { data, isLoading, error, refetch } = useMenteeActivities(participant)
   return (
     <ActivitiesScreen
       data={data}
       isLoading={isLoading}
       error={error}
       onRetry={refetch}
-      saveBlockedNote={saveBlockedNote}
+      saveBlockedNote={participant.saveBlockedNote}
     />
   )
 }

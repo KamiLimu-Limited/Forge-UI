@@ -545,7 +545,11 @@ export const api = {
   },
 
   peerMentor: {
-    group: () => request<GroupOverview>('/api/v1/dashboard/peer-mentor/group'),
+    // Without a cohort the API picks the peer mentor's newest one
+    group: (cohortId?: string | null) =>
+      request<GroupOverview>(
+        `/api/v1/dashboard/peer-mentor/group${qs({ cohort_id: cohortId ?? undefined })}`
+      ),
 
     mentee: (menteeId: string) =>
       request<MenteeDrilldown>(`/api/v1/dashboard/peer-mentor/mentees/${menteeId}`),

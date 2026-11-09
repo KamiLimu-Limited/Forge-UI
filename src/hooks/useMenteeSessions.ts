@@ -9,18 +9,18 @@ import {
 } from '@/lib/menteeSessions'
 import type { MenteeSessionsData } from '@/types/menteeSessions'
 import { loadPeerSessions } from '@/lib/peerParticipation'
+import type { ParticipantCohort } from '@/types/participation'
 import { useApiQuery, type ApiQuery } from './useApiQuery'
 
-async function loadSessions(): Promise<MenteeSessionsData> {
-  const overview = await api.dashboard.mentee.overview()
-  const cohortId = overview.cohort_id
+async function loadSessions(cohortId: string | null): Promise<MenteeSessionsData> {
+  const overview = await api.dashboard.mentee.overview(cohortId ?? undefined)
   const [open, upcoming, month] = await Promise.all([
-    loadOpenSessions(cohortId),
+    loadOpenSessions(overview.cohort_id),
     fetchAllPages((page, page_size) =>
       api.sessions.list({
         page,
         page_size,
-        cohort_id: cohortId,
+        cohort_id: overview.cohort_id,
         status: 'published',
         starts_after: new Date().toISOString(),
       })
@@ -37,13 +37,14 @@ async function loadSessions(): Promise<MenteeSessionsData> {
   }
 }
 
-// Peer mentors take part through the same screens, loaded from their role's cohort
-export function useMenteeSessions(
-  peerCohortId: string | null = null
-): ApiQuery<MenteeSessionsData> {
+// The active view's cohort. Peer mentors take part through the same screens.
+export function useMenteeSessions({
+  cohortId,
+  peerCohortId,
+}: ParticipantCohort): ApiQuery<MenteeSessionsData> {
   return useApiQuery(
-    peerCohortId ? () => loadPeerSessions(peerCohortId) : loadSessions,
-    [peerCohortId],
+    () => (peerCohortId ? loadPeerSessions(peerCohortId) : loadSessions(cohortId)),
+    [cohortId, peerCohortId],
     {
       fallbackError: "We couldn't load your sessions. Try again.",
     }

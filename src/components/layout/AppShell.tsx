@@ -446,7 +446,7 @@ function MeDialog({ isOpen, onClose, fullName, email, roleLabel, onSignOut }: Me
 export function AppShell({ children }: AppShellProps) {
   const { user, logout } = useAuth()
   const router = useRouter()
-  const nav = useShellNav(user)
+  const nav = useShellNav()
   const [isSwitcherOpen, setIsSwitcherOpen] = useState(false)
   const [isMeOpen, setIsMeOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)

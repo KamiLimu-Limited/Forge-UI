@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { api } from '@/lib/api'
 import type { DimensionEntry, LeaderboardDimension } from '@/types/leaderboard'
+import { useActiveView } from './useActiveView'
 import { useApiQuery } from './useApiQuery'
 
 interface UseMenteeLeaderboardReturn {
@@ -14,19 +15,19 @@ interface UseMenteeLeaderboardReturn {
   refetch: () => void
 }
 
-function menteeCohortId(): Promise<string> {
-  return api.dashboard.mentee.overview().then((overview) => overview.cohort_id)
-}
-
-// One board at a time. A chip press loads only that board. The cohort comes from the mentee
-// overview unless the caller says how to find it, since that route is for mentees only.
-export function useMenteeLeaderboard(
-  loadCohortId: () => Promise<string> = menteeCohortId
-): UseMenteeLeaderboardReturn {
+// One board at a time. A chip press loads only that board, for the active view's cohort.
+export function useMenteeLeaderboard(): UseMenteeLeaderboardReturn {
   const [dimension, setDimension] = useState<LeaderboardDimension>('core_attendance')
-  const cohort = useApiQuery(loadCohortId, [], {
-    fallbackError: "We couldn't load the leaderboard. Try again.",
-  })
+  const { cohortId: activeCohortId } = useActiveView()
+  // A view with no cohort falls back to the cohort the mentee overview picks
+  const cohort = useApiQuery(
+    () =>
+      activeCohortId
+        ? Promise.resolve(activeCohortId)
+        : api.dashboard.mentee.overview().then((overview) => overview.cohort_id),
+    [activeCohortId],
+    { fallbackError: "We couldn't load the leaderboard. Try again." }
+  )
   const cohortId = cohort.data
   const board = useApiQuery(
     () =>

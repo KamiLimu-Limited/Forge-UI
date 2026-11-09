@@ -68,6 +68,42 @@ Every admin route is built. `src/app/admin/layout.tsx` wraps them in `<RequireAd
 
 "Graduation preview" is not in the admin nav yet; it ships with the Program Lead screens.
 
+### Mentee, peer mentor, ICT peer mentor and alumni screens
+Every `/dashboard` route is built. `src/app/dashboard/layout.tsx` wraps them in `<RequireAuth>`, `<ActiveViewProvider>` and `<AppShell>`. Each `page.tsx` renders a screen from `src/views/`. Screens are a props-only `XScreen` plus a client wrapper that calls the hook. Paths live in `lib/menteeRoutes.ts`, `lib/peerMentorRoutes.ts` and `lib/alumniRoutes.ts`.
+
+| Route | Screen | Who |
+| --- | --- | --- |
+| `/` | `views/Landing.tsx` | Cover page, signed out |
+| `/dashboard` | `views/DashboardHome.tsx`: mentee `views/mentee/Home.tsx`, 1:1 peer mentor `views/peerMentor/MyMentees.tsx`, ICT peer mentor `views/ictPeerMentor/MyTrack.tsx`, alumni `views/alumni/AlumniHome.tsx` | The active view's role |
+| `/dashboard/progress` | `views/mentee/Progress.tsx` | Mentee |
+| `/dashboard/sessions` | `views/mentee/Sessions.tsx` | Mentee, peer mentors |
+| `/dashboard/sessions/history` | `views/mentee/History.tsx` | Mentee, peer mentors |
+| `/dashboard/sessions/[sessionId]` | `views/mentee/SessionDetail.tsx` | Mentee, peer mentors |
+| `/dashboard/sessions/[sessionId]/attendance` | `views/mentee/Attendance.tsx` | Mentee, peer mentors |
+| `/dashboard/sessions/[sessionId]/notes` | `views/mentee/Notes.tsx` | Mentee, peer mentors |
+| `/dashboard/sessions/[sessionId]/extension` | `views/mentee/Extension.tsx` | Mentee, peer mentors |
+| `/dashboard/activities` | `views/mentee/Activities.tsx` | Mentee, peer mentors |
+| `/dashboard/activities/new/[kind]` | `views/mentee/ActivityFormScreen.tsx` | Mentee, peer mentors |
+| `/dashboard/activities/[activityId]/update` | `views/mentee/UpdateApplication.tsx` | Mentee, peer mentors |
+| `/dashboard/objectives` | `views/mentee/Objectives.tsx` | Mentee, peer mentors |
+| `/dashboard/leaderboard` | `views/mentee/Leaderboard.tsx` | Mentee |
+| `/dashboard/choose-track` | `views/mentee/ChooseTrack.tsx` | Mentee |
+| `/dashboard/profile` | `views/mentee/Profile.tsx` | Mentee |
+| `/dashboard/notifications` | `views/mentee/Notifications.tsx` | Everyone on `/dashboard` |
+| `/dashboard/mentees/[menteeId]` | `views/peerMentor/MenteeDetail.tsx` | 1:1 peer mentor |
+| `/dashboard/group-meeting` | `views/peerMentor/GroupMeeting.tsx` | 1:1 peer mentor |
+| `/dashboard/group-feedback/[sessionId]` | `views/peerMentor/GroupFeedback.tsx` | 1:1 peer mentor |
+| `/dashboard/facilitator` | `views/peerMentor/Facilitator.tsx` | 1:1 peer mentor |
+| `/dashboard/facilitator/[sessionId]` | `views/peerMentor/SessionRatings.tsx` | 1:1 peer mentor |
+| `/dashboard/leaderboards` | `views/peerMentor/PeerLeaderboard.tsx` | Peer mentors |
+| `/dashboard/track/sessions` | `views/ictPeerMentor/TrackSessions.tsx` | ICT peer mentor |
+| `/dashboard/alumni` | `views/alumni/AlumniHome.tsx` | Alumni |
+| `/dashboard/alumni/history` | `views/alumni/AlumniHistory.tsx` | Alumni |
+
+### Dashboard infrastructure
+- `src/hooks/useActiveView.ts` — `<ActiveViewProvider>` builds one view per cohort the user holds a role in (newest first) and remembers the one picked in "Switch view" in `localStorage` under `kamilimu_active_view`. `useActiveView()` returns `{ contexts, active, canSwitch, setActiveKey, role, cohortId }`. Every `/dashboard` screen loads `cohortId` and picks its screens from `role`, and the shell's nav reads the same value (`hooks/useShellNav.ts`). When someone holds alumni and mentee in one cohort, alumni wins. Never keep a second "current view" anywhere else.
+- `src/hooks/useParticipantRole.ts` — the active view as a participant: `{ role, cohortId, peerCohortId, saveBlockedNote }`. Peer mentors use the mentee screens with saving switched off until the API lets them save.
+
 ### Admin infrastructure
 - `src/hooks/useActiveCohort.ts` — `<ActiveCohortProvider>` loads `GET /cohorts`, defaults to the newest cohort with status `active` (or the newest cohort), and remembers the choice in `localStorage` under `kamilimu_active_cohort`. `useActiveCohort()` returns `{ cohorts, cohort, cohortId, isLoading, error, setCohortId, refresh }`. Every cohort-scoped screen reads `cohortId` from it and shows `<NoCohortNotice>` when there is none. Never keep a second "current cohort" anywhere else.
 - `src/hooks/useApiQuery.ts` and `src/hooks/useAsyncAction.ts` — the loading and error plumbing for reads and writes. Build new data hooks on them.
@@ -325,7 +361,7 @@ Run through this list locally with `npm run dev`, and again on the deployed alia
 - [ ] **Reusing a used link**: open the same activation link again. It is rejected with a clear message.
 - [ ] **Forgot and reset**: request a reset on `/forgot-password`. Open the link from `npm run dev:links`, set a new password, and sign in with it. The old password no longer works.
 - [ ] **Staying signed in**: refresh `/dashboard`, and you are still signed in.
-- [ ] **Sign out** returns you to `/login`, and `/dashboard` then redirects back to `/login`.
+- [ ] **Sign out** returns you to the cover page (`/`), and `/dashboard` then redirects to `/login`.
 
 ---
 

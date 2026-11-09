@@ -231,7 +231,7 @@ Run through this list locally with `npm run dev`, and again on the deployed alia
 - [ ] **Reusing a used link**: open the same activation link again. It is rejected with a clear message.
 - [ ] **Forgot and reset**: request a reset on `/forgot-password`. Open the link from `npm run dev:links`, set a new password, and sign in with it. The old password no longer works.
 - [ ] **Staying signed in**: refresh `/dashboard`, and you are still signed in.
-- [ ] **Sign out** returns you to `/login`, and `/dashboard` then redirects back to `/login`.
+- [ ] **Sign out** returns you to the cover page (`/`), and `/dashboard` then redirects to `/login`.
 
 ---
 

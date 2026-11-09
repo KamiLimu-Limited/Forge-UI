@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { StatusChip } from '@/components/forge/StatusChip'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { meetUnmatchedRoute } from '@/lib/adminRoutes'
 import { BackLink } from '@/components/ui/BackLink'
+import { ButtonLink } from '@/components/ui/ButtonLink'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -214,6 +216,13 @@ export function SessionAttendancePage({ sessionId }: SessionAttendancePageProps)
       <PageHeader
         title={session.title}
         subtitle={headerSubtitle(session, data.presentCount, data.rows.length)}
+        action={
+          session.mode !== 'physical' ? (
+            <ButtonLink href={meetUnmatchedRoute(session.id)} variant="secondary">
+              Match Meet participants
+            </ButtonLink>
+          ) : undefined
+        }
       />
       <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-5">
         <div className="lg:col-span-3">

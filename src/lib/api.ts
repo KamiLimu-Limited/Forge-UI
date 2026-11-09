@@ -81,6 +81,9 @@ import type { FinalStatusResponse } from '@/types/alumni'
 import type { TrackOverviewResponse, TrackSessionEntry } from '@/types/ictPeerMentor'
 import type { DimensionRankingResponse, LeaderboardDimension } from '@/types/leaderboard'
 import type {
+  AdminNotificationResponse,
+  BroadcastRequest,
+  BroadcastResponse,
   MarkAllReadResponse,
   NotificationListParams,
   NotificationResponse,
@@ -93,7 +96,7 @@ import type {
   SessionQualityResponse,
   TrackPerformanceResponse,
 } from '@/types/analytics'
-import type { Page } from '@/types/page'
+import type { Page, PageParams } from '@/types/page'
 import type { SessionAttendanceSummary } from '@/types/proMentor'
 import type { SessionFeedbackResponse } from '@/types/sessionFeedback'
 import type {
@@ -640,6 +643,13 @@ export const api = {
         `/api/v1/notifications/${notificationId}/read`,
         json('PATCH', {})
       ),
+
+    // Emails that failed after every retry, with the last error. Admin only.
+    failed: (params?: PageParams) =>
+      request<Page<AdminNotificationResponse>>(`/api/v1/notifications/failed${qs(params)}`),
+
+    broadcast: (body: BroadcastRequest) =>
+      request<BroadcastResponse>('/api/v1/notifications/broadcast', json('POST', body)),
 
     markAllRead: () =>
       request<MarkAllReadResponse>('/api/v1/notifications/read-all', json('PATCH', {})),

@@ -55,18 +55,30 @@ function recordView(
   }
 }
 
-async function loadParts(sessionId: string) {
+// Once a session has started, a failed window lookup must not read as a closed window, or
+// the screen would offer an extension the mentee doesn't need. It fails the load instead,
+// so the screen shows the error and Try again. Before the start there may be no window yet.
+function loadWindow(
+  session: SessionDetailResponse,
+  now: Date
+): Promise<WindowStatusResponse | null> {
+  const request = api.sessions.attendanceWindow(session.id)
+  return new Date(session.starts_at) <= now ? request : request.catch(() => null)
+}
+
+async function loadParts(sessionId: string, now: Date) {
   const session = await api.sessions.getById(sessionId)
   const [window, records] = await Promise.all([
-    api.sessions.attendanceWindow(sessionId).catch(() => null),
+    loadWindow(session, now),
     api.attendance.mine({ session_id: sessionId, cohort_id: session.cohort_id, page_size: 1 }),
   ])
   return { session, window, record: records.items[0] ?? null }
 }
 
 export async function loadSessionRecord(sessionId: string): Promise<SessionRecordView> {
-  const { session, window, record } = await loadParts(sessionId)
-  return recordView(session, window, record, new Date())
+  const now = new Date()
+  const { session, window, record } = await loadParts(sessionId, now)
+  return recordView(session, window, record, now)
 }
 
 const MENTOR_ROLE_LABELS: Record<MentorRole, string> = {
@@ -100,8 +112,8 @@ function movedNote(session: SessionDetailResponse): string | null {
 }
 
 export async function loadSessionDetail(sessionId: string): Promise<SessionDetailView> {
-  const { session, window, record } = await loadParts(sessionId)
   const now = new Date()
+  const { session, window, record } = await loadParts(sessionId, now)
   // The PRD has no hybrid sessions any more; the API still allows them, so treat them as virtual
   const isVirtual = session.mode !== 'physical'
   return {

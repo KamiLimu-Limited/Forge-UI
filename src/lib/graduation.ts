@@ -12,6 +12,7 @@ import type {
   GraduateRow,
   GraduationPreviewView,
   GraduationReportEntry,
+  GraduationResultView,
   GraduationReportResponse,
   ProgramLeadHomeView,
   SequenceMentor,
@@ -241,5 +242,32 @@ export async function loadSequence(cohortId: string): Promise<SequenceView> {
     mentors,
     // No confirmed graduation record exists in the API yet, so every play is a rehearsal
     isRehearsal: true,
+  }
+}
+
+// null until the cohort's result is final. Each part loads on its own, so a refused one
+// only blanks its own number.
+export async function loadGraduationResult(
+  userId: string,
+  firstName: string,
+  cohortId: string
+): Promise<GraduationResultView | null> {
+  const status = await api.mentees.finalStatus(userId, cohortId)
+  if (!status.is_final) return null
+  const [cohort, overview, rates] = await Promise.all([
+    api.cohorts.getById(cohortId),
+    api.dashboard.mentee.overview(cohortId).catch(() => null),
+    api.mentees.attendanceRates(userId, cohortId).catch(() => null),
+  ])
+  return {
+    firstName,
+    cohortName: cohort.name,
+    graduated: status.status === 'graduated',
+    graduatedOn: cohort.end_date,
+    coreRate: rates?.core_rate ?? null,
+    overallRate: rates?.combined_rate ?? null,
+    totalPoints: overview?.points.total_points ?? null,
+    sessionsAttended: overview?.points.sessions_attended ?? null,
+    threshold: cohort.graduation_threshold,
   }
 }

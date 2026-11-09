@@ -89,3 +89,18 @@ export interface SequenceView {
   // True while it plays from the live report, before a confirmed graduation exists
   isRehearsal: boolean
 }
+
+// A mentee's own final result, once their cohort's graduation is final
+export interface GraduationResultView {
+  firstName: string
+  cohortName: string
+  graduated: boolean
+  // ISO date. The API has no graduation date (gap M43), so this is the cohort's end date.
+  graduatedOn: string
+  // 0 to 100
+  coreRate: number | null
+  overallRate: number | null
+  totalPoints: number | null
+  sessionsAttended: number | null
+  threshold: number
+}

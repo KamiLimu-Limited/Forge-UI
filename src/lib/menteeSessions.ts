@@ -5,7 +5,7 @@
 import { api } from '@/lib/api'
 import { formatDateTime, formatDay, formatTime, fullName } from '@/lib/format'
 import { closesInLabel } from '@/lib/menteeDashboard'
-import { monthBoundaries, monthForDate, sessionPillar } from '@/lib/sessions'
+import { leadMentor, monthBoundaries, monthForDate, sessionPillar } from '@/lib/sessions'
 import type { AttendanceRatings, AttendanceStatus, MyAttendanceResponse } from '@/types/attendance'
 import type { MenteeOverviewResponse, SessionPointsEntry } from '@/types/dashboard'
 import type { OpenSession } from '@/types/home'
@@ -61,7 +61,7 @@ export async function loadOpenSessions(cohortId: string): Promise<OpenSession[]>
       const isWaiting =
         window.is_open && (window.record_status === null || window.record_status === 'pending')
       if (!isWaiting) return []
-      const leader = session.mentors[0]?.user
+      const leader = leadMentor(session)
       return [
         {
           id: session.id,

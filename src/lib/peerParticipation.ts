@@ -9,7 +9,7 @@ import { activitiesData } from '@/lib/menteeActivities'
 import { objectivesData } from '@/lib/menteeObjectives'
 import { historyRows, monthLine, upcomingSession } from '@/lib/menteeSessions'
 import { fullName } from '@/lib/format'
-import { monthBoundaries, monthForDate, sessionPillar } from '@/lib/sessions'
+import { leadMentor, monthBoundaries, monthForDate, sessionPillar } from '@/lib/sessions'
 import type { CohortDetailResponse } from '@/types/cohort'
 import type { SessionPointsEntry } from '@/types/dashboard'
 import type { OpenSession } from '@/types/home'
@@ -47,7 +47,7 @@ export async function loadPeerSessions(
     .flatMap((session, index) => {
       const result = windows[index]
       if (result.status === 'rejected' || !result.value.is_open) return []
-      const leader = session.mentors[0]?.user
+      const leader = leadMentor(session)
       return [{ session, closesAt: result.value.effective_closes_at, leader }]
     })
     .sort((a, b) => a.closesAt.localeCompare(b.closesAt))

@@ -40,3 +40,10 @@ export function isLive(session: SessionResponse, now: Date = new Date()): boolea
 export function minutesBetween(startIso: string, endIso: string): number {
   return Math.round((new Date(endIso).getTime() - new Date(startIso).getTime()) / 60000)
 }
+
+// The session's lead mentor. The API doesn't promise the lead comes first in `mentors`.
+export function leadMentor(
+  session: Pick<SessionResponse, 'mentors'>
+): SessionResponse['mentors'][number]['user'] | null {
+  return session.mentors.find((mentor) => mentor.mentor_role === 'lead')?.user ?? null
+}

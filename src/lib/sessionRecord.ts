@@ -9,7 +9,7 @@ import { formatDateTime, fullName, plural } from '@/lib/format'
 import { SESSION_TYPE_LABELS } from '@/lib/labels'
 import { closesInLabel } from '@/lib/menteeDashboard'
 import { upcomingSession } from '@/lib/menteeSessions'
-import { sessionPillar } from '@/lib/sessions'
+import { leadMentor, sessionPillar } from '@/lib/sessions'
 import type {
   AttendanceRatings,
   MyAttendanceResponse,
@@ -32,7 +32,7 @@ function recordView(
 ): SessionRecordView {
   const hasStarted = new Date(session.starts_at) <= now
   const windowState: WindowState = window?.is_open ? 'open' : hasStarted ? 'closed' : 'upcoming'
-  const leader = session.mentors[0]?.user
+  const leader = leadMentor(session)
 
   return {
     id: session.id,

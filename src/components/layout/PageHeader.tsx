@@ -21,7 +21,8 @@ export function PageHeader({ title, subtitle, action, keepActionBeside = false }
         </h1>
         {subtitle && <p className="font-sans text-body text-text-secondary">{subtitle}</p>}
       </div>
-      {action && <div className="shrink-0">{action}</div>}
+      {/* Capped at the row's width so several buttons wrap instead of pushing the page sideways */}
+      {action && <div className="max-w-full shrink-0">{action}</div>}
     </header>
   )
 }

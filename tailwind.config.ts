@@ -138,6 +138,11 @@ const config: Config = {
         title: 'var(--text-title)', // 42px
         display: 'var(--text-display)', // 40px: cover headline, phones
         'display-lg': 'var(--text-display-lg)', // 64px: cover headline, md and up
+        'seq-hero': 'var(--text-seq-hero)', // graduation sequence, grows with the screen
+        'seq-title': 'var(--text-seq-title)',
+        'seq-number': 'var(--text-seq-number)',
+        'seq-lead': 'var(--text-seq-lead)',
+        'seq-body': 'var(--text-seq-body)',
       },
 
       // -------------------------------------------------------------------------

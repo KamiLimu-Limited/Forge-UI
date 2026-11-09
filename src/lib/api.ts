@@ -96,6 +96,7 @@ import type {
   SessionQualityResponse,
   TrackPerformanceResponse,
 } from '@/types/analytics'
+import type { GraduationReportResponse } from '@/types/graduation'
 import type { Page, PageParams } from '@/types/page'
 import type { SessionAttendanceSummary } from '@/types/proMentor'
 import type { SessionFeedbackResponse } from '@/types/sessionFeedback'
@@ -438,6 +439,10 @@ export const api = {
 
     update: (cohortId: string, body: CohortUpdateRequest) =>
       request<CohortResponse>(`/api/v1/cohorts/${cohortId}`, json('PATCH', body)),
+
+    // Committee of the cohort. The only graduation route the API has so far.
+    graduationReport: (cohortId: string) =>
+      request<GraduationReportResponse>(`/api/v1/cohorts/${cohortId}/graduation-report`),
 
     calendar: (cohortId: string) =>
       request<CalendarMonth[]>(`/api/v1/cohorts/${cohortId}/calendar`),

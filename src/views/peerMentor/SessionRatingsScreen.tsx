@@ -9,7 +9,8 @@ import { LoadingState } from '@/components/ui/LoadingState'
 import { StatTile } from '@/components/ui/StatTile'
 import { formatDay } from '@/lib/format'
 import { PEER_MENTOR_ROUTES } from '@/lib/peerMentorRoutes'
-import type { GroupFeedbackView, SessionRatingsView } from '@/types/peerMentor'
+import { plural } from '@/lib/format'
+import type { SessionRatingsView } from '@/types/peerMentor'
 
 interface SessionRatingsScreenProps {
   // null until the data loads
@@ -19,14 +20,7 @@ interface SessionRatingsScreenProps {
   onRetry?: () => void
 }
 
-function submittedLine({ submitted, groupSize }: GroupFeedbackView): string {
-  if (groupSize === 1)
-    return submitted > 0 ? 'Your mentee submitted.' : "Your mentee didn't submit."
-  if (submitted >= groupSize) return `All ${groupSize} of your mentees submitted.`
-  return `${submitted} of your ${groupSize} mentees submitted.`
-}
-
-// How a peer mentor's group rated one closed peer mentorship session.
+// How everyone who attended rated one session the peer mentor led or co-led.
 // This only draws the screen; the page's hook loads the data.
 export function SessionRatingsScreen({
   data,
@@ -44,17 +38,19 @@ export function SessionRatingsScreen({
       ) : (
         <>
           <div className="flex flex-col gap-2">
-            <span>
-              <TrackBadge pillar="personal-dev" />
-            </span>
+            {data.session.pillar && (
+              <span>
+                <TrackBadge pillar={data.session.pillar} />
+              </span>
+            )}
             <PageHeader
               title={data.session.title}
-              subtitle={`${formatDay(data.session.startsAt)}. ${submittedLine(data.session)}`}
+              subtitle={`${formatDay(data.session.startsAt)}. ${plural(data.session.responses, 'rating')} from people who attended.`}
             />
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5">
             <StatTile
-              label="Your average for this session"
+              label="Average for this session"
               value={data.session.average?.toFixed(1) ?? null}
             />
             <StatTile
@@ -67,8 +63,8 @@ export function SessionRatingsScreen({
             <Card>
               <EmptyState
                 icon="users"
-                title="No ratings"
-                description="None of your mentees rated this session."
+                title="No ratings yet"
+                description="Nobody who attended has rated this session."
               />
             </Card>
           ) : (

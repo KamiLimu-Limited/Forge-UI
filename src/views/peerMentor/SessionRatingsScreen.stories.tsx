@@ -1,14 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { sampleGroupFeedback } from '../../../.storybook/peerMentorFixtures'
+import { sampleMentoredSession } from '../../../.storybook/peerMentorFixtures'
 import { SessionRatingsScreen } from './SessionRatingsScreen'
-
-const closed = { ...sampleGroupFeedback, submitted: 3, windowLine: null }
 
 const meta: Meta<typeof SessionRatingsScreen> = {
   title: 'Screens/PeerMentor/SessionRatings',
   component: SessionRatingsScreen,
   parameters: { layout: 'padded' },
-  args: { data: { session: closed, averageAcrossSessions: 4.3 } },
+  args: { data: { session: sampleMentoredSession, averageAcrossSessions: 4.3 } },
 }
 
 export default meta
@@ -18,7 +16,7 @@ export const Default: Story = {}
 export const NoRatings: Story = {
   args: {
     data: {
-      session: { ...closed, submitted: 0, average: null, feedback: [] },
+      session: { ...sampleMentoredSession, responses: 0, average: null, feedback: [] },
       averageAcrossSessions: 4.3,
     },
   },

@@ -82,6 +82,7 @@ import type {
   NotificationResponse,
 } from '@/types/notification'
 import type { Page } from '@/types/page'
+import type { SessionFeedbackResponse } from '@/types/sessionFeedback'
 import type {
   MentorAssignment,
   ResourceIn,
@@ -447,6 +448,10 @@ export const api = {
 
     setMentors: (sessionId: string, mentors: MentorAssignment[]) =>
       request<SessionResponse>(`/api/v1/sessions/${sessionId}/mentors`, json('PUT', { mentors })),
+
+    // Staff and the session's own mentors only
+    feedback: (sessionId: string) =>
+      request<SessionFeedbackResponse>(`/api/v1/sessions/${sessionId}/feedback`),
 
     setResources: (sessionId: string, resources: ResourceIn[]) =>
       request<SessionResponse>(

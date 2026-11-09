@@ -1,3 +1,4 @@
+import type { Pillar } from '@/lib/labels'
 import type { AttendanceStatus } from '@/types/attendance'
 import type { SessionRating } from '@/types/menteeSessions'
 
@@ -100,8 +101,9 @@ export interface FacilitatorSessionRow {
   startsAt: string
   // Attendance is still open, so ratings are still coming in
   isInProgress: boolean
-  // Average of the group's answers out of 5, null when nobody rated it
+  // Average of everyone who attended and rated it, out of 5; null when nobody has
   rating: number | null
+  responses: number
 }
 
 export interface RatingPointView {
@@ -125,8 +127,22 @@ export interface FacilitatorView {
   trend: RatingPointView[]
 }
 
+// One session the peer mentor led or co-led, as rated by everyone who attended it
+export interface MentoredSessionRatings {
+  id: string
+  title: string
+  // ISO date-time
+  startsAt: string
+  pillar: Pillar | null
+  responses: number
+  // Average of the question averages, out of 5
+  average: number | null
+  groups: FeedbackGroupView[]
+  feedback: string[]
+}
+
 export interface SessionRatingsView {
-  session: GroupFeedbackView
+  session: MentoredSessionRatings
   // The peer mentor's average across all their completed sessions
   averageAcrossSessions: number | null
 }

@@ -1,6 +1,7 @@
 import type {
   GroupMeetingView,
   FacilitatorView,
+  MentoredSessionRatings,
   GroupFeedbackView,
   PeerSessionView,
   MenteeCardView,
@@ -121,59 +122,89 @@ export const sampleGroupFeedback: GroupFeedbackView = {
   ],
 }
 
+// Sessions the peer mentor led or co-led, rated by everyone who attended
 export const sampleFacilitator: FacilitatorView = {
   completed: 4,
   inProgress: 1,
   average: 4.3,
   best: {
-    id: 'pm-3',
-    title: 'Peer Mentorship 3',
-    startsAt: '2026-07-10T19:00:00+03:00',
+    id: 's-3',
+    title: 'Writing a CV that gets read',
+    startsAt: '2026-07-09T17:30:00+03:00',
     isInProgress: false,
     rating: 4.5,
+    responses: 38,
   },
   sessions: [
     {
-      id: 'pm-4',
-      title: 'Peer Mentorship 4',
-      startsAt: '2026-08-26T19:00:00+03:00',
+      id: 's-5',
+      title: 'Pitching your project',
+      startsAt: '2026-08-27T17:30:00+03:00',
       isInProgress: true,
       rating: 4.6,
+      responses: 12,
     },
     {
-      id: 'pm-3',
-      title: 'Peer Mentorship 3',
-      startsAt: '2026-07-10T19:00:00+03:00',
+      id: 's-3',
+      title: 'Writing a CV that gets read',
+      startsAt: '2026-07-09T17:30:00+03:00',
       isInProgress: false,
       rating: 4.5,
+      responses: 38,
     },
     {
-      id: 'pm-2',
-      title: 'Peer Mentorship 2',
-      startsAt: '2026-06-10T19:00:00+03:00',
+      id: 's-2',
+      title: 'Version control with Git',
+      startsAt: '2026-06-11T17:30:00+03:00',
       isInProgress: false,
       rating: 4.2,
+      responses: 41,
     },
     {
-      id: 'pm-1b',
-      title: 'Peer Mentorship 1B',
-      startsAt: '2026-05-13T19:00:00+03:00',
+      id: 's-1b',
+      title: 'Study habits that last',
+      startsAt: '2026-05-14T17:30:00+03:00',
       isInProgress: false,
       rating: 4.3,
+      responses: 36,
     },
     {
-      id: 'pm-1',
-      title: 'Peer Mentorship 1',
-      startsAt: '2026-05-10T19:00:00+03:00',
+      id: 's-1',
+      title: 'Onboarding',
+      startsAt: '2026-05-07T17:30:00+03:00',
       isInProgress: false,
       rating: 4.1,
+      responses: 44,
     },
   ],
   trend: [
-    { label: 'PM 1', title: 'Peer Mentorship 1', rating: 4.1 },
-    { label: 'PM 1B', title: 'Peer Mentorship 1B', rating: 4.3 },
-    { label: 'PM 2', title: 'Peer Mentorship 2', rating: 4.2 },
-    { label: 'PM 3', title: 'Peer Mentorship 3', rating: 4.5 },
+    { label: 'Onboarding', title: 'Onboarding', rating: 4.1 },
+    { label: 'Study hab…', title: 'Study habits that last', rating: 4.3 },
+    { label: 'Version c…', title: 'Version control with Git', rating: 4.2 },
+    { label: 'Writing a…', title: 'Writing a CV that gets read', rating: 4.5 },
+  ],
+}
+
+export const sampleMentoredSession: MentoredSessionRatings = {
+  id: 's-3',
+  title: 'Writing a CV that gets read',
+  startsAt: '2026-07-09T17:30:00+03:00',
+  pillar: null,
+  responses: 38,
+  average: 4.5,
+  groups: [
+    {
+      label: 'Reaction',
+      questions: [
+        { label: 'Quality of the session', average: 4.6 },
+        { label: 'How useful it was', average: 4.5 },
+      ],
+    },
+    { label: 'Learning', questions: [{ label: 'How well they understood it', average: 4.4 }] },
+  ],
+  feedback: [
+    'The before and after examples made it click.',
+    'Could we get the template in the materials folder?',
   ],
 }
 

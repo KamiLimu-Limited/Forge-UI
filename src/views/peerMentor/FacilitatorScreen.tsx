@@ -8,8 +8,8 @@ import { ErrorState } from '@/components/ui/ErrorState'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { StatTile } from '@/components/ui/StatTile'
 import { formatDay } from '@/lib/format'
-import { groupFeedbackRoute, sessionRatingsRoute } from '@/lib/peerMentorRoutes'
-import type { FacilitatorSessionRow, FacilitatorView } from '@/types/peerMentor'
+import { sessionRatingsRoute } from '@/lib/peerMentorRoutes'
+import type { FacilitatorView } from '@/types/peerMentor'
 
 const NOT_AVAILABLE = 'Not available yet'
 
@@ -21,12 +21,7 @@ interface FacilitatorScreenProps {
   onRetry?: () => void
 }
 
-// Sessions still open go to group feedback, closed ones to their ratings
-function rowHref(row: FacilitatorSessionRow): string {
-  return row.isInProgress ? groupFeedbackRoute(row.id) : sessionRatingsRoute(row.id)
-}
-
-// The peer mentorship sessions a peer mentor has run and how their group rated them.
+// The sessions a peer mentor led or co-led and how everyone who attended rated them.
 // This only draws the screen; the page's hook loads the data.
 export function FacilitatorScreen({
   data,
@@ -49,7 +44,7 @@ export function FacilitatorScreen({
           <EmptyState
             icon="chart"
             title="No sessions yet"
-            description="Peer mentorship sessions you run with your group show here once they start."
+            description="Sessions you lead or co-lead show here once they start."
           />
         </Card>
       ) : (
@@ -94,7 +89,7 @@ export function FacilitatorScreen({
                 {data.sessions.map((row) => (
                   <li key={row.id} className="border-b border-border last:border-b-0">
                     <Link
-                      href={rowHref(row)}
+                      href={sessionRatingsRoute(row.id)}
                       className="flex min-h-control items-center justify-between gap-3 py-3 text-inherit no-underline hover:no-underline"
                     >
                       <span className="flex min-w-0 flex-col">

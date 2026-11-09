@@ -1,16 +1,20 @@
 // =============================================================================
-// A peer mentor's facilitator numbers, worked out from their own group's answers.
-// The API has no summary for this yet, so nothing here covers other peer mentors.
+// A peer mentor's facilitator numbers: the sessions they led or co-led (session_mentors),
+// rated by everyone who attended, from GET /sessions/{id}/feedback. Nothing here covers
+// other peer mentors yet. Their own group's peer mentorship feedback is in lib/peerMentor.ts.
 // =============================================================================
 
 import { api, fetchAllPages } from '@/lib/api'
-import { averageOf, groupFeedback, loadGroupFeedback } from '@/lib/peerMentor'
+import { averageOf } from '@/lib/peerMentor'
+import { feedbackGroups, overallAverage, writtenFeedback } from '@/lib/sessionFeedback'
+import { sessionPillar } from '@/lib/sessions'
 import type {
   FacilitatorSessionRow,
   FacilitatorView,
   RatingPointView,
   SessionRatingsView,
 } from '@/types/peerMentor'
+import type { SessionResponse } from '@/types/session'
 
 // "Peer Mentorship 3" becomes "PM 3" so the chart axis stays short
 export function shortSessionLabel(title: string): string {
@@ -43,26 +47,42 @@ export function facilitatorView(rows: FacilitatorSessionRow[]): FacilitatorView 
   }
 }
 
-export async function loadFacilitator(
+function isMentor(session: SessionResponse, userId: string): boolean {
+  return session.mentors.some((mentor) => mentor.user.id === userId)
+}
+
+// Sessions in the cohort that have started, that this person leads or co-leads
+async function mentoredSessions(
   cohortId: string | null,
-  now: Date = new Date()
-): Promise<FacilitatorView> {
-  const group = await api.peerMentor.group(cohortId)
+  userId: string,
+  now: Date
+): Promise<SessionResponse[]> {
   const sessions = await fetchAllPages((page, pageSize) =>
     api.sessions.list({
-      cohort_id: group.cohort_id,
-      category: 'peer_mentorship',
-      status: 'published',
+      cohort_id: cohortId ?? undefined,
       starts_before: now.toISOString(),
       page,
       page_size: pageSize,
     })
   )
+  return sessions.filter(
+    (session) =>
+      (session.status === 'published' || session.status === 'completed') &&
+      isMentor(session, userId)
+  )
+}
+
+export async function loadFacilitator(
+  cohortId: string | null,
+  userId: string,
+  now: Date = new Date()
+): Promise<FacilitatorView> {
+  const sessions = await mentoredSessions(cohortId, userId, now)
   const rows = await Promise.all(
     sessions.map(async (session): Promise<FacilitatorSessionRow> => {
-      const [window, records] = await Promise.all([
+      const [window, feedback] = await Promise.all([
         api.sessions.attendanceWindow(session.id).catch(() => null),
-        api.peerMentor.groupAttendance({ session_id: session.id, page_size: 100 }),
+        api.sessions.feedback(session.id),
       ])
       const closesAt = window?.effective_closes_at ?? session.ends_at
       return {
@@ -70,7 +90,8 @@ export async function loadFacilitator(
         title: session.title,
         startsAt: session.starts_at,
         isInProgress: new Date(closesAt) > now,
-        rating: groupFeedback(session, closesAt, records.items, group.mentees.length, now).average,
+        rating: overallAverage(feedback),
+        responses: feedback.responses,
       }
     })
   )
@@ -79,11 +100,25 @@ export async function loadFacilitator(
 
 export async function loadSessionRatings(
   sessionId: string,
-  cohortId: string | null
+  cohortId: string | null,
+  userId: string
 ): Promise<SessionRatingsView> {
-  const [session, facilitator] = await Promise.all([
-    loadGroupFeedback(sessionId, cohortId),
-    loadFacilitator(cohortId),
+  const [session, feedback, facilitator] = await Promise.all([
+    api.sessions.getById(sessionId),
+    api.sessions.feedback(sessionId),
+    loadFacilitator(cohortId, userId),
   ])
-  return { session, averageAcrossSessions: facilitator.average }
+  return {
+    session: {
+      id: session.id,
+      title: session.title,
+      startsAt: session.starts_at,
+      pillar: sessionPillar(session),
+      responses: feedback.responses,
+      average: overallAverage(feedback),
+      groups: feedbackGroups(feedback),
+      feedback: writtenFeedback(feedback),
+    },
+    averageAcrossSessions: facilitator.average,
+  }
 }

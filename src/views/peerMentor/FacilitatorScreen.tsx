@@ -64,7 +64,7 @@ export function FacilitatorScreen({
                     <p className="font-sans text-small text-text-secondary">Best-rated session</p>
                     <Link
                       href={sessionRatingsRoute(data.best.id)}
-                      className="font-mono text-card-title font-semibold text-link"
+                      className="inline-flex min-h-control items-center self-start font-mono text-card-title font-semibold text-link"
                     >
                       {data.best.title}
                     </Link>

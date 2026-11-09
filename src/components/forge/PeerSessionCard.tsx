@@ -1,4 +1,5 @@
 import { Card } from '@/components/ui/Card'
+import { ErrorState } from '@/components/ui/ErrorState'
 import { Chip } from '@/components/ui/Chip'
 import { Spinner } from '@/components/ui/Spinner'
 import { TextLink } from '@/components/ui/TextLink'
@@ -35,14 +36,7 @@ export function PeerSessionCard({
   if (error) {
     return (
       <Card>
-        <p className="font-sans text-small text-text-secondary">
-          {error}{' '}
-          {onRetry && (
-            <button type="button" onClick={onRetry} className="font-semibold text-link">
-              Try again
-            </button>
-          )}
-        </p>
+        <ErrorState message={error} onRetry={onRetry} />
       </Card>
     )
   }

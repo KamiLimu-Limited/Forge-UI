@@ -1,6 +1,6 @@
 // =============================================================================
 // Which auth failures get their own screen. The API sends only readable messages (the
-// `error` code is a generic bad_request), so these match the message text. That breaks
+// `error` code is a generic bad_request or forbidden), so these match the message text. That breaks
 // if the wording changes, so docs/api-gaps.md asks for stable error codes.
 // =============================================================================
 

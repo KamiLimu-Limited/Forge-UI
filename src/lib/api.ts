@@ -72,7 +72,11 @@ import type {
   EnrollmentResponse,
   EnrollmentUpdateRequest,
 } from '@/types/enrollment'
-import type { InvitationListParams, InvitationResponse } from '@/types/invitation'
+import type {
+  InvitationListParams,
+  InvitationPreview,
+  InvitationResponse,
+} from '@/types/invitation'
 import type { FinalStatusResponse } from '@/types/alumni'
 import type { TrackOverviewResponse, TrackSessionEntry } from '@/types/ictPeerMentor'
 import type { DimensionRankingResponse, LeaderboardDimension } from '@/types/leaderboard'
@@ -261,6 +265,14 @@ export const api = {
           method: 'POST',
           body: JSON.stringify(body),
         },
+        false
+      ),
+
+    // Checks an invitation link before the person sets a password
+    previewInvitation: (token: string) =>
+      request<InvitationPreview>(
+        `/api/v1/auth/invitations/${encodeURIComponent(token)}`,
+        {},
         false
       ),
 

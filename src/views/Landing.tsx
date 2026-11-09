@@ -16,7 +16,7 @@ export function Landing() {
           </h1>
           <ButtonLink href="/login" size="lg" className="self-start">
             <span className="flex items-center gap-2">
-              Go to KamiLimu
+              Sign in
               <Icon name="arrow-right" />
             </span>
           </ButtonLink>

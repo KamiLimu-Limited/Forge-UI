@@ -24,11 +24,12 @@ const preview: Preview = {
       appDirectory: true,
       navigation: { pathname: '/admin/users' },
     },
+    // Theme tokens, so the canvas turns dark with the device setting like the app does
     backgrounds: {
-      default: 'ivory',
+      default: 'page',
       values: [
-        { name: 'ivory', value: 'var(--color-ivory)' },
-        { name: 'white', value: 'var(--color-white)' },
+        { name: 'page', value: 'var(--color-background)' },
+        { name: 'surface', value: 'var(--color-surface)' },
       ],
     },
     controls: { matchers: { color: /(background|color)$/i } },

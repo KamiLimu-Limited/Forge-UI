@@ -18,19 +18,17 @@ import {
   useSessionCalendar,
   type CalendarFilters,
 } from '@/hooks/useSessionCalendar'
-import { formatDay, parseDateOnly } from '@/lib/format'
+import { formatDay, formatDayMonth, parseDateOnly } from '@/lib/format'
 import { ALL_PILLARS, CATEGORY_LABELS, PILLAR_LABELS, SESSION_STATUS_LABELS } from '@/lib/labels'
 import { monthLabel } from '@/lib/sessions'
 import type { MonthBoundary } from '@/types/cohort'
 import type { SessionCategory, SessionResponse, SessionStatus } from '@/types/session'
 
-const longDay = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long' })
-
 function monthSubtitle(month: number | null, boundary: MonthBoundary | null): string {
   if (month === null) return 'No KamiLimu months set for this cohort yet.'
   const label = monthLabel(month, boundary)
   if (!boundary) return label
-  return `${label}: ${longDay.format(parseDateOnly(boundary.start))} to ${longDay.format(parseDateOnly(boundary.end))}`
+  return `${label}: ${formatDayMonth(parseDateOnly(boundary.start))} to ${formatDayMonth(parseDateOnly(boundary.end))}`
 }
 
 // Past sessions open their attendance; upcoming ones open the editor

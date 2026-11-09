@@ -4,6 +4,9 @@ import { useEffect, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { Spinner } from '@/components/ui/Spinner'
+import { ADMIN_ROLES, hasRole, homeFor, userRoleLabel } from '@/lib/roles'
+import type { UserRole } from '@/types/auth'
+import { NoAccessScreen } from '@/views/NoAccessScreen'
 
 interface GuardProps {
   children: ReactNode
@@ -15,10 +18,6 @@ function FullScreenSpinner() {
       <Spinner size="lg" />
     </div>
   )
-}
-
-function isAdminUser(roles: { role: string }[] | undefined): boolean {
-  return roles?.some((r) => r.role === 'admin') ?? false
 }
 
 // Where a signed-out visitor goes: the cover page after signing out, otherwise sign in
@@ -52,18 +51,41 @@ export function RedirectIfAuthed({ children }: GuardProps) {
   return <>{children}</>
 }
 
-// Requires a signed-in user with the admin role
-export function RequireAdmin({ children }: GuardProps) {
+interface RequireRoleProps extends GuardProps {
+  roles: UserRole[]
+  // Who the area is for, as it reads after "It's for", such as "the System Admin"
+  area: string
+}
+
+// Requires a signed-in user holding one of `roles`. Anyone else sees No access with a way
+// back to their own home, instead of being moved somewhere without a word.
+export function RequireRole({ roles, area, children }: RequireRoleProps) {
   const { user, isAuthenticated, isLoading, hasSignedOut } = useAuth()
   const router = useRouter()
-  const isAdmin = isAdminUser(user?.roles)
 
   useEffect(() => {
-    if (isLoading) return
-    if (!isAuthenticated) router.replace(signedOutHome(hasSignedOut))
-    else if (!isAdmin) router.replace('/dashboard')
-  }, [isLoading, isAuthenticated, isAdmin, hasSignedOut, router])
+    if (!isLoading && !isAuthenticated) router.replace(signedOutHome(hasSignedOut))
+  }, [isLoading, isAuthenticated, hasSignedOut, router])
 
-  if (isLoading || !isAuthenticated || !isAdmin) return <FullScreenSpinner />
+  if (isLoading || !isAuthenticated || !user) return <FullScreenSpinner />
+  if (!hasRole(user, roles)) {
+    return (
+      <NoAccessScreen
+        area={area}
+        fullName={`${user.first_name} ${user.last_name}`.trim()}
+        roleLabel={userRoleLabel(user)}
+        homeHref={homeFor(user)}
+      />
+    )
+  }
   return <>{children}</>
+}
+
+// The admin screens, for the System Admin and the Program Lead
+export function RequireAdmin({ children }: GuardProps) {
+  return (
+    <RequireRole roles={ADMIN_ROLES} area="the System Admin">
+      {children}
+    </RequireRole>
+  )
 }

@@ -3,14 +3,16 @@
 import { useMemo, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { NAV_BY_ROLE, type NavGroup, type NavItem } from '@/components/layout/navConfig'
+import { api } from '@/lib/api'
 import { roleListLabel } from '@/lib/roles'
 import type { UserProfileResponse, UserRole } from '@/types/auth'
+import { useApiQuery } from './useApiQuery'
 
 // One cohort the user belongs to, plus any programme-wide roles (cohort_id null)
 export interface RoleContext {
   key: string
   cohortId: string | null
-  // The API has no cohort endpoint yet, so this is always null for now
+  // null until it loads, or if it can't be read
   cohortName: string | null
   roles: UserRole[]
   roleLabel: string
@@ -22,6 +24,8 @@ export interface ShellNav {
   // True only when the user has roles in more than one cohort
   canSwitch: boolean
   setActiveKey: (key: string) => void
+  // The first page of a cohort's links, so switching cohort can open it
+  firstPageFor: (key: string) => string | null
   // Groups that have at least one link; headings matter only when there is more than one
   groups: NavGroup[]
   // Flat list for the mobile tab bar
@@ -29,12 +33,30 @@ export interface ShellNav {
   isActive: (href: string) => boolean
 }
 
-function buildContexts(user: UserProfileResponse | null): RoleContext[] {
+// Newest enrollment first, so the shell starts on the cohort the API defaults to
+function cohortIdsNewestFirst(user: UserProfileResponse | null): string[] {
+  const roles = [...(user?.roles ?? [])].sort((a, b) => b.assigned_at.localeCompare(a.assigned_at))
+  return Array.from(
+    new Set(roles.map((r) => r.cohort_id).filter((id): id is string => id !== null))
+  )
+}
+
+async function loadCohortNames(cohortIds: string[]): Promise<Record<string, string>> {
+  const results = await Promise.allSettled(cohortIds.map((id) => api.cohorts.getById(id)))
+  return Object.fromEntries(
+    results.flatMap((result) =>
+      result.status === 'fulfilled' ? [[result.value.id, result.value.name]] : []
+    )
+  )
+}
+
+function buildContexts(
+  user: UserProfileResponse | null,
+  names: Record<string, string>
+): RoleContext[] {
   if (!user) return []
   const globalRoles = user.roles.filter((r) => r.cohort_id === null).map((r) => r.role)
-  const cohortIds = Array.from(
-    new Set(user.roles.map((r) => r.cohort_id).filter((id): id is string => id !== null))
-  )
+  const cohortIds = cohortIdsNewestFirst(user)
 
   if (cohortIds.length === 0) {
     return globalRoles.length === 0
@@ -53,40 +75,58 @@ function buildContexts(user: UserProfileResponse | null): RoleContext[] {
   return cohortIds.map((cohortId) => {
     const cohortRoles = user.roles.filter((r) => r.cohort_id === cohortId).map((r) => r.role)
     const roles = [...cohortRoles, ...globalRoles.filter((r) => !cohortRoles.includes(r))]
-    return { key: cohortId, cohortId, cohortName: null, roles, roleLabel: roleListLabel(roles) }
+    return {
+      key: cohortId,
+      cohortId,
+      cohortName: names[cohortId] ?? null,
+      roles,
+      roleLabel: roleListLabel(roles),
+    }
   })
+}
+
+// The links for one cohort's roles, without repeats
+function navGroups(context: RoleContext): NavGroup[] {
+  const seen = new Set<string>()
+  return context.roles
+    .flatMap((role) => [NAV_BY_ROLE[role]].flat())
+    .map((group) => {
+      const items = group.items.filter((item) => {
+        if (seen.has(item.href)) return false
+        seen.add(item.href)
+        return true
+      })
+      return { heading: group.heading, items }
+    })
+    .filter((group) => group.items.length > 0)
 }
 
 export function useShellNav(user: UserProfileResponse | null): ShellNav {
   const pathname = usePathname()
   const [activeKey, setActiveKey] = useState<string | null>(null)
 
-  const contexts = useMemo(() => buildContexts(user), [user])
+  const cohortIds = useMemo(() => cohortIdsNewestFirst(user), [user])
+  const names = useApiQuery(() => loadCohortNames(cohortIds), [cohortIds.join()], {
+    enabled: cohortIds.length > 0,
+  })
+  const contexts = useMemo(() => buildContexts(user, names.data ?? {}), [user, names.data])
   const active = contexts.find((c) => c.key === activeKey) ?? contexts[0] ?? null
 
-  const groups = useMemo(() => {
-    if (!active) return []
-    const seen = new Set<string>()
-    return active.roles
-      .map((role) => {
-        const group = NAV_BY_ROLE[role]
-        const items = group.items.filter((item) => {
-          if (seen.has(item.href)) return false
-          seen.add(item.href)
-          return true
-        })
-        return { heading: group.heading, items }
-      })
-      .filter((group) => group.items.length > 0)
-  }, [active])
+  const groups = useMemo(() => (active ? navGroups(active) : []), [active])
 
   return {
     contexts,
     active,
     canSwitch: contexts.length > 1,
     setActiveKey,
+    firstPageFor: (key) => {
+      const context = contexts.find((c) => c.key === key)
+      return context ? (navGroups(context)[0]?.items[0]?.href ?? null) : null
+    },
     groups,
     items: groups.flatMap((g) => g.items),
-    isActive: (href) => pathname === href || pathname.startsWith(`${href}/`),
+    // /dashboard is the home tab, so it only matches exactly
+    isActive: (href) =>
+      pathname === href || (href !== '/dashboard' && pathname.startsWith(`${href}/`)),
   }
 }

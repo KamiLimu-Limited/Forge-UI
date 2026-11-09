@@ -28,6 +28,20 @@ export const menteeUser: UserProfileResponse = {
   roles: [{ id: 'r2', role: 'mentee', cohort_id: 'c-2026', assigned_at: '2026-02-01T08:00:00Z' }],
 }
 
+// A 1:1 peer mentor has six links, so phones get the side menu instead of tabs
+export const peerMentorUser: UserProfileResponse = {
+  id: 'u-peer-mentor',
+  email: 'hansel.omondi@example.com',
+  first_name: 'Hansel',
+  last_name: 'Omondi',
+  account_state: 'active',
+  last_login_at: '2026-10-21T17:40:00Z',
+  created_at: '2026-02-01T08:00:00Z',
+  roles: [
+    { id: 'r3', role: 'peer_mentor_1:1', cohort_id: 'c-2026', assigned_at: '2026-02-01T08:00:00Z' },
+  ],
+}
+
 export const twoCohortUser: UserProfileResponse = {
   id: 'u-peer',
   email: 'wanjiru.mwangi@example.com',

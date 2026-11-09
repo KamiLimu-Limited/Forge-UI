@@ -15,6 +15,8 @@ interface SegmentedControlProps<T extends string> {
   // Names the group for screen readers, for example "Filter users by status"
   label: string
   disabled?: boolean
+  // "pill" has a gap between options; "joined" fills the row with divided cells
+  variant?: 'pill' | 'joined'
 }
 
 export function SegmentedControl<T extends string>({
@@ -23,7 +25,9 @@ export function SegmentedControl<T extends string>({
   onChange,
   label,
   disabled = false,
+  variant = 'pill',
 }: SegmentedControlProps<T>) {
+  const isJoined = variant === 'joined'
   const buttonsRef = useRef<Array<HTMLButtonElement | null>>([])
 
   // Arrow keys move between options, as in a tab list
@@ -42,7 +46,10 @@ export function SegmentedControl<T extends string>({
     <div
       role="tablist"
       aria-label={label}
-      className="flex w-full gap-1 rounded-control border border-border-strong bg-surface p-1 md:w-auto md:self-start"
+      className={cx(
+        'flex w-full rounded-control border border-border-strong bg-surface',
+        isJoined ? 'overflow-hidden' : 'gap-1 p-1 md:w-auto md:self-start'
+      )}
     >
       {options.map((option, index) => {
         const isSelected = option.value === value
@@ -60,7 +67,10 @@ export function SegmentedControl<T extends string>({
             onClick={() => onChange(option.value)}
             onKeyDown={(e) => handleKeyDown(e, index)}
             className={cx(
-              'h-control flex-1 whitespace-nowrap rounded-md px-2 font-mono text-small transition-colors duration-fast md:px-4',
+              'h-control flex-1 whitespace-nowrap px-2 transition-colors duration-fast md:px-4',
+              isJoined
+                ? 'border-l border-border-strong font-sans text-body first:border-l-0'
+                : 'rounded-md font-mono text-small',
               isSelected
                 ? 'bg-accent-bg font-semibold text-accent-text'
                 : 'text-text-secondary hover:bg-background hover:text-text-primary',

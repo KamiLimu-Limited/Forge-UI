@@ -27,3 +27,6 @@ export const AsLink: Story = {
     linkLabel: 'Open the queue',
   },
 }
+export const NotAvailableYet: Story = {
+  args: { label: 'All peer mentors', value: null, emptyLabel: 'Not available yet' },
+}

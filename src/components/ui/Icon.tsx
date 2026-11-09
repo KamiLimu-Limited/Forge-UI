@@ -4,19 +4,26 @@ import { cx } from '@/lib/cx'
 export type IconName =
   | 'alert'
   | 'arrow-left'
+  | 'arrow-right'
+  | 'bell'
   | 'calendar'
+  | 'chart'
+  | 'code'
   | 'check'
   | 'chevron-down'
   | 'chevron-left'
   | 'chevron-right'
   | 'chevron-up'
+  | 'clock'
   | 'close'
   | 'grip'
   | 'menu'
   | 'monitor'
   | 'moon'
   | 'search'
+  | 'star'
   | 'sun'
+  | 'target'
   | 'upload'
   | 'eye'
   | 'eye-off'
@@ -43,6 +50,23 @@ const paths: Record<IconName, ReactNode> = {
     </>
   ),
   'arrow-left': <path d="M19 12H5M11 6l-6 6 6 6" />,
+  'arrow-right': <path d="M5 12h14M13 6l6 6-6 6" />,
+  bell: (
+    <>
+      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+    </>
+  ),
+  code: <path d="M8 7l-5 5 5 5M16 7l5 5-5 5" />,
+  chart: <path d="M6 20V10M12 20V4M18 20v-7" />,
+  star: <path d="M12 3l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6L3.3 9.2l6.1-.6z" />,
+  target: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="5" />
+      <circle cx="12" cy="12" r="1" />
+    </>
+  ),
   calendar: (
     <>
       <rect x="4" y="5.5" width="16" height="14" rx="2" />
@@ -83,6 +107,12 @@ const paths: Record<IconName, ReactNode> = {
     <>
       <path d="M12 15V4.5M7.5 9L12 4.5 16.5 9" />
       <path d="M4.5 15v4.5h15V15" />
+    </>
+  ),
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
     </>
   ),
   close: <path d="M6 6l12 12M18 6L6 18" />,

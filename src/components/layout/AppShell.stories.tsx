@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Icon } from '@/components/ui/Icon'
-import { adminUser, menteeUser, twoCohortUser } from '../../../.storybook/fixtures'
+import { adminUser, menteeUser, peerMentorUser, twoCohortUser } from '../../../.storybook/fixtures'
 import { AppShell } from './AppShell'
 import { PageHeader } from './PageHeader'
 
@@ -73,4 +73,13 @@ export const TwoCohortsMobile: Story = {
 
 export const AdminDesktop: Story = {
   parameters: { ...Admin.parameters, viewport: { defaultViewport: 'responsive' } },
+}
+// Seven links: phones show a menu button that opens the Menu dialog, as in the admin shell
+export const PeerMentorMobile: Story = {
+  parameters: {
+    auth: { user: peerMentorUser },
+    nextjs: { navigation: { pathname: '/dashboard' } },
+    viewport: { defaultViewport: 'mobile1' },
+  },
+  args: SingleRole.args,
 }

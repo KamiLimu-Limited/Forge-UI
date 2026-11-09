@@ -16,6 +16,7 @@ export function MockAuthProvider({ user, children }: MockAuthProviderProps) {
       isAuthenticated: user !== null,
       isLoading: false,
       error: null,
+      hasSignedOut: false,
       login: () => Promise.resolve(),
       logout: () => Promise.resolve(),
       clearError: () => undefined,

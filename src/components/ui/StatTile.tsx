@@ -4,8 +4,9 @@ import { Spinner } from './Spinner'
 
 interface StatTileProps {
   label: string
-  // null shows a dash-free "No data yet" placeholder
+  // null shows a dash-free placeholder, "No data yet" unless emptyLabel says otherwise
   value: string | number | null
+  emptyLabel?: string
   note?: string
   isLoading?: boolean
   error?: string
@@ -17,6 +18,7 @@ interface StatTileProps {
 export function StatTile({
   label,
   value,
+  emptyLabel = 'No data yet',
   note,
   isLoading = false,
   error,
@@ -35,7 +37,7 @@ export function StatTile({
           {error}
         </p>
       ) : value === null ? (
-        <p className="font-sans text-body text-text-muted">No data yet</p>
+        <p className="font-sans text-body text-text-muted">{emptyLabel}</p>
       ) : (
         <p className="font-mono text-stat font-semibold tabular-nums text-text-primary">{value}</p>
       )}

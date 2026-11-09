@@ -1,4 +1,7 @@
 import type { IconName } from '@/components/ui/Icon'
+import { ALUMNI_ROUTES } from '@/lib/alumniRoutes'
+import { MENTEE_ROUTES } from '@/lib/menteeRoutes'
+import { ICT_PEER_MENTOR_ROUTES, PEER_MENTOR_ROUTES } from '@/lib/peerMentorRoutes'
 import type { UserRole } from '@/types/auth'
 
 export interface NavItem {
@@ -13,8 +16,20 @@ export interface NavGroup {
   items: NavItem[]
 }
 
-// Sidebar and bottom tab links per role. Only routes that exist are listed.
-export const NAV_BY_ROLE: Record<UserRole, NavGroup> = {
+// Peer mentors take part through the mentee screens, with saving switched off until the
+// API lets them save
+const PARTICIPATION_NAV: NavGroup = {
+  heading: 'My participation',
+  items: [
+    { label: 'Sessions', href: MENTEE_ROUTES.sessions, icon: 'calendar' },
+    { label: 'Activities', href: MENTEE_ROUTES.activities, icon: 'inbox' },
+    { label: 'Objectives', href: MENTEE_ROUTES.objectives, icon: 'target' },
+  ],
+}
+
+// Sidebar and bottom tab links per role. Only routes that exist are listed. A role with two
+// groups, like the peer mentor's own participation, gets its links under two headings.
+export const NAV_BY_ROLE: Record<UserRole, NavGroup | NavGroup[]> = {
   admin: {
     heading: 'As an admin',
     items: [
@@ -24,13 +39,49 @@ export const NAV_BY_ROLE: Record<UserRole, NavGroup> = {
   },
   // Add links here as each role's screens are built, for example:
   // { label: 'Sessions', href: '/sessions', icon: 'home' }
-  mentee: { heading: 'As a mentee', items: [] },
-  'peer_mentor_1:1': { heading: 'As a peer mentor', items: [] },
-  peer_mentor_ict: { heading: 'As an ICT peer mentor', items: [] },
+  mentee: {
+    heading: 'As a mentee',
+    items: [
+      { label: 'Home', href: MENTEE_ROUTES.home, icon: 'home' },
+      { label: 'Sessions', href: MENTEE_ROUTES.sessions, icon: 'calendar' },
+      { label: 'Activities', href: MENTEE_ROUTES.activities, icon: 'star' },
+      { label: 'Objectives', href: MENTEE_ROUTES.objectives, icon: 'target' },
+      { label: 'Leaderboard', href: MENTEE_ROUTES.leaderboard, icon: 'chart' },
+    ],
+  },
+  'peer_mentor_1:1': [
+    {
+      heading: 'As a peer mentor',
+      items: [
+        { label: 'My mentees', href: PEER_MENTOR_ROUTES.home, icon: 'users' },
+        { label: 'Group meeting', href: PEER_MENTOR_ROUTES.groupMeeting, icon: 'calendar' },
+        { label: 'Facilitator view', href: PEER_MENTOR_ROUTES.facilitator, icon: 'chart' },
+        { label: 'Leaderboards', href: PEER_MENTOR_ROUTES.leaderboards, icon: 'star' },
+      ],
+    },
+    PARTICIPATION_NAV,
+  ],
+  peer_mentor_ict: [
+    {
+      heading: 'As an ICT peer mentor',
+      items: [
+        { label: 'My track', href: ICT_PEER_MENTOR_ROUTES.track, icon: 'code' },
+        { label: 'ICT sessions', href: ICT_PEER_MENTOR_ROUTES.trackSessions, icon: 'calendar' },
+        { label: 'Leaderboards', href: PEER_MENTOR_ROUTES.leaderboards, icon: 'star' },
+      ],
+    },
+    PARTICIPATION_NAV,
+  ],
   professional_mentor: { heading: 'As a professional mentor', items: [] },
   committee: { heading: 'As a committee member', items: [] },
   partner: { heading: 'As a partner', items: [] },
-  alumni: { heading: 'As an alumnus', items: [] },
+  alumni: {
+    heading: 'As an alumnus',
+    items: [
+      { label: 'Home', href: ALUMNI_ROUTES.home, icon: 'home' },
+      { label: 'History', href: ALUMNI_ROUTES.history, icon: 'clock' },
+    ],
+  },
 }
 
 // The System Admin sidebar and mobile menu, in design order.

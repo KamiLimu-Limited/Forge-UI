@@ -149,6 +149,8 @@
   --text-stat: 2rem; /* 32px: stat numbers */
   --text-heading: 2rem; /* 32px */
   --text-title: 2.625rem; /* 42px */
+  --text-display: 2.5rem; /* 40px: the cover page headline on phones */
+  --text-display-lg: 4rem; /* 64px: the cover page headline from md up */
 
   /* Font weights */
   --font-normal: 400;
@@ -210,6 +212,7 @@
   --size-control: 2.75rem; /* 44px */
   --size-control-lg: 3.25rem; /* 52px */
   --size-sidebar: 15.5rem; /* 248px */
+  --size-calendar-preview: 48rem; /* 768px: the month calendar on the cover page */
   --size-avatar: 2.25rem; /* 36px */
   --size-brand-mark: 1.875rem; /* 30px */
   --size-auth-card-max: 27.5rem; /* 440px */

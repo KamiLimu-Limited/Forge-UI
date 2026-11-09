@@ -28,17 +28,27 @@ import type {
   RoleAssignmentRequest,
 } from '@/types/admin'
 import type {
+  AcademicActivityRequest,
   ActivityListParams,
   ActivityReviewRequest,
+  ActivityUpdateRequest,
+  ConsultationSessionRequest,
+  ExternalEventRequest,
   ExtraActivityResponse,
+  OpportunityApplicationRequest,
 } from '@/types/activity'
 import type {
   AttendanceListParams,
   AttendanceResponse,
   AttendanceStatusUpdateRequest,
+  AttendanceSubmissionRequest,
+  AttendanceUpdateRequest,
+  MyAttendanceResponse,
   OverrideListParams,
+  OverrideRequestCreate,
   OverrideRequestResponse,
   OverrideReviewRequest,
+  WindowStatusResponse,
 } from '@/types/attendance'
 import type { AuditLogParams, AuditLogResponse } from '@/types/audit'
 import type {
@@ -49,13 +59,28 @@ import type {
   CohortResponse,
   CohortUpdateRequest,
 } from '@/types/cohort'
-import type { CohortHealthResponse } from '@/types/dashboard'
+import type {
+  AttendanceRateResponse,
+  CohortHealthResponse,
+  GroupOverview,
+  MenteeDrilldown,
+  MenteeOverviewResponse,
+  SessionPointsEntry,
+} from '@/types/dashboard'
 import type {
   EnrollmentListParams,
   EnrollmentResponse,
   EnrollmentUpdateRequest,
 } from '@/types/enrollment'
 import type { InvitationListParams, InvitationResponse } from '@/types/invitation'
+import type { FinalStatusResponse } from '@/types/alumni'
+import type { TrackOverviewResponse, TrackSessionEntry } from '@/types/ictPeerMentor'
+import type { DimensionRankingResponse, LeaderboardDimension } from '@/types/leaderboard'
+import type {
+  MarkAllReadResponse,
+  NotificationListParams,
+  NotificationResponse,
+} from '@/types/notification'
 import type { Page } from '@/types/page'
 import type {
   MentorAssignment,
@@ -68,6 +93,12 @@ import type {
   SessionResponse,
   SessionUpdateRequest,
 } from '@/types/session'
+import type {
+  SkillProgressResponse,
+  SkillRatingRequest,
+  SkillRatingResponse,
+  SkillRatingWindowStatus,
+} from '@/types/skills'
 import { API_BASE_URL } from './config'
 
 // -----------------------------------------------------------------------------
@@ -399,6 +430,9 @@ export const api = {
 
     getById: (sessionId: string) => request<SessionDetailResponse>(`/api/v1/sessions/${sessionId}`),
 
+    attendanceWindow: (sessionId: string) =>
+      request<WindowStatusResponse>(`/api/v1/sessions/${sessionId}/attendance-window`),
+
     create: (body: SessionCreateRequest) =>
       request<SessionResponse>('/api/v1/sessions', json('POST', body)),
 
@@ -422,10 +456,25 @@ export const api = {
   },
 
   attendance: {
+    mine: (params?: AttendanceListParams) =>
+      request<Page<MyAttendanceResponse>>(`/api/v1/attendance/me${qs(params)}`),
+
+    submit: (body: AttendanceSubmissionRequest) =>
+      request<MyAttendanceResponse>('/api/v1/attendance', json('POST', body)),
+
+    update: (recordId: string, body: AttendanceUpdateRequest) =>
+      request<MyAttendanceResponse>(`/api/v1/attendance/${recordId}`, json('PATCH', body)),
+
     setStatus: (recordId: string, body: AttendanceStatusUpdateRequest) =>
       request<AttendanceResponse>(`/api/v1/attendance/${recordId}/status`, json('PATCH', body)),
 
     overrideRequests: {
+      create: (body: OverrideRequestCreate) =>
+        request<OverrideRequestResponse>(
+          '/api/v1/attendance/override-requests',
+          json('POST', body)
+        ),
+
       list: (params?: OverrideListParams) =>
         request<Page<OverrideRequestResponse>>(`/api/v1/attendance/override-requests${qs(params)}`),
 
@@ -447,6 +496,27 @@ export const api = {
     list: (params?: ActivityListParams) =>
       request<Page<ExtraActivityResponse>>(`/api/v1/extra-activities${qs(params)}`),
 
+    mine: (params?: ActivityListParams) =>
+      request<Page<ExtraActivityResponse>>(`/api/v1/extra-activities/me${qs(params)}`),
+
+    getById: (activityId: string) =>
+      request<ExtraActivityResponse>(`/api/v1/extra-activities/${activityId}`),
+
+    logAcademic: (body: AcademicActivityRequest) =>
+      request<ExtraActivityResponse>('/api/v1/extra-activities/academic', json('POST', body)),
+
+    logEvent: (body: ExternalEventRequest) =>
+      request<ExtraActivityResponse>('/api/v1/extra-activities/events', json('POST', body)),
+
+    logOpportunity: (body: OpportunityApplicationRequest) =>
+      request<ExtraActivityResponse>('/api/v1/extra-activities/opportunities', json('POST', body)),
+
+    logConsultation: (body: ConsultationSessionRequest) =>
+      request<ExtraActivityResponse>('/api/v1/extra-activities/consultations', json('POST', body)),
+
+    update: (activityId: string, body: ActivityUpdateRequest) =>
+      request<ExtraActivityResponse>(`/api/v1/extra-activities/${activityId}`, json('PATCH', body)),
+
     reject: (activityId: string, body: ActivityReviewRequest) =>
       request<ExtraActivityResponse>(
         `/api/v1/extra-activities/${activityId}/reject`,
@@ -459,5 +529,92 @@ export const api = {
       request<CohortHealthResponse>(
         `/api/v1/dashboard/committee/cohort-health${qs({ cohort_id: cohortId })}`
       ),
+
+    mentee: {
+      // A past cohort's id gives an alumnus their old numbers
+      overview: (cohortId?: string) =>
+        request<MenteeOverviewResponse>(
+          `/api/v1/dashboard/mentee/overview${qs({ cohort_id: cohortId })}`
+        ),
+
+      history: (cohortId: string) =>
+        request<SessionPointsEntry[]>(
+          `/api/v1/dashboard/mentee/attendance/history${qs({ cohort_id: cohortId })}`
+        ),
+    },
+  },
+
+  peerMentor: {
+    group: () => request<GroupOverview>('/api/v1/dashboard/peer-mentor/group'),
+
+    mentee: (menteeId: string) =>
+      request<MenteeDrilldown>(`/api/v1/dashboard/peer-mentor/mentees/${menteeId}`),
+
+    groupAttendance: (params?: AttendanceListParams) =>
+      request<Page<AttendanceResponse>>(`/api/v1/peer-mentors/me/attendance${qs(params)}`),
+  },
+
+  mentees: {
+    finalStatus: (menteeId: string, cohortId: string) =>
+      request<FinalStatusResponse>(
+        `/api/v1/mentees/${menteeId}/graduation-status${qs({ cohort_id: cohortId })}`
+      ),
+
+    attendanceRates: (menteeId: string, cohortId: string) =>
+      request<AttendanceRateResponse>(
+        `/api/v1/mentees/${menteeId}/attendance-rates${qs({ cohort_id: cohortId })}`
+      ),
+  },
+
+  ictPeerMentor: {
+    trackOverview: (cohortId: string) =>
+      request<TrackOverviewResponse>(
+        `/api/v1/dashboard/ict-peer-mentor/track-overview${qs({ cohort_id: cohortId })}`
+      ),
+
+    sessions: (cohortId: string) =>
+      request<TrackSessionEntry[]>(
+        `/api/v1/dashboard/ict-peer-mentor/sessions${qs({ cohort_id: cohortId })}`
+      ),
+  },
+
+  notifications: {
+    mine: (params?: NotificationListParams) =>
+      request<Page<NotificationResponse>>(`/api/v1/notifications/me${qs(params)}`),
+
+    // The API returns one count in an object; its key isn't documented
+    unreadCount: () =>
+      request<{ unread: number }>('/api/v1/notifications/me/unread-count').then(
+        (counts) => counts.unread
+      ),
+
+    markRead: (notificationId: string) =>
+      request<NotificationResponse>(
+        `/api/v1/notifications/${notificationId}/read`,
+        json('PATCH', {})
+      ),
+
+    markAllRead: () =>
+      request<MarkAllReadResponse>('/api/v1/notifications/read-all', json('PATCH', {})),
+  },
+
+  skills: {
+    windows: (cohortId: string) =>
+      request<SkillRatingWindowStatus[]>(
+        `/api/v1/skill-ratings/windows${qs({ cohort_id: cohortId })}`
+      ),
+
+    progress: (menteeId: string, cohortId: string) =>
+      request<SkillProgressResponse>(
+        `/api/v1/mentees/${menteeId}/skill-progress${qs({ cohort_id: cohortId })}`
+      ),
+
+    rate: (body: SkillRatingRequest) =>
+      request<SkillRatingResponse>('/api/v1/skill-ratings', json('POST', body)),
+  },
+
+  leaderboard: {
+    dimension: (cohortId: string, dimension: LeaderboardDimension) =>
+      request<DimensionRankingResponse>(`/api/v1/cohorts/${cohortId}/leaderboard/${dimension}`),
   },
 }

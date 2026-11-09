@@ -56,6 +56,21 @@ export const twoCohortUser: UserProfileResponse = {
   ],
 }
 
+// Graduated: keeps the mentee role in the same cohort, so the alumni view must win
+export const graduateUser: UserProfileResponse = {
+  id: 'u-graduate',
+  email: 'faith.njeri@example.com',
+  first_name: 'Faith',
+  last_name: 'Njeri',
+  account_state: 'active',
+  last_login_at: '2026-10-22T07:05:00Z',
+  created_at: '2025-02-01T08:00:00Z',
+  roles: [
+    { id: 'r5', role: 'mentee', cohort_id: 'c-2025', assigned_at: '2025-02-01T08:00:00Z' },
+    { id: 'r6', role: 'alumni', cohort_id: 'c-2025', assigned_at: '2025-11-20T08:00:00Z' },
+  ],
+}
+
 // ---- Admin screens. Sample data for stories only; nothing in src/ uses it. ----
 
 export const sampleCohort: CohortResponse = {

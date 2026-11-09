@@ -27,7 +27,9 @@ const VIEW_ROLES: Partial<Record<UserRole, ViewRole>> = {
   alumni: 'alumni',
 }
 
-const VIEW_ROLE_ORDER: ViewRole[] = ['mentee', 'peer_mentor', 'ict_peer_mentor', 'alumni']
+// Someone who graduated keeps their mentee role in that cohort, so alumni comes before
+// mentee. Peer mentor roles come first because they are only held in a current cohort.
+const VIEW_ROLE_ORDER: ViewRole[] = ['peer_mentor', 'ict_peer_mentor', 'alumni', 'mentee']
 
 export function viewRole(context: RoleContext | null): ViewRole | null {
   if (!context) return null
@@ -35,9 +37,12 @@ export function viewRole(context: RoleContext | null): ViewRole | null {
   return VIEW_ROLE_ORDER.find((role) => held.has(role)) ?? null
 }
 
-// The roles whose links the shell shows
-export function navRoles(context: RoleContext): UserRole[] {
-  return context.roles
+// The roles whose links and label the shell shows. A graduate's old mentee links would
+// open the mentee screens for a finished cohort, so alumni replaces them.
+export function navRoles(context: Pick<RoleContext, 'roles'>): UserRole[] {
+  return context.roles.includes('alumni')
+    ? context.roles.filter((role) => role !== 'mentee')
+    : context.roles
 }
 
 // Newest enrollment first, so the shell starts on the cohort the API defaults to
@@ -78,7 +83,7 @@ export function buildContexts(
       cohortId,
       cohortName: names[cohortId] ?? null,
       roles,
-      roleLabel: roleListLabel(roles),
+      roleLabel: roleListLabel(navRoles({ roles })),
     }
   })
 }

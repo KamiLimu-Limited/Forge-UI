@@ -3,7 +3,13 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Icon } from '@/components/ui/Icon'
-import { adminUser, menteeUser, peerMentorUser, twoCohortUser } from '../../../.storybook/fixtures'
+import {
+  adminUser,
+  graduateUser,
+  menteeUser,
+  peerMentorUser,
+  twoCohortUser,
+} from '../../../.storybook/fixtures'
 import { AppShell } from './AppShell'
 import { PageHeader } from './PageHeader'
 
@@ -80,6 +86,15 @@ export const PeerMentorMobile: Story = {
     auth: { user: peerMentorUser },
     nextjs: { navigation: { pathname: '/dashboard' } },
     viewport: { defaultViewport: 'mobile1' },
+  },
+  args: SingleRole.args,
+}
+
+// Mentee and alumni in one cohort: only the alumni links show
+export const Graduate: Story = {
+  parameters: {
+    auth: { user: graduateUser },
+    nextjs: { navigation: { pathname: '/dashboard/alumni' } },
   },
   args: SingleRole.args,
 }

@@ -22,8 +22,7 @@ async function loadChooseTrack(
   activeCohortId: string | null,
   userId: string
 ): Promise<ChooseTrackView> {
-  const cohortId: string =
-    activeCohortId ?? (await api.dashboard.mentee.overview()).cohort_id
+  const cohortId: string = activeCohortId ?? (await api.dashboard.mentee.overview()).cohort_id
   const [cohort, enrollments] = await Promise.all([
     api.cohorts.getById(cohortId),
     api.cohorts.enrollments.list(cohortId, { role: 'mentee', page_size: 100 }).catch(() => null),

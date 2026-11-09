@@ -11,12 +11,13 @@ import { LoadingState } from '@/components/ui/LoadingState'
 import { Notice } from '@/components/ui/Notice'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import type { GroupMeetingDraft } from '@/hooks/useGroupMeeting'
+import { MODE_LABELS } from '@/lib/labels'
 import { PEER_MENTOR_ROUTES } from '@/lib/peerMentorRoutes'
 import type { GroupMeetingView, MeetingMode } from '@/types/peerMentor'
 
 const MODES: { value: MeetingMode; label: string }[] = [
-  { value: 'physical', label: 'Physical' },
-  { value: 'virtual', label: 'Virtual' },
+  { value: 'physical', label: MODE_LABELS.physical },
+  { value: 'virtual', label: MODE_LABELS.virtual },
 ]
 
 interface GroupMeetingScreenProps {

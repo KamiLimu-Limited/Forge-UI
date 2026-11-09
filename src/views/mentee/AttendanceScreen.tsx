@@ -1,5 +1,6 @@
 'use client'
 
+import { ATTENDANCE_STATUS_LABELS } from '@/lib/labels'
 import type { FormEvent } from 'react'
 import { TrackBadge } from '@/components/forge/TrackBadge'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -34,8 +35,8 @@ interface AttendanceScreenProps {
 }
 
 const STATUS_OPTIONS: { value: AttendanceAnswers['status']; label: string }[] = [
-  { value: 'attended', label: 'Present' },
-  { value: 'not_attended', label: 'Absent' },
+  { value: 'attended', label: ATTENDANCE_STATUS_LABELS.attended },
+  { value: 'not_attended', label: ATTENDANCE_STATUS_LABELS.not_attended },
 ]
 
 // Shown instead of the form. A submission is final for mentees; the System Admin corrects it.
@@ -181,7 +182,7 @@ function AttendanceForm({
                     href={session.materialsUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="font-semibold text-link hover:underline"
+                    className="inline-flex min-h-control items-center self-start font-semibold text-link hover:underline"
                   >
                     Open materials
                   </a>

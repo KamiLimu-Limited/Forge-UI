@@ -3,6 +3,7 @@
 // A field marked `unavailable` is one the API can't store yet. See docs/api-gaps.md.
 // =============================================================================
 
+import { MODE_LABELS } from '@/lib/labels'
 import { api } from '@/lib/api'
 import type {
   EventMode,
@@ -51,9 +52,9 @@ const EVENT_ROLES: { value: EventRole; label: string }[] = [
 ]
 
 const EVENT_MODES: { value: EventMode; label: string }[] = [
-  { value: 'physical', label: 'In person' },
-  { value: 'virtual', label: 'Virtual' },
-  { value: 'hybrid', label: 'Hybrid' },
+  { value: 'physical', label: MODE_LABELS.physical },
+  { value: 'virtual', label: MODE_LABELS.virtual },
+  { value: 'hybrid', label: MODE_LABELS.hybrid },
 ]
 
 // The API's four stages, in plain words

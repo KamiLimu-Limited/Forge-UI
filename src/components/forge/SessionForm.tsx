@@ -13,7 +13,7 @@ import type {
   SessionFormValues,
   SessionPillarChoice,
 } from '@/hooks/useSessionEditor'
-import { CATEGORY_OPTIONS, PILLAR_LABELS, type Pillar } from '@/lib/labels'
+import { CATEGORY_OPTIONS, MODE_LABELS, PILLAR_LABELS, type Pillar } from '@/lib/labels'
 import { monthBoundaries, monthLabel } from '@/lib/sessions'
 import type { CohortResponse } from '@/types/cohort'
 import type { SessionCategory, SessionMode } from '@/types/session'
@@ -49,8 +49,8 @@ const OTHER_PILLARS: Pillar[] = [
 const SESSION_TYPES = ['Theory', 'Tell and Show', 'Hands-on', 'Simulation']
 
 const MODE_OPTIONS: { value: SessionMode; label: string }[] = [
-  { value: 'virtual', label: 'Virtual' },
-  { value: 'physical', label: 'Physical' },
+  { value: 'virtual', label: MODE_LABELS.virtual },
+  { value: 'physical', label: MODE_LABELS.physical },
 ]
 
 function pointOptions(current: number): { value: string; label: string }[] {

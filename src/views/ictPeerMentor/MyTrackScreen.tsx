@@ -36,8 +36,18 @@ export function MyTrackScreen({
   error = null,
   onRetry,
 }: MyTrackScreenProps) {
-  if (error) return <ErrorState message={error} onRetry={onRetry} />
-  if (isLoading) return <LoadingState label="Loading your track" />
+  if (error || isLoading) {
+    return (
+      <div className="flex flex-col gap-4 md:gap-5">
+        <PageHeader title="My track" />
+        {error ? (
+          <ErrorState message={error} onRetry={onRetry} />
+        ) : (
+          <LoadingState label="Loading your track" />
+        )}
+      </div>
+    )
+  }
   if (!data) {
     return (
       <div className="flex flex-col gap-4 md:gap-5">

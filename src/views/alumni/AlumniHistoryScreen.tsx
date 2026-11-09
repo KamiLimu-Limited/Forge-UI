@@ -161,8 +161,18 @@ export function AlumniHistoryScreen({
   tab,
   onTabChange,
 }: AlumniHistoryScreenProps) {
-  if (error) return <ErrorState message={error} onRetry={onRetry} />
-  if (isLoading || !data) return <LoadingState label="Loading your record" />
+  if (error || isLoading || !data) {
+    return (
+      <div className="flex flex-col gap-4 md:gap-5">
+        <PageHeader title="Your record" subtitle="Read only" />
+        {error ? (
+          <ErrorState message={error} onRetry={onRetry} />
+        ) : (
+          <LoadingState label="Loading your record" />
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-4 md:gap-5">

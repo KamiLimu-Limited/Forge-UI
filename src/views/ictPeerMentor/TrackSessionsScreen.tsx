@@ -32,7 +32,12 @@ function Attended({ row }: { row: TrackSessionRow }) {
 function Materials({ row, label }: { row: TrackSessionRow; label: string }) {
   if (!row.materialsUrl) return <span className="text-text-muted">None yet</span>
   return (
-    <a href={row.materialsUrl} target="_blank" rel="noreferrer" className="text-link">
+    <a
+      href={row.materialsUrl}
+      target="_blank"
+      rel="noreferrer"
+      className="relative before:absolute before:-inset-x-2 before:-inset-y-3 before:content-[''] text-link"
+    >
       {label}
     </a>
   )
@@ -46,8 +51,18 @@ export function TrackSessionsScreen({
   error = null,
   onRetry,
 }: TrackSessionsScreenProps) {
-  if (error) return <ErrorState message={error} onRetry={onRetry} />
-  if (isLoading) return <LoadingState label="Loading your track's sessions" />
+  if (error || isLoading) {
+    return (
+      <div className="flex flex-col gap-4 md:gap-5">
+        <PageHeader title="ICT sessions" />
+        {error ? (
+          <ErrorState message={error} onRetry={onRetry} />
+        ) : (
+          <LoadingState label="Loading your track's sessions" />
+        )}
+      </div>
+    )
+  }
   if (!data) {
     return (
       <div className="flex flex-col gap-4 md:gap-5">

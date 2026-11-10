@@ -48,8 +48,7 @@ function audience(draft: BroadcastDraft, cohortName: string | null): string {
   return `${role} in ${cohortName ?? 'this cohort'}`
 }
 
-// A message by email and in each person's notifications (SA-Broadcast). This only draws
-// the screen; useBroadcast sends it.
+// A message by email and in each person's notifications (SA-Broadcast).
 export function MessagesScreen({
   cohortName,
   draft,
@@ -72,13 +71,10 @@ export function MessagesScreen({
 
   return (
     <>
-      <PageHeader
-        title="Messages"
-        subtitle="Send a message by email and in each person's notifications."
-      />
+      <PageHeader title="Messages" />
       <div className="grid items-start gap-4 md:gap-5 lg:grid-cols-3">
         <form onSubmit={handleSubmit} noValidate className="lg:col-span-2">
-          <Card title="New message">
+          <Card>
             <div className="flex flex-col gap-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <Select

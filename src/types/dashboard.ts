@@ -1,6 +1,4 @@
-// =============================================================================
 // Dashboard types, mapped directly from the Forge API OpenAPI schema
-// =============================================================================
 
 import type { ActivityType } from '@/types/activity'
 import type { SessionBrief, SessionType, UserSummary } from '@/types/session'

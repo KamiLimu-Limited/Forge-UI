@@ -1,9 +1,6 @@
-// =============================================================================
-// Runtime configuration
 // The API address comes only from NEXT_PUBLIC_API_BASE_URL. Next.js inlines it
 // at build time, so it must be read as process.env.NEXT_PUBLIC_API_BASE_URL in
 // full (no destructuring or dynamic keys).
-// =============================================================================
 
 const DEV_FALLBACK_API_BASE_URL = 'http://localhost:8000'
 

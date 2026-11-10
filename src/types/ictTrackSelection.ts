@@ -1,7 +1,5 @@
-// =============================================================================
 // Choosing an ICT track (PRD 7.12). The API has no track selection routes yet, so the
 // description, lead mentor, window and saving are all missing. See docs/api-gaps.md (M4).
-// =============================================================================
 
 export interface TrackOptionView {
   name: string

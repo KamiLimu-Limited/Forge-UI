@@ -46,7 +46,7 @@ export interface UseGraduationPreviewReturn extends ApiQuery<GraduationPreviewVi
   setSearch: (value: string) => void
   // Graduates matching the search
   graduates: GraduateRow[]
-  // Graduate Cohort needs the end date passed and a preview to confirm
+  // Graduate cohort needs the end date passed and a preview to confirm
   canGraduate: boolean
 }
 

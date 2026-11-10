@@ -1,6 +1,4 @@
-// =============================================================================
 // Session helpers shared by the calendar, the session form and the overview
-// =============================================================================
 
 import type { Pillar } from '@/lib/labels'
 import type { CohortResponse, MonthBoundary } from '@/types/cohort'

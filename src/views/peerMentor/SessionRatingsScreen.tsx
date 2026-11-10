@@ -21,7 +21,6 @@ interface SessionRatingsScreenProps {
 }
 
 // How everyone who attended rated one session the peer mentor led or co-led.
-// This only draws the screen; the page's hook loads the data.
 export function SessionRatingsScreen({
   data,
   isLoading = false,

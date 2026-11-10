@@ -23,7 +23,7 @@ const rates = [92, 88, 85, 81, 79]
 
 export const sampleCommitteeOverview: CommitteeOverviewView = {
   cohortName: 'Cohort 11',
-  subtitle: 'Cohort 11, Month 5 of 8',
+  subtitle: 'Month 5 of 8',
   numbers: sampleCohortNumbers,
   monthRates: [1, 2, 3, 4, 5, 6, 7, 8].map((month) => ({
     label: `M${month}`,

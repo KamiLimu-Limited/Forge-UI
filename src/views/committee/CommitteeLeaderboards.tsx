@@ -2,16 +2,13 @@
 
 import { useState } from 'react'
 import { useCohortLeaderboard } from '@/hooks/useCommittee'
-import { useCohortName } from '@/hooks/useCohortName'
 import { CommitteeLeaderboardsScreen, type CommitteeBoardTab } from './CommitteeLeaderboardsScreen'
 
 export function CommitteeLeaderboards() {
   const [tab, setTab] = useState<CommitteeBoardTab>('mentees')
   const board = useCohortLeaderboard()
-  const cohortName = useCohortName()
   return (
     <CommitteeLeaderboardsScreen
-      cohortName={cohortName}
       hasCohort={board.hasCohort}
       tab={tab}
       onTabChange={setTab}

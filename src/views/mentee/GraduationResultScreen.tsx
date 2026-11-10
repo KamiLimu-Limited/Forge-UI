@@ -17,8 +17,8 @@ interface GraduationResultScreenProps {
   recordHref: string
 }
 
-// A mentee's final result once their cohort has graduated (MD-Result,
-// MD-ResultNotGraduated). Only the mentee sees it. This only draws the screen.
+// A mentee's final result once their cohort has graduated (MD-Result, MD-
+// ResultNotGraduated). Only the mentee sees it.
 export function GraduationResultScreen({
   data,
   isLoading = false,
@@ -33,11 +33,7 @@ export function GraduationResultScreen({
       <>
         <PageHeader title="Your result" />
         <Card>
-          <EmptyState
-            icon="star"
-            title="No result yet"
-            description="Your result shows here once your cohort graduates."
-          />
+          <EmptyState icon="star" title="No result yet" />
         </Card>
       </>
     )
@@ -68,8 +64,8 @@ export function GraduationResultScreen({
       <Card title="What happens now">
         <div className="flex flex-col gap-3">
           <p className="font-sans text-small text-text-secondary">
-            Only you can see this result. Your {data.cohortName} record stays available here,
-            including every session, activity and objective.
+            Your {data.cohortName} record stays available here, including every session, activity
+            and objective.
           </p>
           <p className="font-sans text-small text-text-secondary">
             If you think a record is wrong, talk to the System Admin. The Program Lead can correct a

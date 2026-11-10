@@ -4,7 +4,6 @@ import { useCommitteeOverview } from '@/hooks/useCommittee'
 import { COMMITTEE_ROUTES } from '@/lib/committeeRoutes'
 import { CommitteeOverviewScreen } from './CommitteeOverviewScreen'
 
-// Loads the committee's cohort health and hands it to the screen
 export function CommitteeOverview() {
   const query = useCommitteeOverview()
   return (

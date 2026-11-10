@@ -42,10 +42,6 @@ const PROFILE_FIELDS = [
   'Links',
 ]
 
-// ---------------------------------------------------------------------------
-// Edit details dialog
-// ---------------------------------------------------------------------------
-
 interface EditDetailsProps {
   user: AdminUserDetailResponse
   isOpen: boolean
@@ -115,10 +111,6 @@ function EditDetailsDialog({ user, isOpen, onClose, isSaving, error, onSave }: E
   )
 }
 
-// ---------------------------------------------------------------------------
-// Add role dialog
-// ---------------------------------------------------------------------------
-
 interface AddRoleProps {
   isOpen: boolean
   onClose: () => void
@@ -174,10 +166,6 @@ function AddRoleDialog({ isOpen, onClose, defaultCohortId, isSaving, error, onAd
     </Modal>
   )
 }
-
-// ---------------------------------------------------------------------------
-// Assignments card
-// ---------------------------------------------------------------------------
 
 interface AssignmentsCardProps {
   userId: string
@@ -264,10 +252,6 @@ function AssignmentsCard({ userId }: AssignmentsCardProps) {
     </Card>
   )
 }
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 
 interface UserDetailPageProps {
   userId: string

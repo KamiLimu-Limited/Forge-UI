@@ -1,7 +1,4 @@
-// =============================================================================
-// Forge API Client
 // Single source of all API calls. Never call fetch() anywhere else.
-// =============================================================================
 
 import type {
   TokenResponse,
@@ -119,10 +116,6 @@ import type {
 } from '@/types/skills'
 import { API_BASE_URL } from './config'
 
-// -----------------------------------------------------------------------------
-// Token storage
-// -----------------------------------------------------------------------------
-
 const TOKEN_KEY = 'forge_access_token'
 const REFRESH_KEY = 'forge_refresh_token'
 
@@ -138,10 +131,6 @@ export const tokenStore = {
     localStorage.removeItem(REFRESH_KEY)
   },
 }
-
-// -----------------------------------------------------------------------------
-// Core request function
-// -----------------------------------------------------------------------------
 
 // Requests that get a 401 while a refresh is running share it. Keyed by the
 // refresh token so a sign-out and a new sign-in never join the old session's refresh.
@@ -206,7 +195,6 @@ async function request<T>(
 
   const res = await fetch(`${API_BASE_URL}${path}`, { ...options, headers })
 
-  // Attempt token refresh on 401
   if (res.status === 401 && authenticated) {
     const refresh = tokenStore.getRefresh()
     if (!refresh) {
@@ -275,10 +263,6 @@ export async function fetchAllPages<T>(
   }
   return items
 }
-
-// -----------------------------------------------------------------------------
-// API namespaces
-// -----------------------------------------------------------------------------
 
 export const api = {
   auth: {

@@ -1,6 +1,4 @@
-// =============================================================================
 // Plain descriptions of audit log entries for the audit trail and the overview
-// =============================================================================
 
 import type { AuditLogResponse } from '@/types/audit'
 import { ATTENDANCE_STATUS_LABELS, auditActionLabel } from './labels'

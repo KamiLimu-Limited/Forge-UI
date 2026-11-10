@@ -40,8 +40,7 @@ function moveButtonClasses(): string {
   return 'flex size-control items-center justify-center rounded-md border border-border text-text-primary hover:bg-background disabled:cursor-not-allowed disabled:text-disabled-text'
 }
 
-// The order graduates appear in before the sequence plays (PL-RevealOrder). This only
-// draws the screen.
+// The order graduates appear in before the sequence plays (PL-RevealOrder).
 export function RevealOrderScreen({
   data,
   isLoading = false,
@@ -62,7 +61,6 @@ export function RevealOrderScreen({
     <>
       <PageHeader
         title="Graduation sequence"
-        subtitle="Set the order graduates appear in before the sequence plays on the big screen."
         action={
           <div className="flex flex-wrap items-start gap-3">
             <ButtonLink href={PROGRAM_LEAD_ROUTES.graduation} variant="secondary">

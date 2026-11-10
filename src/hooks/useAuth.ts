@@ -1,10 +1,7 @@
 'use client'
 
-// =============================================================================
-// useAuth: authentication context and hook
 // Provides auth state globally. <AuthProvider> is mounted in src/app/providers.tsx.
 // AuthContext is exported only so Storybook can provide a mocked value.
-// =============================================================================
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from 'react'
 import { createElement } from 'react'
@@ -12,10 +9,6 @@ import type { ReactNode } from 'react'
 import { api, tokenStore } from '@/lib/api'
 import type { UserProfileResponse } from '@/types/auth'
 import { ApiError } from '@/types/auth'
-
-// -----------------------------------------------------------------------------
-// State shape
-// -----------------------------------------------------------------------------
 
 interface AuthState {
   user: UserProfileResponse | null
@@ -48,10 +41,6 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
   }
 }
 
-// -----------------------------------------------------------------------------
-// Context
-// -----------------------------------------------------------------------------
-
 export interface AuthContextValue {
   user: UserProfileResponse | null
   isAuthenticated: boolean
@@ -66,10 +55,6 @@ export interface AuthContextValue {
 
 export const AuthContext = createContext<AuthContextValue | null>(null)
 
-// -----------------------------------------------------------------------------
-// Provider
-// -----------------------------------------------------------------------------
-
 interface AuthProviderProps {
   children: ReactNode
 }
@@ -82,7 +67,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     hasSignedOut: false,
   })
 
-  // On mount: if a token exists, fetch the current user to restore session
   useEffect(() => {
     const token = tokenStore.getAccess()
     if (!token) {
@@ -154,10 +138,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   return createElement(AuthContext.Provider, { value }, children)
 }
-
-// -----------------------------------------------------------------------------
-// Hook
-// -----------------------------------------------------------------------------
 
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext)

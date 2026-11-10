@@ -1,7 +1,5 @@
-// =============================================================================
 // Theme preference. "system" follows the device; "light" and "dark" are set
 // as data-theme on <html>, which global.css and the Tailwind dark: variant read.
-// =============================================================================
 
 export type ThemePreference = 'system' | 'light' | 'dark'
 

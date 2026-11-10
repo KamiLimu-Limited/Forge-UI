@@ -68,7 +68,6 @@ function Detail({ label, value }: { label: string; value: string }) {
 }
 
 // One session for a mentee: joining, attendance, details, mentors and materials.
-// This only draws the screen; the page's hook loads the data.
 export function SessionDetailScreen({
   session,
   isLoading = false,
@@ -123,7 +122,7 @@ export function SessionDetailScreen({
                   )}
                 </div>
               </Card>
-              <Card title="Details">
+              <Card>
                 <div className="flex flex-col gap-3">
                   <dl className="flex flex-col gap-2">
                     <Detail

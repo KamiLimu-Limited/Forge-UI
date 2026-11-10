@@ -40,7 +40,6 @@ function Chart({
 }
 
 // Trends by KamiLimu month and by track, session ratings and extra activities. Read only.
-// This only draws the screen.
 export function TrendsScreen({
   data,
   isLoading = false,

@@ -3,7 +3,6 @@
 import { useChooseTrack } from '@/hooks/useChooseTrack'
 import { ChooseTrackScreen } from './ChooseTrackScreen'
 
-// Loads the cohort's ICT tracks and hands them to the screen
 export function ChooseTrack() {
   const track = useChooseTrack()
   return (

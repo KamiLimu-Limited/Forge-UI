@@ -1,7 +1,5 @@
-// =============================================================================
 // Peer mentorship tasks for the Program Delivery Lead and the System Admin's Group
 // meetings. Tasks are sessions, so they come from GET /sessions.
-// =============================================================================
 
 import { api, fetchAllPages } from '@/lib/api'
 import { fullName, toDateTimeLocal } from '@/lib/format'

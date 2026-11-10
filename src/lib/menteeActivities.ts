@@ -1,6 +1,4 @@
-// =============================================================================
 // Turns the mentee's activity logs into the rows the activities screens draw
-// =============================================================================
 
 import { SCHOLARSHIP_MARKER } from '@/lib/activityForms'
 import { EVENT_ROLE_LABELS } from '@/lib/labels'

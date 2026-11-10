@@ -4,7 +4,6 @@ import { useParticipantRole } from '@/hooks/useParticipantRole'
 import { useMenteeSessions } from '@/hooks/useMenteeSessions'
 import { SessionsScreen } from './SessionsScreen'
 
-// Loads the mentee's sessions and hands them to the screen
 export function Sessions() {
   const participant = useParticipantRole()
   const { data, isLoading, error, refetch } = useMenteeSessions(participant)

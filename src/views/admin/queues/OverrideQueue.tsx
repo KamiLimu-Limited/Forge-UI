@@ -210,7 +210,6 @@ export function OverrideQueuePage() {
     <>
       <PageHeader
         title="Attendance queue"
-        subtitle="Requests to reopen a closed attendance window, oldest first."
         action={
           <div className="flex flex-wrap gap-2" role="group" aria-label="Request status">
             {STATUSES.map((s) => (
@@ -242,11 +241,6 @@ export function OverrideQueuePage() {
               status === 'pending'
                 ? 'Nothing waiting'
                 : `No ${OVERRIDE_STATUS_LABELS[status].toLowerCase()} requests`
-            }
-            description={
-              status === 'pending'
-                ? 'When a mentee asks to reopen a closed window, the request shows up here.'
-                : undefined
             }
           />
         ) : (

@@ -1,7 +1,5 @@
-// =============================================================================
 // The mentee screens' data for a 1:1 or ICT peer mentor. The mentee overview and history
 // routes refuse peer mentors, so these start from the cohort of the peer mentor's role.
-// =============================================================================
 
 import { api, fetchAllPages } from '@/lib/api'
 import { closesInLabel } from '@/lib/menteeDashboard'

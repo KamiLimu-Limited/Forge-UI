@@ -171,7 +171,7 @@ export function SessionCalendarPage() {
             title="No sessions this month"
             description={
               !filters.ictOnly && !filters.category && !filters.status
-                ? 'Sessions you create for this month show up here.'
+                ? undefined
                 : 'No sessions match these filters. Clear them to see the whole month.'
             }
             action={<ButtonLink href="/admin/sessions/new">New session</ButtonLink>}

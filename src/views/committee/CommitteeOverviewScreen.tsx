@@ -20,7 +20,7 @@ interface CommitteeOverviewScreenProps {
 }
 
 // Cohort health for the committee: numbers, attendance by month and by track, and extra
-// activities. Read only, with no status labels. This only draws the screen.
+// activities. Read only, with no status labels.
 export function CommitteeOverviewScreen({
   data,
   isLoading = false,
@@ -31,12 +31,14 @@ export function CommitteeOverviewScreen({
 }: CommitteeOverviewScreenProps) {
   return (
     <div className="flex flex-col gap-4 md:gap-5">
-      <PageHeader
-        title="Overview"
-        subtitle={data?.subtitle}
-        action={<ReadOnlyTag />}
-        keepActionBeside
-      />
+      {data && (
+        <PageHeader
+          title={data.cohortName}
+          subtitle={data.subtitle || undefined}
+          action={<ReadOnlyTag />}
+          keepActionBeside
+        />
+      )}
       {!hasCohort ? (
         <NoCohortCard />
       ) : error ? (

@@ -1,6 +1,4 @@
-// =============================================================================
 // Admin types, mapped directly from the Forge API OpenAPI schema
-// =============================================================================
 
 import type { AccountState, UserRole, UserRoleResponse } from '@/types/auth'
 import type { Page, PageParams } from '@/types/page'

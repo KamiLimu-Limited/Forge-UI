@@ -13,7 +13,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table'
-import { formatDay, formatTimeRange, plural } from '@/lib/format'
+import { formatDay, formatTimeRange } from '@/lib/format'
 import type { TrackSessionRow, TrackSessionsView } from '@/types/ictPeerMentor'
 
 interface TrackSessionsScreenProps {
@@ -44,7 +44,6 @@ function Materials({ row, label }: { row: TrackSessionRow; label: string }) {
 }
 
 // The ICT sessions on an ICT peer mentor's track, with how many of their mentees attended.
-// This only draws the screen; the page's hook loads the data.
 export function TrackSessionsScreen({
   data,
   isLoading = false,
@@ -68,11 +67,7 @@ export function TrackSessionsScreen({
       <div className="flex flex-col gap-4 md:gap-5">
         <PageHeader title="ICT sessions" />
         <Card>
-          <EmptyState
-            icon="calendar"
-            title="No track yet"
-            description="Your track's sessions show here once the System Admin assigns you to a track."
-          />
+          <EmptyState icon="calendar" title="No track yet" />
         </Card>
       </div>
     )
@@ -80,17 +75,10 @@ export function TrackSessionsScreen({
 
   return (
     <div className="flex flex-col gap-4 md:gap-5">
-      <TrackHeader
-        title={`${data.track} sessions`}
-        subtitle={`Attendance across the ${plural(data.menteeCount, 'mentee')} on your track.`}
-      />
+      <TrackHeader title={`${data.track} sessions`} />
       {data.sessions.length === 0 ? (
         <Card>
-          <EmptyState
-            icon="calendar"
-            title="No ICT sessions yet"
-            description="Sessions on your track show here once they start."
-          />
+          <EmptyState icon="calendar" title="No ICT sessions yet" />
         </Card>
       ) : (
         <>

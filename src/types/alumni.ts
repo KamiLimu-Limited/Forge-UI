@@ -1,6 +1,4 @@
-// =============================================================================
 // Alumni types. An alumnus sees their past cohort's record, read only.
-// =============================================================================
 
 import type { Pillar } from '@/lib/labels'
 import type { AttendanceStatus } from '@/types/attendance'

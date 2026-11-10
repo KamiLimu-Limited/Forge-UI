@@ -1,9 +1,7 @@
 'use client'
 
-// =============================================================================
 // useToast: short confirmation and error messages after a write.
 // <ToastProvider> is mounted in src/app/providers.tsx.
-// =============================================================================
 
 import {
   createContext,

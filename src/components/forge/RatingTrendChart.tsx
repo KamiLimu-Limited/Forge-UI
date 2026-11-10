@@ -45,11 +45,7 @@ export function RatingTrendChart({ points }: RatingTrendChartProps) {
   }, [])
 
   if (points.length === 0) {
-    return (
-      <p className="font-sans text-small text-text-muted">
-        Your ratings show here once a session closes.
-      </p>
-    )
+    return <p className="font-sans text-small text-text-muted">No ratings yet.</p>
   }
 
   const path = points

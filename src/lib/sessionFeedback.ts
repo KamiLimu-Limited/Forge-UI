@@ -1,7 +1,5 @@
-// =============================================================================
 // Turns a session's feedback into the grouped averages FeedbackSummary draws. Used by
 // the peer mentor's facilitator view and the professional mentor's feedback screen.
-// =============================================================================
 
 import { averageOf } from '@/lib/peerMentor'
 import type { FeedbackGroupView } from '@/types/peerMentor'

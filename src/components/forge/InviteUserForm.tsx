@@ -49,7 +49,6 @@ export function InviteUserForm({
     nameRef.current?.focus()
   }, [])
 
-  // Tell the page and clear the form once the API accepts the invitation
   useEffect(() => {
     if (!success) return
     onInvited(email.trim())

@@ -1,7 +1,5 @@
-// =============================================================================
 // ICT peer mentor types. The API shapes come from the Forge API OpenAPI schema; the views
 // are what the screens draw.
-// =============================================================================
 
 import type { RateBucket } from '@/types/dashboard'
 import type { SessionBrief, UserSummary } from '@/types/session'

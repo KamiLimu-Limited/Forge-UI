@@ -1,6 +1,4 @@
-// =============================================================================
 // Skill rating types, mapped directly from the Forge API OpenAPI schema
-// =============================================================================
 
 export type RatingPoint = 'early' | 'mid' | 'late'
 

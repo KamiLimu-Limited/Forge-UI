@@ -1,6 +1,4 @@
-// =============================================================================
 // Leaderboard types, mapped directly from the Forge API OpenAPI schema
-// =============================================================================
 
 export type LeaderboardDimension =
   | 'core_attendance'

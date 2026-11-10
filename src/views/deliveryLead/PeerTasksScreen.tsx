@@ -55,7 +55,7 @@ const COLUMNS: DataTableColumn<PeerTaskRow>[] = [
   },
 ]
 
-// The cohort's peer mentorship tasks (COM-Tasks). This only draws the screen.
+// The cohort's peer mentorship tasks (COM-Tasks).
 export function PeerTasksScreen({
   data,
   isLoading = false,

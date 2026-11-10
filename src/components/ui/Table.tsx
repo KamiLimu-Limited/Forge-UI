@@ -58,7 +58,6 @@ export function TableHeaderCell({ num = false, className, ...rest }: TableHeader
 }
 
 interface TableCellProps extends TdHTMLAttributes<HTMLTableCellElement> {
-  // Numbers: JetBrains Mono, right aligned
   num?: boolean
 }
 

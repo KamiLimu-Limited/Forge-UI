@@ -27,7 +27,6 @@ function groupLine(count: number): string {
   return `${group}. You can view their progress but not change it.`
 }
 
-// "My mentees". This only draws the screen; the page's hook loads the group.
 export function MyMenteesScreen({
   mentees,
   isLoading = false,
@@ -51,11 +50,7 @@ export function MyMenteesScreen({
         <LoadingState label="Loading your mentees" />
       ) : mentees.length === 0 ? (
         <Card>
-          <EmptyState
-            icon="users"
-            title="No group yet"
-            description="Your group will appear here once the System Admin assigns it, about a month into the cohort."
-          />
+          <EmptyState icon="users" title="No group yet" />
         </Card>
       ) : (
         <>

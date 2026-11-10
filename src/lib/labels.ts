@@ -1,6 +1,4 @@
-// =============================================================================
 // Plain-language labels for API enum values. Use these wherever a value is shown.
-// =============================================================================
 
 import type { NotificationType } from '@/types/notification'
 import type { ActivityStatus, ActivityType, EventRole } from '@/types/activity'

@@ -11,7 +11,6 @@ import { NoCohortCard, ReadOnlyTag } from './CommitteeStates'
 export type CommitteeBoardTab = 'mentees' | 'peer-mentors'
 
 interface CommitteeLeaderboardsScreenProps {
-  cohortName: string | null
   hasCohort?: boolean
   tab: CommitteeBoardTab
   onTabChange: (tab: CommitteeBoardTab) => void
@@ -37,9 +36,8 @@ const OTHER_EXPORTS: { kind: ExportKind; label: string }[] = [
   { kind: 'full-report', label: 'Export full report' },
 ]
 
-// Both leaderboards, CSV exports and snapshots. Read only. This only draws the screen.
+// Both leaderboards, CSV exports and snapshots. Read only.
 export function CommitteeLeaderboardsScreen({
-  cohortName,
   hasCohort = true,
   tab,
   onTabChange,
@@ -56,7 +54,6 @@ export function CommitteeLeaderboardsScreen({
     <div className="flex flex-col gap-4 md:gap-5">
       <PageHeader
         title="Leaderboards and exports"
-        subtitle={cohortName ? `Live rankings for ${cohortName}.` : undefined}
         action={
           <div className="flex flex-wrap items-center gap-3">
             <ReadOnlyTag />
@@ -92,11 +89,7 @@ export function CommitteeLeaderboardsScreen({
                 </Card>
               ) : (
                 <Card>
-                  <EmptyState
-                    icon="users"
-                    title="Peer mentor leaderboard"
-                    description="Not available yet"
-                  />
+                  <EmptyState icon="users" title="Not available yet" />
                 </Card>
               )}
             </div>

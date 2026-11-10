@@ -58,7 +58,6 @@ export function GroupMeetingsScreen({
     <div className="flex flex-col gap-4 md:gap-5">
       <PageHeader
         title="Group meetings"
-        subtitle="Where and when each 1:1 group meets for a peer mentorship task."
         action={
           data && data.tasks.length > 0 && data.selectedTaskId ? (
             <div className="w-full md:w-64">
@@ -104,7 +103,6 @@ export function GroupMeetingsScreen({
               empty={{
                 icon: 'users',
                 title: 'No 1:1 groups yet',
-                description: 'Groups show here once 1:1 peer mentors are assigned.',
               }}
             />
           </Card>

@@ -3,7 +3,6 @@
 import { useNotifications } from '@/hooks/useNotifications'
 import { NotificationsScreen } from './NotificationsScreen'
 
-// Loads the person's notifications and hands them to the screen
 export function Notifications() {
   const list = useNotifications()
   return (

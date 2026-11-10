@@ -1,7 +1,5 @@
-// =============================================================================
 // Committee numbers from /dashboard/committee/cohort-health, /analytics/* and the
 // leaderboard. The backend computes every rate; these only reshape them for the charts.
-// =============================================================================
 
 import { api, fetchAllPages } from '@/lib/api'
 import { ACTIVITY_TYPE_LABELS } from '@/lib/labels'
@@ -37,12 +35,12 @@ function sum(values: number[]): number {
   return values.reduce((total, value) => total + value, 0)
 }
 
-// "Cohort 11, Month 5 of 8", or just the name outside the programme months
+// "Month 5 of 8", or '' outside the programme months
 export function cohortSubtitle(cohort: CohortDetailResponse, now: Date = new Date()): string {
   const month = monthForDate(cohort, now)
   const total = monthBoundaries(cohort).length
-  if (!month) return cohort.name
-  return `${cohort.name}, Month ${month}${total ? ` of ${total}` : ''}`
+  if (!month) return ''
+  return `Month ${month}${total ? ` of ${total}` : ''}`
 }
 
 // One column per KamiLimu month in the cohort, with the months still to come left empty

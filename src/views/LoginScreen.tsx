@@ -18,7 +18,6 @@ interface LoginScreenProps {
   onSubmit: (e: FormEvent) => void
 }
 
-// The sign in form. This only draws the screen; useLoginForm holds the logic.
 export function LoginScreen({
   email,
   password,
@@ -31,7 +30,7 @@ export function LoginScreen({
   onSubmit,
 }: LoginScreenProps) {
   return (
-    <AuthLayout title="Sign in" description="Sign in to your KamiLimu dashboard.">
+    <AuthLayout title="Sign in">
       {isSuspended && (
         <Notice variant="danger">
           This account is suspended. Contact the System Admin to restore access.

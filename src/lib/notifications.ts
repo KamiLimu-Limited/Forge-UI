@@ -1,6 +1,4 @@
-// =============================================================================
 // Where each notification takes the person who taps it
-// =============================================================================
 
 import { MENTEE_ROUTES, menteeSessionRoute } from '@/lib/menteeRoutes'
 import type { NotificationResponse } from '@/types/notification'

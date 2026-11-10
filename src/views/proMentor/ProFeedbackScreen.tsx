@@ -26,7 +26,7 @@ interface ProFeedbackScreenProps {
 const FIRST_SHOWN = 4
 
 // One past session's feedback: the average per question and what attendees wrote, with
-// numbered participants and never names. This only draws the screen.
+// numbered participants and never names.
 export function ProFeedbackScreen({
   sessions,
   selectedId,
@@ -78,11 +78,7 @@ export function ProFeedbackScreen({
         <LoadingState label="Loading feedback" />
       ) : sessions.length === 0 ? (
         <Card>
-          <EmptyState
-            icon="chart"
-            title="No feedback yet"
-            description="Feedback shows here after your first session."
-          />
+          <EmptyState icon="chart" title="No feedback yet" />
         </Card>
       ) : !feedback ? (
         <LoadingState label="Loading feedback" />

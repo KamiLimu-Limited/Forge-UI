@@ -10,8 +10,7 @@ function tabFrom(value: string | null): AlumniRecordTab {
   return value === 'activities' || value === 'objectives' ? value : 'sessions'
 }
 
-// Loads the alumnus's past record and hands it to the screen. ?view= picks the first tab,
-// so the links on Home open the right part.
+// ?view= picks the first tab, so the links on Home open the right part.
 export function AlumniHistory() {
   const searchParams = useSearchParams()
   const [tab, setTab] = useState<AlumniRecordTab>(() => tabFrom(searchParams.get('view')))

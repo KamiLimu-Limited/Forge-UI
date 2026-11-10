@@ -81,10 +81,7 @@ export function ArchiveImportPage({ cohortId }: ArchiveImportPageProps) {
           </TableHead>
           <TableBody>{null}</TableBody>
         </Table>
-        <EmptyState
-          title="Nothing to reconcile yet"
-          description="Once an export is imported, each mentee's figures show here side by side."
-        />
+        <EmptyState title="Nothing to reconcile yet" />
       </Card>
       <div className="flex flex-col-reverse gap-3 md:flex-row md:justify-end">
         <Button variant="secondary" disabled>

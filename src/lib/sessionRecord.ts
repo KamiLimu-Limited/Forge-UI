@@ -1,7 +1,5 @@
-// =============================================================================
 // Loads one session with the mentee's window and record, for the session detail,
 // attendance, notes and extension screens, and turns form answers into API requests.
-// =============================================================================
 
 import { api } from '@/lib/api'
 import { RATING_FIELDS } from '@/lib/attendanceQuestions'

@@ -93,7 +93,6 @@ export function CohortsPage() {
     <>
       <PageHeader
         title="All cohorts"
-        subtitle="Every cohort in the system. Archived cohorts are read only."
         action={<ButtonLink href="/admin/cohorts/new">New cohort</ButtonLink>}
       />
       <Card flush>

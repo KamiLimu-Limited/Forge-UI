@@ -26,8 +26,7 @@ interface PeerTaskFormScreenProps {
   onSave: () => void
 }
 
-// Creating or editing a peer mentorship task (COM-TaskForm). This only draws the screen;
-// saving waits for the API to let the Program Delivery Lead do it.
+// Creating or editing a peer mentorship task (COM-TaskForm).
 export function PeerTaskFormScreen({
   form,
   draft,

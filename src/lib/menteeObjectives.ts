@@ -1,7 +1,5 @@
-// =============================================================================
 // Shows the API's fixed skills as objectives until it stores each mentee's own.
 // See docs/api-gaps.md.
-// =============================================================================
 
 import { formatDay, formatDayMonth } from '@/lib/format'
 import type {

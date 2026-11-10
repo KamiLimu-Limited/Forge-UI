@@ -1,6 +1,4 @@
-// =============================================================================
 // Invitation types, mapped directly from the Forge API OpenAPI schema
-// =============================================================================
 
 import type { UserRole } from '@/types/auth'
 import type { PageParams } from '@/types/page'

@@ -29,9 +29,7 @@ export function RanksCard({ ranks, showLeaderboardLink = true }: RanksCardProps)
       }
     >
       {ranks.length === 0 ? (
-        <p className="font-sans text-small text-text-secondary">
-          Your ranks show up here once the leaderboards open.
-        </p>
+        <p className="font-sans text-small text-text-secondary">No ranks yet.</p>
       ) : (
         <ul>
           {ranks.map((item) => (

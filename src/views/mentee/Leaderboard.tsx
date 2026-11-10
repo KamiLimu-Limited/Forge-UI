@@ -3,7 +3,6 @@
 import { useMenteeLeaderboard } from '@/hooks/useMenteeLeaderboard'
 import { LeaderboardScreen } from './LeaderboardScreen'
 
-// Loads each leaderboard and hands it to the screen
 export function Leaderboard() {
   const board = useMenteeLeaderboard()
   return (

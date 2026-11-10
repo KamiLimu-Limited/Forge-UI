@@ -1,8 +1,6 @@
-// =============================================================================
 // The cohort and role a signed-in person is looking at on /dashboard. Each cohort they
 // hold a role in is one view; "Switch view" in the shell picks between them, and every
 // participant screen reads the same choice through hooks/useActiveView.ts.
-// =============================================================================
 
 import { roleListLabel } from '@/lib/roles'
 import type { UserProfileResponse, UserRole } from '@/types/auth'

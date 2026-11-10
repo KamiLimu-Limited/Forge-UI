@@ -53,11 +53,10 @@ export function ActivityFormScreen({ config }: ActivityFormScreenProps) {
           </Card>
         </div>
         <div className="lg:sticky lg:top-6">
-          <Card title="Summary">
+          <Card>
             <div className="flex flex-col gap-3">
               <p className="font-sans text-small text-text-secondary">
-                Your points show on the activities page after you save. The System Admin may reverse
-                a log that doesn&apos;t qualify.
+                The System Admin may reverse a log that doesn&apos;t qualify.
               </p>
               {form.error && <Notice variant="danger">{form.error}</Notice>}
               {saveBlockedNote && <Notice>{saveBlockedNote}</Notice>}

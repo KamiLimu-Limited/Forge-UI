@@ -92,7 +92,6 @@ export function useIctAssignments(
   const save = async () => {
     const data = query.data
     if (!data) return { saved: 0, failed: [] }
-    // Work out each ICT peer mentor's final track from the whole table
     const finalTrack = new Map<string, string | null>()
     for (const row of rows) if (row.mentorId) finalTrack.set(row.mentorId, row.track)
     const updates = data.ictMentors

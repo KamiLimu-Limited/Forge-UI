@@ -32,7 +32,7 @@ function Muted({ children }: { children: string }) {
 }
 
 // One mentee, read only. Nothing here can change their data, and their contact details
-// aren't shown. This only draws the screen; the page's hook loads the data.
+// aren't shown.
 export function MenteeDetailScreen({
   detail,
   isLoading = false,

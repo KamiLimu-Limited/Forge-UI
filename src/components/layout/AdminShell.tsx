@@ -28,10 +28,6 @@ interface AdminShellProps {
 const ADMIN_LABEL = 'System Admin'
 const PROGRAM_LEAD_LABEL = 'Program Lead'
 
-// ---------------------------------------------------------------------------
-// Cohort card (sidebar) and cohort pill (mobile top bar)
-// ---------------------------------------------------------------------------
-
 interface CohortControlProps {
   active: ActiveCohortContextValue
   roleLabel: string
@@ -95,9 +91,7 @@ function CohortPill({ active, onOpenPicker }: CohortControlProps) {
   )
 }
 
-// ---------------------------------------------------------------------------
 // Navigation list, shared by the sidebar and the mobile menu
-// ---------------------------------------------------------------------------
 
 // Shows straight away that a nav link was clicked, while the next page loads
 function NavPending() {
@@ -161,10 +155,6 @@ function NavItems({ items, pathname, onNavigate }: NavItemsProps) {
     </ul>
   )
 }
-
-// ---------------------------------------------------------------------------
-// Cohort picker and mobile menu dialogs
-// ---------------------------------------------------------------------------
 
 interface CohortPickerProps {
   active: ActiveCohortContextValue
@@ -237,10 +227,6 @@ function UserBlock({ fullName, cohortName, roleLabel, onSignOut }: UserBlockProp
     </div>
   )
 }
-
-// ---------------------------------------------------------------------------
-// Shell
-// ---------------------------------------------------------------------------
 
 export function AdminShell({ children }: AdminShellProps) {
   const { user, logout } = useAuth()

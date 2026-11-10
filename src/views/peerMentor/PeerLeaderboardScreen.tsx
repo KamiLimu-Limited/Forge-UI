@@ -47,11 +47,7 @@ export function PeerLeaderboardScreen({
       />
       {tab === 'peer-mentors' ? (
         <Card>
-          <EmptyState
-            icon="star"
-            title="Not available yet"
-            description="The peer mentor leaderboard will rank sessions attended, extra sessions logged, core rate and overall rate. The mentee boards already work."
-          />
+          <EmptyState icon="star" title="Not available yet" />
         </Card>
       ) : (
         <LeaderboardBoards

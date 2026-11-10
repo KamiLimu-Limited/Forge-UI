@@ -1,6 +1,4 @@
-// =============================================================================
 // Turns the ICT peer mentor API responses into the My track and ICT sessions views
-// =============================================================================
 
 import { api, fetchAllPages } from '@/lib/api'
 import { fullName } from '@/lib/format'

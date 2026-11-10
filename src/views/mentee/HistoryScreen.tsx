@@ -33,8 +33,8 @@ interface HistoryScreenProps {
   saveBlockedNote?: string | null
 }
 
-// Session history with filters. The page's hook loads the data; useHistoryFilters
-// handles what is shown. Single column below lg, list and detail side by side from lg.
+// Session history with filters. Single column below lg, list and detail side by side from
+// lg.
 export function HistoryScreen({
   data,
   isLoading = false,
@@ -61,11 +61,7 @@ export function HistoryScreen({
         <LoadingState label="Loading your session history" />
       ) : rows.length === 0 ? (
         <Card>
-          <EmptyState
-            icon="calendar"
-            title="No sessions yet"
-            description="Sessions show up here once they have taken place."
-          />
+          <EmptyState icon="calendar" title="No sessions yet" />
         </Card>
       ) : (
         <>

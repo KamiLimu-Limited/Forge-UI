@@ -24,11 +24,7 @@ export function OpenNowCard({ sessions }: OpenNowCardProps) {
       }
     >
       {sessions.length === 0 ? (
-        <EmptyState
-          icon="inbox"
-          title="Nothing open right now"
-          description="Sessions show up here while their attendance form is open."
-        />
+        <EmptyState icon="inbox" title="Nothing open right now" />
       ) : (
         <ul className="px-4 pb-2 md:px-6">
           {sessions.map((session) => (

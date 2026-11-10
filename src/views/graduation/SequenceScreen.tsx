@@ -222,8 +222,7 @@ function Stage({ children }: { children: ReactNode }) {
   )
 }
 
-// The graduation sequence, made to be projected (Seq-1 to Seq-5). This only draws the
-// screen; useGraduationSequence plays it.
+// The graduation sequence, made to be projected (Seq-1 to Seq-5).
 export function SequenceScreen({
   data,
   isLoading = false,

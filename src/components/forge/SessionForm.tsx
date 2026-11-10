@@ -76,7 +76,7 @@ export function SessionForm({
 
   return (
     <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-5">
-      <Card title="Details" className="lg:col-span-3">
+      <Card className="lg:col-span-3">
         <fieldset disabled={disabled} className="flex flex-col gap-5">
           <Input
             label="Title"
@@ -241,7 +241,7 @@ export function SessionForm({
 
       <div className="flex flex-col gap-5 lg:col-span-2">
         {aside}
-        <Card title="Points and mentors">
+        <Card>
           <fieldset disabled={disabled} className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
               <span className="font-sans text-small font-semibold text-text-primary">Points</span>
@@ -265,7 +265,7 @@ export function SessionForm({
             />
           </fieldset>
         </Card>
-        <Card title="Resources">
+        <Card>
           <fieldset disabled={disabled}>
             <Input
               label="Resource link"

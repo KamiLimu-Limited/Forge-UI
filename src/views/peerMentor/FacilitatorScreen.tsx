@@ -22,7 +22,6 @@ interface FacilitatorScreenProps {
 }
 
 // The sessions a peer mentor led or co-led and how everyone who attended rated them.
-// This only draws the screen; the page's hook loads the data.
 export function FacilitatorScreen({
   data,
   isLoading = false,
@@ -31,21 +30,14 @@ export function FacilitatorScreen({
 }: FacilitatorScreenProps) {
   return (
     <div className="flex flex-col gap-4 md:gap-5">
-      <PageHeader
-        title="Facilitator view"
-        subtitle="Sessions you mentored and how they were rated."
-      />
+      <PageHeader title="Facilitator view" />
       {error ? (
         <ErrorState message={error} onRetry={onRetry} />
       ) : isLoading || !data ? (
         <LoadingState label="Loading your sessions" />
       ) : data.sessions.length === 0 ? (
         <Card>
-          <EmptyState
-            icon="chart"
-            title="No sessions yet"
-            description="Sessions you lead or co-lead show here once they start."
-          />
+          <EmptyState icon="chart" title="No sessions yet" />
         </Card>
       ) : (
         <>

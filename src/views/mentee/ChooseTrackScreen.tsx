@@ -30,8 +30,6 @@ function subtitle(closesOn: string | null): string {
     : 'Pick the track you want to follow. You can change your choice until selection closes.'
 }
 
-// The cohort's ICT tracks as a choice. This only draws the screen; the page's hook loads
-// the data.
 export function ChooseTrackScreen({
   data,
   isLoading = false,

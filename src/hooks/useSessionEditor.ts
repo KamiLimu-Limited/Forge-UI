@@ -179,7 +179,6 @@ export function useSessionEditor({
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
 
-  // Reload the form when the saved session changes
   useEffect(() => {
     setValues(initial)
     setErrors({})

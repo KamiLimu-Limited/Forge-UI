@@ -1,8 +1,6 @@
-// =============================================================================
 // A peer mentor's facilitator numbers: the sessions they led or co-led (session_mentors),
 // rated by everyone who attended, from GET /sessions/{id}/feedback. Nothing here covers
 // other peer mentors yet. Their own group's peer mentorship feedback is in lib/peerMentor.ts.
-// =============================================================================
 
 import { api, fetchAllPages } from '@/lib/api'
 import { averageOf } from '@/lib/peerMentor'

@@ -1,8 +1,6 @@
-// =============================================================================
 // Graduation preview, record and sequence, all from GET /cohorts/{id}/graduation-report
 // for now. Graduates are the mentees whose core rate meets the threshold, or, once the
 // cohort is final, those the report marks graduated.
-// =============================================================================
 
 import { api, fetchAllPages } from '@/lib/api'
 import { formatDay, fullName } from '@/lib/format'

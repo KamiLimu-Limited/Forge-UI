@@ -1,7 +1,5 @@
-// =============================================================================
 // The five extra activity forms as settings, and how each saves to the API.
 // A field marked `unavailable` is one the API can't store yet. See docs/api-gaps.md.
-// =============================================================================
 
 import { MODE_LABELS } from '@/lib/labels'
 import { api } from '@/lib/api'

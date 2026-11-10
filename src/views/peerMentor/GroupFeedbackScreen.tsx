@@ -32,7 +32,7 @@ function subtitle(data: GroupFeedbackView): string {
 }
 
 // What a peer mentor's group said about one peer mentorship session. Feedback is shown
-// without names. This only draws the screen; the page's hook loads the data.
+// without names.
 export function GroupFeedbackScreen({
   data,
   isLoading = false,
@@ -57,11 +57,7 @@ export function GroupFeedbackScreen({
 
           {data.average === null ? (
             <Card>
-              <EmptyState
-                icon="users"
-                title="No ratings yet"
-                description="Your mentees' ratings and feedback show here once they submit their attendance."
-              />
+              <EmptyState icon="users" title="No ratings yet" />
             </Card>
           ) : (
             <FeedbackSummary groups={data.groups} feedback={data.feedback} average={data.average} />

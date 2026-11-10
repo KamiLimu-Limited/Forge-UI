@@ -7,7 +7,6 @@ interface UpdateApplicationProps {
   activityId: string
 }
 
-// Loads the application and saves its new stage
 export function UpdateApplication({ activityId }: UpdateApplicationProps) {
   const form = useUpdateApplication(activityId)
   return (

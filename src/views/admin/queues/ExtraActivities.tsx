@@ -141,7 +141,6 @@ export function ExtraActivitiesPage() {
     <>
       <PageHeader
         title="Extra activities"
-        subtitle="Activities mentees log for points. Reverse any entry that doesn't qualify."
         action={
           <div className="w-full md:w-72">
             <Input
@@ -200,9 +199,7 @@ export function ExtraActivitiesPage() {
           empty={{
             icon: 'check',
             title: search ? 'No one matches that search' : 'No activities logged yet',
-            description: search
-              ? 'Check the spelling, or clear the search.'
-              : 'Activities mentees log for this cohort show up here.',
+            description: search ? 'Check the spelling, or clear the search.' : undefined,
           }}
           pageSize={PAGE_SIZE}
         />

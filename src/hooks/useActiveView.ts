@@ -1,11 +1,9 @@
 'use client'
 
-// =============================================================================
 // useActiveView: the cohort and role every /dashboard screen shows. <ActiveViewProvider>
 // is mounted in src/app/dashboard/layout.tsx. "Switch view" in the shell sets it, and
 // Home, Sessions, Activities, Objectives and the leaderboards read it, so they always
 // agree. The choice is remembered in localStorage. Never keep a second "current view".
-// =============================================================================
 
 import {
   createContext,

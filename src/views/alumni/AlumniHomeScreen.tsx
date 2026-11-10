@@ -41,7 +41,6 @@ function percent(value: number | null): string | null {
 }
 
 // An alumnus's home: their graduation card and links into their past record. Read only.
-// This only draws the screen; the page's hook loads the data.
 export function AlumniHomeScreen({
   data,
   isLoading = false,

@@ -1,11 +1,9 @@
 'use client'
 
-// =============================================================================
 // useActiveCohort: the cohort every cohort-scoped admin screen works on.
 // <ActiveCohortProvider> is mounted in src/app/admin/layout.tsx. It loads
 // GET /cohorts and defaults to the newest active cohort, or the newest cohort
 // when none is active. The choice is remembered in localStorage.
-// =============================================================================
 
 import {
   createContext,

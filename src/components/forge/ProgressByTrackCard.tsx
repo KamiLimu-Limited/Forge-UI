@@ -42,11 +42,7 @@ export function ProgressByTrackCard({
       ) : error ? (
         <ErrorState message={error} onRetry={onRetry} />
       ) : rows.length === 0 ? (
-        <EmptyState
-          icon="calendar"
-          title="No sessions yet"
-          description="Your progress by track shows up here once sessions have taken place."
-        />
+        <EmptyState icon="calendar" title="No sessions yet" />
       ) : (
         <>
           <ul className="px-4 pb-2 md:hidden">

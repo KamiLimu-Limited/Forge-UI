@@ -66,8 +66,7 @@ function Pair({
   )
 }
 
-// One cohort against another on rates, ratings and counts. Read only. This only draws
-// the screen.
+// One cohort against another on rates, ratings and counts. Read only.
 export function CrossCohortScreen({
   data,
   isLoading = false,
@@ -96,11 +95,7 @@ export function CrossCohortScreen({
         <LoadingState label="Loading the comparison" />
       ) : !data.other ? (
         <Card>
-          <EmptyState
-            icon="swap"
-            title="No other cohort yet"
-            description="Comparisons start once a second cohort or an imported archive exists."
-          />
+          <EmptyState icon="swap" title="No other cohort to compare with" />
         </Card>
       ) : (
         <>

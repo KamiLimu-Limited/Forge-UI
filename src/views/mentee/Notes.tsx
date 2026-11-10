@@ -9,7 +9,6 @@ interface NotesProps {
   sessionId: string
 }
 
-// Loads the session and saves the mentee's notes
 export function Notes({ sessionId }: NotesProps) {
   const { data, isLoading, error, refetch } = useSessionRecord(sessionId)
   const notes = useSessionNotes(data)

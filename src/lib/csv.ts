@@ -1,6 +1,4 @@
-// =============================================================================
 // Minimal CSV reading and writing (RFC 4180 quoting) for the user import
-// =============================================================================
 
 // Rows of cells. Handles quoted cells, doubled quotes and CRLF line endings.
 export function parseCsv(text: string): string[][] {

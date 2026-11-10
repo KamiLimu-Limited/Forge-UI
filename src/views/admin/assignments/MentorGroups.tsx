@@ -6,6 +6,7 @@ import { ASSIGNMENT_TABS } from '@/components/layout/navConfig'
 import { NoCohortNotice } from '@/components/layout/NoCohortNotice'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/Button'
+import { ButtonLink } from '@/components/ui/ButtonLink'
 import { Card } from '@/components/ui/Card'
 import { Chip } from '@/components/ui/Chip'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -64,12 +65,12 @@ function DropZone({ label, canDrop, onDropMentee, children, className }: DropZon
 }
 
 interface DropHintProps {
-  children: string
+  children?: string
 }
 
 function DropHint({ children }: DropHintProps) {
   return (
-    <div className="rounded-control border border-dashed border-border-strong p-4 text-center font-sans text-small text-text-muted">
+    <div className="min-h-control rounded-control border border-dashed border-border-strong p-4 text-center font-sans text-small text-text-muted">
       {children}
     </div>
   )
@@ -143,7 +144,6 @@ export function MentorGroupsPage() {
     <>
       <PageHeader
         title="Mentor assignments"
-        subtitle="1:1 peer mentors are assigned about a month into the cohort, in groups of two to three mentees. Drag a mentee into a group, or use Assign to."
         action={
           <div className="flex flex-wrap gap-3">
             {data.changeCount > 0 && (
@@ -179,7 +179,7 @@ export function MentorGroupsPage() {
           <EmptyState
             icon="users"
             title={`No mentees or 1:1 peer mentors in ${cohort?.name ?? 'this cohort'} yet`}
-            description="People appear here once they accept their invitation to the cohort."
+            action={<ButtonLink href="/admin/users">Invite user</ButtonLink>}
           />
         </Card>
       ) : (
@@ -211,7 +211,7 @@ export function MentorGroupsPage() {
                 <EmptyState
                   icon="users"
                   title="No 1:1 peer mentors yet"
-                  description="Invite peer mentors to this cohort, then group mentees here."
+                  action={<ButtonLink href="/admin/users">Invite user</ButtonLink>}
                 />
               </Card>
             )}
@@ -235,7 +235,7 @@ export function MentorGroupsPage() {
                   >
                     {group.mentees.map((m) => card(m, mentorId))}
                     {Array.from({ length: MAX_GROUP_SIZE - group.mentees.length }, (_, i) => (
-                      <DropHint key={i}>Drag a mentee here</DropHint>
+                      <DropHint key={i} />
                     ))}
                   </DropZone>
                 </Card>

@@ -201,7 +201,6 @@ function canSubmit(session: SessionRecordView): boolean {
   return session.windowState === 'open' && isUnsubmitted
 }
 
-// The attendance form. This only draws the screen; the page's hooks load and save.
 export function AttendanceScreen({
   session,
   isLoading = false,

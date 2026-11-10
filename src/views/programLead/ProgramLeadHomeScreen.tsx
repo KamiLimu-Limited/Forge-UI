@@ -32,7 +32,7 @@ function graduationLine(data: ProgramLeadHomeData): string {
 }
 
 // The Program Lead's overview (PL-Home): cohort numbers, attendance by month, graduation,
-// and what's waiting. This only draws the screen.
+// and what's waiting.
 export function ProgramLeadHomeScreen({
   data,
   isLoading = false,
@@ -42,18 +42,20 @@ export function ProgramLeadHomeScreen({
 }: ProgramLeadHomeScreenProps) {
   return (
     <>
-      <PageHeader
-        title="Overview"
-        subtitle={data?.overview.subtitle}
-        action={
-          <div className="flex flex-wrap gap-3">
-            <ButtonLink href={PROGRAM_LEAD_ROUTES.leaderboards} variant="secondary">
-              Export reports
-            </ButtonLink>
-            <ButtonLink href="/admin/sessions">Open session calendar</ButtonLink>
-          </div>
-        }
-      />
+      {data && (
+        <PageHeader
+          title={data.overview.cohortName}
+          subtitle={data.overview.subtitle || undefined}
+          action={
+            <div className="flex flex-wrap gap-3">
+              <ButtonLink href={PROGRAM_LEAD_ROUTES.leaderboards} variant="secondary">
+                Export reports
+              </ButtonLink>
+              <ButtonLink href="/admin/sessions">Open session calendar</ButtonLink>
+            </div>
+          }
+        />
+      )}
       {!hasCohort ? (
         <NoCohortNotice />
       ) : error ? (
@@ -81,11 +83,11 @@ export function ProgramLeadHomeScreen({
                 <p className="font-sans text-body text-text-secondary">{graduationLine(data)}</p>
                 {data.home.graduation.hasEnded && !data.home.graduation.isGraduated ? (
                   <ButtonLink href={PROGRAM_LEAD_ROUTES.graduation} size="lg" fullWidth>
-                    Graduate Cohort
+                    Graduate cohort
                   </ButtonLink>
                 ) : (
                   <Button size="lg" fullWidth disabled>
-                    Graduate Cohort
+                    Graduate cohort
                   </Button>
                 )}
                 <TextLink href={PROGRAM_LEAD_ROUTES.graduation}>

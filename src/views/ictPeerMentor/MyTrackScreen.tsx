@@ -28,8 +28,7 @@ interface MyTrackScreenProps {
   onRetry?: () => void
 }
 
-// An ICT peer mentor's track and the mentees on it. View only. This only draws the
-// screen; the page's hook loads the data.
+// An ICT peer mentor's track and the mentees on it. View only.
 export function MyTrackScreen({
   data,
   isLoading = false,
@@ -54,11 +53,7 @@ export function MyTrackScreen({
         <PageHeader title="My track" />
         <Card className="md:max-w-2xl">
           <div className="flex flex-col items-center gap-4">
-            <EmptyState
-              icon="code"
-              title="No track yet"
-              description="Mentees are choosing their ICT tracks now. Once selection closes, the System Admin will assign you to a track and your mentees will appear here."
-            />
+            <EmptyState icon="code" title="No track yet" />
             <ButtonLink href={MENTEE_ROUTES.sessions} variant="secondary">
               Go to my sessions
             </ButtonLink>
@@ -104,15 +99,10 @@ export function MyTrackScreen({
 
       {data.mentees.length === 0 ? (
         <Card>
-          <EmptyState
-            icon="users"
-            title="No mentees yet"
-            description="Mentees who choose this track will show here."
-          />
+          <EmptyState icon="users" title="No mentees yet" />
         </Card>
       ) : (
         <>
-          {/* Phones: a compact list */}
           <Card flush className="md:hidden">
             <ul className="px-4">
               {data.mentees.map((mentee) => (
@@ -138,7 +128,6 @@ export function MyTrackScreen({
               ))}
             </ul>
           </Card>
-          {/* md and up: the table */}
           <Card flush className="hidden md:block">
             <Table label="Mentees on your track">
               <TableHead>

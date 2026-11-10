@@ -24,10 +24,6 @@ function contextTitle(context: RoleContext): string {
   return context.cohortName ?? context.roleLabel
 }
 
-// ---------------------------------------------------------------------------
-// Cohort card (sidebar) and cohort pill (mobile top bar)
-// ---------------------------------------------------------------------------
-
 interface CohortControlProps {
   context: RoleContext
   canSwitch: boolean
@@ -92,9 +88,7 @@ function CohortPill({ context, canSwitch, onOpenSwitcher }: CohortControlProps) 
   )
 }
 
-// ---------------------------------------------------------------------------
 // Grouped links, shared by the desktop sidebar and the phone menu
-// ---------------------------------------------------------------------------
 
 interface NavLinksProps {
   nav: ShellNav
@@ -112,9 +106,6 @@ function NavLinks({ nav, onNavigate, scrolls = false }: NavLinksProps) {
       aria-label="Main"
       className={cx('flex flex-col gap-4', scrolls && 'flex-1 overflow-y-auto')}
     >
-      {nav.groups.length === 0 && (
-        <p className="px-3 font-sans text-caption text-text-muted">Your pages will show up here.</p>
-      )}
       {nav.groups.map((group) => (
         <div key={group.heading} className="flex flex-col gap-1">
           {showHeadings && (
@@ -147,10 +138,6 @@ function NavLinks({ nav, onNavigate, scrolls = false }: NavLinksProps) {
     </nav>
   )
 }
-
-// ---------------------------------------------------------------------------
-// Desktop sidebar
-// ---------------------------------------------------------------------------
 
 interface SidebarProps {
   nav: ShellNav
@@ -211,10 +198,6 @@ function Sidebar({ nav, fullName, hasProfile, onOpenSwitcher, onSignOut }: Sideb
   )
 }
 
-// ---------------------------------------------------------------------------
-// Mobile top bar and bottom tab bar
-// ---------------------------------------------------------------------------
-
 // More links than this and the phone tab bar gets cramped, so they move to a side menu
 const MAX_PHONE_TABS = 5
 
@@ -260,7 +243,6 @@ function MobileTopBar({
         >
           <Avatar name={fullName} />
         </button>
-        {/* The same menu button and dialog as the admin shell */}
         {usesPhoneMenu(nav) && (
           <button
             type="button"
@@ -312,15 +294,10 @@ function BottomTabBar({ nav }: BottomTabBarProps) {
   )
 }
 
-// ---------------------------------------------------------------------------
-// Dialogs
-// ---------------------------------------------------------------------------
-
 interface CohortSwitcherProps {
   nav: ShellNav
   isOpen: boolean
   onClose: () => void
-  // Opens the chosen cohort's first page
   onSwitched: (href: string) => void
 }
 
@@ -438,10 +415,6 @@ function MeDialog({ isOpen, onClose, fullName, email, roleLabel, onSignOut }: Me
     </Modal>
   )
 }
-
-// ---------------------------------------------------------------------------
-// Shell
-// ---------------------------------------------------------------------------
 
 export function AppShell({ children }: AppShellProps) {
   const { user, logout } = useAuth()

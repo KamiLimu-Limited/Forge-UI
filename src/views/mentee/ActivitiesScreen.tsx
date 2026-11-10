@@ -25,7 +25,6 @@ function Total({ label, value }: { label: string; value: number }) {
   )
 }
 
-// "Extra activities". This only draws the screen; the page's hook loads the data.
 export function ActivitiesScreen({
   data,
   isLoading = false,

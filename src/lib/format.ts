@@ -1,7 +1,5 @@
-// =============================================================================
 // Date, time and name formatting for the admin screens.
 // Dates read like "Thu 27 Aug" and times like "5:30 PM", in the viewer's time zone.
-// =============================================================================
 
 const dayFormat = new Intl.DateTimeFormat('en-GB', {
   weekday: 'short',

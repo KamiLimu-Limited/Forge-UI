@@ -21,8 +21,7 @@ interface ProResourcesScreenProps {
   fieldErrors?: Record<string, string>
 }
 
-// Each session's Google Drive folder link, editable before and after the session. This
-// only draws the screen; the page's hook saves.
+// Each session's Google Drive folder link, editable before and after the session.
 export function ProResourcesScreen({
   data,
   isLoading = false,
@@ -38,21 +37,14 @@ export function ProResourcesScreen({
   const pastIds = new Set(data?.past.map((row) => row.id) ?? [])
   return (
     <div className="flex flex-col gap-4 md:gap-5">
-      <PageHeader
-        title="Resources"
-        subtitle="Link the Google Drive folder with your materials. You can update it before and after the session."
-      />
+      <PageHeader title="Resources" />
       {error ? (
         <ErrorState message={error} onRetry={onRetry} />
       ) : isLoading || !data ? (
         <LoadingState label="Loading your sessions" />
       ) : rows.length === 0 ? (
         <Card>
-          <EmptyState
-            icon="inbox"
-            title="No sessions yet"
-            description="Sessions show here once the System Admin assigns you to one."
-          />
+          <EmptyState icon="inbox" title="No sessions yet" />
         </Card>
       ) : (
         <Card flush>

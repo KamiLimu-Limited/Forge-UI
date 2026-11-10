@@ -8,7 +8,6 @@ interface ExtensionProps {
   sessionId: string
 }
 
-// Loads the session and any request, and sends a new one
 export function Extension({ sessionId }: ExtensionProps) {
   const extension = useExtensionRequest(sessionId)
   const { saveBlockedNote } = useParticipantRole()

@@ -151,8 +151,7 @@ function Objectives({ rows }: { rows: MenteeObjectiveRow[] | null }) {
   )
 }
 
-// An alumnus's past cohort record, read only. This only draws the screen; the page's hook
-// loads the data.
+// An alumnus's past cohort record, read only.
 export function AlumniHistoryScreen({
   data,
   isLoading = false,

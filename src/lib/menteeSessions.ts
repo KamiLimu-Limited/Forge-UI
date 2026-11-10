@@ -1,6 +1,4 @@
-// =============================================================================
 // Loading and reshaping shared by the mentee home and sessions screens
-// =============================================================================
 
 import { api } from '@/lib/api'
 import { formatDateTime, formatDay, formatTime, fullName } from '@/lib/format'

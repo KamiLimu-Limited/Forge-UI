@@ -13,7 +13,6 @@ interface LeaderboardScreenProps {
   onRetry?: () => void
 }
 
-// The mentee leaderboard. This only draws the screen; the page's hook loads each board.
 export function LeaderboardScreen({
   dimension,
   onDimensionChange,

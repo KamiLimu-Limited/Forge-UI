@@ -1,8 +1,6 @@
-// =============================================================================
 // Shapes the professional mentor's session summaries, feedback and materials for the
 // screens. The summary route has no mentor role or status, so each session's detail is
 // read too (see docs/api-gaps.md).
-// =============================================================================
 
 import { api } from '@/lib/api'
 import { SESSION_STATUS_LABELS } from '@/lib/labels'

@@ -44,11 +44,7 @@ export function LeaderboardList({ dimension, entries }: LeaderboardListProps) {
   if (entries.length === 0) {
     return (
       <Card>
-        <EmptyState
-          icon="chart"
-          title="No rankings yet"
-          description="The leaderboard fills in once mentees have sessions and logs."
-        />
+        <EmptyState icon="chart" title="No rankings yet" />
       </Card>
     )
   }

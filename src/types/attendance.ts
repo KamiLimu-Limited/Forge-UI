@@ -1,6 +1,4 @@
-// =============================================================================
 // Attendance types, mapped directly from the Forge API OpenAPI schema
-// =============================================================================
 
 import type { PageParams } from '@/types/page'
 import type { SessionBrief } from '@/types/session'

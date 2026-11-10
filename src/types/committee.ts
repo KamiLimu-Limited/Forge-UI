@@ -1,7 +1,5 @@
-// =============================================================================
 // What the committee (and the Program Lead's oversight screens) draw. Numbers only: no
 // status labels such as on track, warning or at risk, even where the API sends them.
-// =============================================================================
 
 import type { BarListItem } from '@/components/ui/BarList'
 import type { ColumnChartItem } from '@/components/ui/ColumnChart'
@@ -21,7 +19,7 @@ export interface CohortNumbers {
 
 export interface CommitteeOverviewView {
   cohortName: string
-  // "Cohort 11, Month 5 of 8"
+  // "Month 5 of 8", or '' outside the programme months
   subtitle: string
   numbers: CohortNumbers
   // One column per KamiLimu month; months still to come have no value

@@ -214,7 +214,7 @@ function Preview(props: GraduationScreenProps & { data: GraduationPreviewView })
                   Set reveal order
                 </ButtonLink>
                 <Button disabled={!canGraduate} onClick={() => setIsConfirmOpen(true)}>
-                  Graduate Cohort
+                  Graduate cohort
                 </Button>
               </>
             )}
@@ -222,7 +222,7 @@ function Preview(props: GraduationScreenProps & { data: GraduationPreviewView })
         }
       />
       {isProgramLead && !data.hasEnded && (
-        <Notice>Graduate Cohort opens after the cohort end date.</Notice>
+        <Notice>Graduate cohort opens after the cohort end date.</Notice>
       )}
       <section aria-label="Summary" className="grid gap-4 md:grid-cols-3 md:gap-5">
         <StatTile
@@ -374,8 +374,8 @@ function GraduatedRecord(props: GraduationScreenProps & { data: GraduationPrevie
   )
 }
 
-// The graduation preview (PL-Graduation) before graduation, and the graduation record
-// (PL-Graduated) after. This only draws the screen.
+// The graduation preview (PL-Graduation) before graduation, and the graduation record (PL-
+// Graduated) after.
 export function GraduationScreen(props: GraduationScreenProps) {
   const { data, isLoading = false, error = null, onRetry, hasCohort = true } = props
   if (!hasCohort) {

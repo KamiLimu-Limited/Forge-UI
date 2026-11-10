@@ -1,8 +1,6 @@
-// =============================================================================
 // A professional mentor's sessions (GET /dashboard/professional-mentor/sessions), their
 // feedback (GET /sessions/{id}/feedback) and materials (PATCH /sessions/{id}/resources).
 // Feedback is anonymous: respondents are numbered, never named.
-// =============================================================================
 
 import type { Pillar } from '@/lib/labels'
 import type { FeedbackGroupView } from '@/types/peerMentor'

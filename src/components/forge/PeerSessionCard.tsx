@@ -53,9 +53,7 @@ export function PeerSessionCard({
   if (!session) {
     return (
       <Card>
-        <p className="font-sans text-small text-text-secondary">
-          No peer mentorship sessions yet. They&apos;ll show here once they&apos;re scheduled.
-        </p>
+        <p className="font-sans text-small text-text-secondary">No peer mentorship sessions yet.</p>
       </Card>
     )
   }

@@ -27,9 +27,9 @@ function overviewSubtitle(cohort: CohortResponse, now: Date): string {
   const current = monthForDate(cohort, now)
   const monthText =
     current !== null && months.length > 0
-      ? `, Month ${current} of ${new Set(months.map((m) => m.month)).size}`
+      ? `Month ${current} of ${new Set(months.map((m) => m.month)).size}. `
       : ''
-  return `${cohort.name}${monthText}. ${formatDay(now)}.`
+  return `${monthText}${formatDay(now)}`
 }
 
 function sessionLine(session: SessionResponse): string {
@@ -54,23 +54,9 @@ export function OverviewPage() {
     </div>
   )
 
-  if (isLoading) {
-    return (
-      <>
-        <PageHeader title="Overview" />
-        <LoadingState label="Loading cohort" />
-      </>
-    )
-  }
+  if (isLoading) return <LoadingState label="Loading cohort" />
 
-  if (!cohort) {
-    return (
-      <>
-        <PageHeader title="Overview" />
-        <NoCohortNotice />
-      </>
-    )
-  }
+  if (!cohort) return <NoCohortNotice />
 
   const stat = (query: { data: number | null; isLoading: boolean; error: string | null }) => ({
     value: query.data,
@@ -80,7 +66,7 @@ export function OverviewPage() {
 
   return (
     <>
-      <PageHeader title="Overview" subtitle={overviewSubtitle(cohort, now)} action={actions} />
+      <PageHeader title={cohort.name} subtitle={overviewSubtitle(cohort, now)} action={actions} />
 
       <section aria-label="To do" className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile
@@ -123,11 +109,7 @@ export function OverviewPage() {
           ) : data.comingUp.error ? (
             <ErrorState message={data.comingUp.error} onRetry={data.comingUp.refetch} />
           ) : (data.comingUp.data ?? []).length === 0 ? (
-            <EmptyState
-              icon="calendar"
-              title="Nothing scheduled"
-              description="Upcoming sessions for this cohort show up here."
-            />
+            <EmptyState icon="calendar" title="Nothing scheduled" />
           ) : (
             <ul className="flex flex-col">
               {(data.comingUp.data ?? []).map((session) => {
@@ -173,10 +155,7 @@ export function OverviewPage() {
           ) : data.recentChanges.error ? (
             <ErrorState message={data.recentChanges.error} onRetry={data.recentChanges.refetch} />
           ) : (data.recentChanges.data ?? []).length === 0 ? (
-            <EmptyState
-              title="No changes yet"
-              description="Admin changes show up here as they happen."
-            />
+            <EmptyState title="No changes yet" />
           ) : (
             <ul className="flex flex-col">
               {(data.recentChanges.data ?? []).map((log) => (

@@ -16,8 +16,7 @@ interface ProgressScreenProps {
   onRetry?: () => void
 }
 
-// "Your progress": attendance by month and by track. This only draws the screen; the
-// page's hook loads the data and passes it in.
+// "Your progress": attendance by month and by track.
 export function ProgressScreen({
   summary,
   months,

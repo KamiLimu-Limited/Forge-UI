@@ -24,7 +24,7 @@ interface NotificationsScreenProps {
   markAllError?: string | null
 }
 
-// The same updates the API emails. This only draws the screen; the page's hook loads them.
+// The same updates the API emails
 export function NotificationsScreen({
   notifications,
   unreadCount,
@@ -64,11 +64,7 @@ export function NotificationsScreen({
         <LoadingState label="Loading your notifications" />
       ) : notifications.length === 0 ? (
         <Card>
-          <EmptyState
-            icon="bell"
-            title="Nothing new"
-            description="Updates about your sessions and requests show up here."
-          />
+          <EmptyState icon="bell" title="Nothing new" />
         </Card>
       ) : (
         <>

@@ -31,8 +31,8 @@ interface GroupMeetingScreenProps {
 }
 
 // Where a peer mentor sets when and how their group meets for a peer mentorship session.
-// Saving needs an API route that doesn't exist yet, so it stays switched off. See
-// docs/api-gaps.md. This only draws the screen; the page's hook loads the data.
+// Saving needs an API route that doesn't exist yet, so it stays switched off. See docs/api-
+// gaps.md.
 export function GroupMeetingScreen({
   data,
   isLoading = false,
@@ -52,11 +52,7 @@ export function GroupMeetingScreen({
         <>
           <PageHeader title="Group meeting" />
           <Card>
-            <EmptyState
-              icon="calendar"
-              title="Nothing to plan yet"
-              description="When the next peer mentorship session is scheduled, you can set your group meeting here."
-            />
+            <EmptyState icon="calendar" title="Nothing to plan yet" />
           </Card>
         </>
       ) : (

@@ -10,7 +10,7 @@ const VIEWS = [
 
 interface TrackHeaderProps {
   title: string
-  subtitle: string
+  subtitle?: string
 }
 
 // The ICT badge, track title and, on phones, the switch between mentees and sessions

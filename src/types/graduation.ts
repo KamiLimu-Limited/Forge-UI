@@ -1,8 +1,6 @@
-// =============================================================================
 // Graduation. The API has only GET /cohorts/{id}/graduation-report, so the preview is
 // built from it. Confirming, the sequence data, corrections and closing aren't in the API
 // yet (see docs/api-gaps.md). Status labels other than graduated or not are never shown.
-// =============================================================================
 
 import type { UserSummary } from '@/types/session'
 

@@ -22,8 +22,7 @@ interface HomeScreenProps {
   onRetry?: () => void
 }
 
-// The mentee's home. This only draws the screen; the page's hook loads the data and
-// passes it in. Single column on phones; from lg, a 2fr and 1fr grid.
+// The mentee's home. Single column on phones; from lg, a 2fr and 1fr grid.
 export function HomeScreen({ data, isLoading = false, error = null, onRetry }: HomeScreenProps) {
   if (error) return <ErrorState message={error} onRetry={onRetry} />
   if (isLoading || !data) return <LoadingState label="Loading your home" />

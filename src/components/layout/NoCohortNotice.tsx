@@ -13,9 +13,9 @@ export function NoCohortNotice() {
       <h2 className="font-mono text-card-title font-semibold text-text-primary">
         {active.error ? "Cohorts didn't load" : 'No cohort yet'}
       </h2>
-      <p className="max-w-sm font-sans text-body text-text-secondary">
-        {active.error ?? 'Create a cohort first. This page shows data for one cohort at a time.'}
-      </p>
+      {active.error && (
+        <p className="max-w-sm font-sans text-body text-text-secondary">{active.error}</p>
+      )}
       {active.error ? (
         <Button variant="secondary" onClick={active.refresh}>
           Try again

@@ -1,6 +1,4 @@
-// =============================================================================
 // Auth and user types, mapped directly from the Forge API OpenAPI schema
-// =============================================================================
 
 export type AccountState = 'pending' | 'active' | 'suspended'
 
@@ -43,8 +41,6 @@ export interface TokenResponse {
   token_type: string
   expires_in: number
 }
-
-// ---- Request shapes ----
 
 export interface LoginRequest {
   email: string
@@ -107,8 +103,6 @@ export interface BulkInviteResponse {
   results: BulkInviteResultEntry[]
 }
 
-// ---- Response shapes ----
-
 export interface SuccessResponse {
   success: boolean
   message: string
@@ -126,8 +120,6 @@ export interface ErrorResponse {
   error: string
   detail?: string | ValidationIssue[] | null
 }
-
-// ---- API error thrown by the client ----
 
 // Plain words for the codes the API returns when it gives no detail
 const ERROR_CODE_MESSAGES: Record<string, string> = {

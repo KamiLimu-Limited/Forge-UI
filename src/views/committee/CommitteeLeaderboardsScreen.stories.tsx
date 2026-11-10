@@ -7,7 +7,6 @@ const meta: Meta<typeof CommitteeLeaderboardsScreen> = {
   component: CommitteeLeaderboardsScreen,
   parameters: { layout: 'padded' },
   args: {
-    cohortName: 'Cohort 11',
     tab: 'mentees',
     onTabChange: () => undefined,
     dimension: 'core_attendance',
@@ -24,7 +23,7 @@ export const Default: Story = {}
 export const PeerMentors: Story = { args: { tab: 'peer-mentors' } }
 export const NobodyRanked: Story = { args: { entries: [] } }
 export const Exporting: Story = { args: { downloading: 'leaderboard' } }
-export const NoCohort: Story = { args: { hasCohort: false, cohortName: null } }
+export const NoCohort: Story = { args: { hasCohort: false } }
 export const Loading: Story = { args: { entries: null, isLoading: true } }
 export const WithError: Story = {
   args: {

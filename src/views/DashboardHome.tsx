@@ -1,6 +1,5 @@
 'use client'
 
-import { PageHeader } from '@/components/layout/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { useAuth } from '@/hooks/useAuth'
@@ -25,15 +24,8 @@ export function DashboardHome() {
   if (role === 'committee') return <CommitteeOverview />
 
   return (
-    <>
-      <PageHeader title="Dashboard" />
-      <Card>
-        <EmptyState
-          icon="home"
-          title="Nothing here yet"
-          description="Your dashboard is on its way."
-        />
-      </Card>
-    </>
+    <Card>
+      <EmptyState icon="home" title="Not available yet" />
+    </Card>
   )
 }

@@ -34,7 +34,6 @@ function SessionGroup({ title, children }: SessionGroupProps) {
   )
 }
 
-// "Open and upcoming". This only draws the screen; the page's hook loads the data.
 export function SessionsScreen({
   data,
   isLoading = false,
@@ -60,11 +59,7 @@ export function SessionsScreen({
         <LoadingState label="Loading your sessions" />
       ) : isEmpty ? (
         <Card>
-          <EmptyState
-            icon="calendar"
-            title="No sessions right now"
-            description="Sessions show up here once they are published."
-          />
+          <EmptyState icon="calendar" title="No sessions right now" />
         </Card>
       ) : (
         <>

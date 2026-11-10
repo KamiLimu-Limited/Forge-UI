@@ -63,7 +63,7 @@ const COLUMNS: DataTableColumn<FailedEmailRow>[] = [
   },
 ]
 
-// Emails that failed after every retry (SA-FailedEmails). This only draws the screen.
+// Emails that failed after every retry (SA-FailedEmails).
 export function EmailDeliveryScreen({
   data,
   isLoading = false,
@@ -75,7 +75,6 @@ export function EmailDeliveryScreen({
     <>
       <PageHeader
         title="Email delivery"
-        subtitle="Emails that couldn't be delivered after every retry."
         action={
           <div className="flex flex-col items-end gap-1">
             <Button variant="secondary" disabled>

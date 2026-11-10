@@ -1,7 +1,5 @@
-// =============================================================================
 // Browser-side checks for the user CSV import. The API accepts only
 // email, first_name, last_name and roles (separated by ";").
-// =============================================================================
 
 import { ALL_ROLES } from '@/lib/roles'
 import type { UserRole } from '@/types/auth'

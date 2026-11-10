@@ -27,11 +27,7 @@ export function RecentActivityList({ rows }: RecentActivityListProps) {
   return (
     <Card title="Your recent logs" flush>
       {rows.length === 0 ? (
-        <EmptyState
-          icon="star"
-          title="Nothing logged yet"
-          description="Your logs show up here after you add one."
-        />
+        <EmptyState icon="star" title="Nothing logged yet" />
       ) : (
         <>
           <ul className="px-4 pb-2 md:hidden">

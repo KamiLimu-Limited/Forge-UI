@@ -1,8 +1,6 @@
-// =============================================================================
 // Committee analytics, leaderboard and export shapes, mapped from the Forge API OpenAPI
 // schema (/analytics/*, /cohorts/{id}/leaderboard, /exports/*). Status counts the API
 // also returns (on track, warning, at risk) are left out: no screen may show them.
-// =============================================================================
 
 import type { ActivityType } from '@/types/activity'
 import type { CohortHealthResponse, RateBucket } from '@/types/dashboard'

@@ -96,9 +96,7 @@ export function NextSessionCard({
         </>
       ) : (
         <>
-          <p className="font-sans text-small text-text-secondary">
-            Your next session shows up here once it is scheduled.
-          </p>
+          <p className="font-sans text-small text-text-secondary">No session scheduled yet.</p>
           {allSessions}
         </>
       )}

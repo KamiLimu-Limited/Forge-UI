@@ -1,6 +1,4 @@
-// =============================================================================
 // Leaderboard display rules: the shortened list, values and the mentee's own line
-// =============================================================================
 
 import { RANK_BOARDS } from '@/lib/menteeDashboard'
 import { ordinal } from '@/lib/ordinal'

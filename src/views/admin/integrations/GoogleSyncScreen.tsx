@@ -20,7 +20,6 @@ export function GoogleSyncScreen() {
     <>
       <PageHeader
         title="Google sync"
-        subtitle="Sessions and meetings the MMS sends to Google Calendar and Meet. The MMS is the source of truth."
         action={
           <div className="flex flex-col items-end gap-1">
             <Button variant="secondary" disabled>
@@ -42,14 +41,10 @@ export function GoogleSyncScreen() {
         ))}
       </section>
       <Card title="Needs attention">
-        <EmptyState icon="calendar" title="Sync status" description={NOT_AVAILABLE} />
+        <EmptyState icon="calendar" title={NOT_AVAILABLE} />
       </Card>
       <Card title="Calendars">
-        <EmptyState
-          icon="calendar"
-          title="Cohort and track calendars"
-          description={NOT_AVAILABLE}
-        />
+        <EmptyState icon="calendar" title={NOT_AVAILABLE} />
       </Card>
     </>
   )

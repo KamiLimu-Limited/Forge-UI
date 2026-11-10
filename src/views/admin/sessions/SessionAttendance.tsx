@@ -230,10 +230,7 @@ export function SessionAttendancePage({ sessionId }: SessionAttendancePageProps)
             {data.isLoading ? (
               <LoadingState label="Loading attendance" />
             ) : data.rows.length === 0 ? (
-              <EmptyState
-                title="No attendance records yet"
-                description="Records appear once the attendance window opens and participants submit, or when the window closes."
-              />
+              <EmptyState title="No attendance records yet" />
             ) : (
               <>
                 <Table label={`Attendance for ${session.title}`}>

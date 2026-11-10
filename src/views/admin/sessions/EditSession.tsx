@@ -44,7 +44,7 @@ interface StatusCardProps {
 function StatusCard({ session }: StatusCardProps) {
   const history = session.reschedule_history ?? []
   return (
-    <Card title="Status">
+    <Card>
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <StatusChip kind="session" status={session.status} />

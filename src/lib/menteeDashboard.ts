@@ -1,7 +1,5 @@
-// =============================================================================
 // Turns the mentee API responses into the rows the mentee screens draw.
 // The backend computes every rate and point value; these only reshape them.
-// =============================================================================
 
 import type { PointsBreakdownResponse, RateBucket } from '@/types/dashboard'
 import type { LeaderboardRank, SessionBuckets } from '@/types/home'

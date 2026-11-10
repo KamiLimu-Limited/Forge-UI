@@ -25,7 +25,7 @@ type Row =
 
 export function ProMentorsPage() {
   const { showToast } = useToast()
-  const { cohort, cohorts, cohortId, isLoading: cohortLoading } = useActiveCohort()
+  const { cohorts, cohortId, isLoading: cohortLoading } = useActiveCohort()
   const roster = useProMentorRoster(cohortId)
   const invites = useInvitations()
   const [isAdding, setIsAdding] = useState(false)
@@ -121,7 +121,6 @@ export function ProMentorsPage() {
     <>
       <PageHeader
         title="Rosters"
-        subtitle={`The people mentees and sessions can be linked to in ${cohort?.name ?? 'this cohort'}.`}
         action={
           cohortId && <Button onClick={() => setIsAdding(true)}>Add professional mentor</Button>
         }

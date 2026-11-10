@@ -70,9 +70,9 @@ export function ProfileScreen({
             </div>
           </Card>
 
-          <Card title="Profile details">
+          <Card>
             <div className="flex flex-col gap-4">
-              <Notice>Not available yet. You&apos;ll be able to fill these in soon.</Notice>
+              <Notice>Not available yet.</Notice>
               <div className="grid gap-4 md:grid-cols-2">
                 <Input label="University" disabled />
                 <Input label="Programme of study" disabled />

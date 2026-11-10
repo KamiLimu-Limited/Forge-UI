@@ -3,7 +3,6 @@
 import { useMenteeProgress } from '@/hooks/useMenteeProgress'
 import { ProgressScreen } from './ProgressScreen'
 
-// Loads the mentee's progress and hands it to the screen
 export function Progress() {
   const { data, isLoading, error, refetch } = useMenteeProgress()
   return (

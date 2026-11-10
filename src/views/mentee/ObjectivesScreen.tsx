@@ -37,7 +37,6 @@ function openLine(data: MenteeObjectivesData): string {
     : `${openWindow.label} rating is open.`
 }
 
-// The mentee's objectives by group. This only draws the screen; the page's hooks load and save.
 export function ObjectivesScreen({
   data,
   isLoading = false,
@@ -110,11 +109,7 @@ export function ObjectivesScreen({
         <LoadingState label="Loading your objectives" />
       ) : data.objectives.length === 0 ? (
         <Card>
-          <EmptyState
-            icon="target"
-            title="No objectives yet"
-            description="Your objectives show up here once your cohort has them."
-          />
+          <EmptyState icon="target" title="No objectives yet" />
         </Card>
       ) : (
         <form

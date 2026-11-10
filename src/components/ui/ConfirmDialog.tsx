@@ -42,7 +42,6 @@ export function ConfirmDialog({
   const [text, setText] = useState('')
   const [showMissing, setShowMissing] = useState(false)
 
-  // Start each opening with an empty reason
   useEffect(() => {
     if (isOpen) {
       setText('')

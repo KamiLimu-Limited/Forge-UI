@@ -175,10 +175,6 @@ export function AssignProPage() {
               view === 'unassigned'
                 ? 'Every upcoming session has a lead mentor'
                 : 'No upcoming sessions',
-            description:
-              view === 'unassigned'
-                ? 'Switch to all upcoming sessions to change an assignment.'
-                : 'Sessions you create show up here until they run.',
           }}
         />
       </Card>

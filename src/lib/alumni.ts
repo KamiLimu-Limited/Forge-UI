@@ -1,7 +1,5 @@
-// =============================================================================
 // An alumnus's past cohort record, from the mentee routes pointed at that cohort.
 // Each part loads on its own, so one refused route only blanks its own card.
-// =============================================================================
 
 import { api, fetchAllPages } from '@/lib/api'
 import { activityCounts, attendanceRows, objectiveRows } from '@/lib/peerMentor'

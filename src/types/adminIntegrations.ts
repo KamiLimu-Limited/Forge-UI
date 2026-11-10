@@ -1,6 +1,4 @@
-// =============================================================================
 // What the Email delivery, Google sync, Meet participants and Group meetings screens draw
-// =============================================================================
 
 export interface FailedEmailRow {
   id: string

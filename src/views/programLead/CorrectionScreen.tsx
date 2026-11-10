@@ -37,9 +37,8 @@ const RESULTS: { value: CorrectedResult; label: string }[] = [
   { value: 'not_graduated', label: 'Did not graduate' },
 ]
 
-// Correcting one confirmed graduation result, with a reason and the Program Lead's
-// password (PL-Correction). Recorded alongside the original, never over it. This only
-// draws the screen; the API can't record corrections yet.
+// Correcting one confirmed graduation result, with a reason and the Program Lead's password
+// (PL-Correction). Recorded alongside the original, never over it.
 export function CorrectionScreen({
   data,
   isLoading = false,

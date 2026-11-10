@@ -1,6 +1,4 @@
-// =============================================================================
 // Turns the peer mentor API responses into read-only views of a mentee
-// =============================================================================
 
 import { api, fetchAllPages } from '@/lib/api'
 import { formatDateTime, formatDay, toDateTimeLocal } from '@/lib/format'

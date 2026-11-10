@@ -213,7 +213,6 @@ export function IctTracksPage() {
         <Card>
           <EmptyState
             title="No ICT tracks yet"
-            description="Add the tracks this cohort offers. Mentees then choose one, and ICT sessions are linked to a track."
             action={<Button onClick={() => setIsAdding(true)}>Add track</Button>}
           />
         </Card>
@@ -251,11 +250,6 @@ export function IctTracksPage() {
             <EmptyState
               icon="check"
               title={data.mentees.length === 0 ? 'No mentees enrolled yet' : 'Everyone has chosen'}
-              description={
-                data.mentees.length === 0
-                  ? 'Mentees show here once they accept their invitation.'
-                  : undefined
-              }
             />
           ) : (
             <Table label="Mentees without a track">

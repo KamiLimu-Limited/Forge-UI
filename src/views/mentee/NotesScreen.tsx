@@ -61,7 +61,7 @@ export function NotesScreen({
         <LoadingState label="Loading your notes" />
       ) : (
         <>
-          <PageHeader title={session.title} subtitle="Your notes for this session" />
+          <PageHeader title={session.title} />
           <div className="grid items-start gap-4 lg:grid-cols-3 lg:gap-5">
             <form onSubmit={handleSubmit} className="min-w-0 lg:col-span-2">
               <Card>

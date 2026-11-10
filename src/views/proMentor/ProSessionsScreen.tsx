@@ -152,8 +152,7 @@ function Past({ rows }: { rows: ProSessionRow[] }) {
   )
 }
 
-// The sessions a professional mentor leads or co-leads, upcoming and past. This only
-// draws the screen; the page's hook loads the data.
+// The sessions a professional mentor leads or co-leads, upcoming and past.
 export function ProSessionsScreen({
   data,
   isLoading = false,
@@ -174,11 +173,7 @@ export function ProSessionsScreen({
         <LoadingState label="Loading your sessions" />
       ) : data.upcoming.length === 0 && data.past.length === 0 ? (
         <Card>
-          <EmptyState
-            icon="calendar"
-            title="No sessions yet"
-            description="Sessions show here once the System Admin assigns you to one."
-          />
+          <EmptyState icon="calendar" title="No sessions yet" />
         </Card>
       ) : (
         <>

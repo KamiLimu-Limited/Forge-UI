@@ -1,5 +1,6 @@
 // Leaderboard display rules: the shortened list, values and the mentee's own line
 
+import { formatPercentage } from '@/lib/format'
 import { RANK_BOARDS } from '@/lib/menteeDashboard'
 import { ordinal } from '@/lib/ordinal'
 import type { DimensionEntry, LeaderboardDimension } from '@/types/leaderboard'
@@ -41,7 +42,7 @@ export function valueHeading(dimension: LeaderboardDimension): string {
 }
 
 export function formatBoardValue(dimension: LeaderboardDimension, value: number): string {
-  return dimension === 'core_attendance' ? `${Math.round(value)}%` : String(value)
+  return dimension === 'core_attendance' ? (formatPercentage(value) ?? '') : String(value)
 }
 
 // "You're 12th on core attendance.", or a note when nothing is logged

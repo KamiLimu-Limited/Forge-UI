@@ -12,7 +12,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table'
-import { plural } from '@/lib/format'
+import { formatPercentage, plural } from '@/lib/format'
 import type { TrackProgressRow } from '@/types/progress'
 
 interface ProgressByTrackCardProps {
@@ -51,7 +51,7 @@ export function ProgressByTrackCard({
                 <div className="flex items-center justify-between gap-3">
                   <TrackName row={row} />
                   <strong className="font-mono font-semibold tabular-nums text-text-primary">
-                    {Math.round(row.rate)}%
+                    {formatPercentage(row.rate)}
                   </strong>
                 </div>
                 <ProgressBar
@@ -92,7 +92,7 @@ export function ProgressByTrackCard({
                           value={row.rate}
                           label={`${row.label} attendance rate`}
                         />
-                        <span className="w-12">{Math.round(row.rate)}%</span>
+                        <span className="w-12">{formatPercentage(row.rate)}</span>
                       </div>
                     </TableCell>
                     <TableCell num>{row.points}</TableCell>

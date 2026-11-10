@@ -1,13 +1,9 @@
-import { formatCount, formatLongDate } from '@/lib/format'
+import { formatCount, formatLongDate, formatPercentage } from '@/lib/format'
 import { cx } from '@/lib/cx'
 import type { GraduationResultView } from '@/types/graduation'
 
 interface GraduationResultCardProps {
   result: GraduationResultView
-}
-
-function percent(value: number | null): string | null {
-  return value === null ? null : `${Math.round(value)}%`
 }
 
 function count(value: number | null): string | null {
@@ -93,11 +89,15 @@ export function GraduationResultCard({ result }: GraduationResultCardProps) {
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-8">
         <Figure
           label="Core attendance rate"
-          value={percent(result.coreRate)}
+          value={formatPercentage(result.coreRate)}
           note={result.graduated ? undefined : `${result.threshold}% needed`}
           dark={dark}
         />
-        <Figure label="Overall attendance rate" value={percent(result.overallRate)} dark={dark} />
+        <Figure
+          label="Overall attendance rate"
+          value={formatPercentage(result.overallRate)}
+          dark={dark}
+        />
         <Figure label="Total points" value={count(result.totalPoints)} dark={dark} />
         <Figure label="Sessions attended" value={count(result.sessionsAttended)} dark={dark} />
       </div>

@@ -3,6 +3,7 @@
 // yet (see docs/api-gaps.md). Status labels other than graduated or not are never shown.
 
 import type { UserSummary } from '@/types/session'
+import type { Percentage } from '@/types/rate'
 
 export type GraduationReportStatus =
   | 'on_track'
@@ -16,8 +17,8 @@ export interface GraduationReportEntry {
   peer_mentor_id: string | null
   ict_track: string | null
   total_points: number
-  core_rate: number
-  combined_rate: number
+  core_rate: Percentage
+  combined_rate: Percentage
   status: GraduationReportStatus
 }
 
@@ -34,7 +35,7 @@ export interface GraduateRow {
   name: string
   // null until the API has universities (gap 14)
   university: string | null
-  coreRate: number
+  coreRate: Percentage
   totalPoints: number
 }
 
@@ -96,8 +97,8 @@ export interface GraduationResultView {
   // ISO date. The API has no graduation date (gap M43), so this is the cohort's end date.
   graduatedOn: string
   // 0 to 100
-  coreRate: number | null
-  overallRate: number | null
+  coreRate: Percentage | null
+  overallRate: Percentage | null
   totalPoints: number | null
   sessionsAttended: number | null
   threshold: number

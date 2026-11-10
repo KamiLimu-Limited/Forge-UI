@@ -1,3 +1,4 @@
+import { formatPercentage } from '@/lib/format'
 import type { MenteeCardView } from '@/types/peerMentor'
 
 interface MenteeNumbersProps {
@@ -7,8 +8,8 @@ interface MenteeNumbersProps {
 // Numbers only, with no colour coding or standing labels
 export function MenteeNumbers({ mentee }: MenteeNumbersProps) {
   const numbers = [
-    { label: 'Core rate', value: `${Math.round(mentee.coreRate)}%` },
-    { label: 'Overall', value: `${Math.round(mentee.overallRate)}%` },
+    { label: 'Core rate', value: formatPercentage(mentee.coreRate) ?? '-' },
+    { label: 'Overall', value: formatPercentage(mentee.overallRate) ?? '-' },
     { label: 'Points', value: String(mentee.points) },
   ]
   return (

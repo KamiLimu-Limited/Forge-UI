@@ -3,12 +3,13 @@
 
 import type { BarListItem } from '@/components/ui/BarList'
 import type { ColumnChartItem } from '@/components/ui/ColumnChart'
+import type { Percentage } from '@/types/rate'
 
 export interface CohortNumbers {
   menteesEnrolled: number
   // 0 to 100
-  coreRate: number | null
-  overallRate: number | null
+  coreRate: Percentage | null
+  overallRate: Percentage | null
   // null when the leaderboard couldn't be read
   pointsDistributed: number | null
   sessionsCompleted: number

@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/Card'
 import { DataTable, type DataTableColumn } from '@/components/ui/DataTable'
 import { useActiveCohort } from '@/hooks/useActiveCohort'
 import { useCohortsOverview, type CohortOverviewRow } from '@/hooks/useCohortsOverview'
-import { formatLongDate } from '@/lib/format'
+import { formatLongDate, formatPercentage } from '@/lib/format'
 
 export function CohortsPage() {
   const router = useRouter()
@@ -56,11 +56,7 @@ export function CohortsPage() {
       header: 'Core attendance rate',
       num: true,
       render: (row) =>
-        row.coreRate === null ? (
-          <span className="text-text-muted">No data yet</span>
-        ) : (
-          `${Math.round(row.coreRate * 100)}%`
-        ),
+        formatPercentage(row.coreRate) ?? <span className="text-text-muted">No data yet</span>,
       sortValue: (row) => row.coreRate ?? -1,
     },
     {

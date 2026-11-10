@@ -1,17 +1,13 @@
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { StatTile } from '@/components/ui/StatTile'
 import { Card } from '@/components/ui/Card'
-import { formatCount } from '@/lib/format'
+import { formatCount, formatPercentage } from '@/lib/format'
 import type { CohortNumbers } from '@/types/committee'
 
 interface CohortNumbersRowProps {
   numbers: CohortNumbers
   // The Program Lead's overview notes what each rate means
   withNotes?: boolean
-}
-
-function percent(value: number | null): string | null {
-  return value === null ? null : `${Math.round(value)}%`
 }
 
 // A cohort's headline numbers: mentees, both rates, points and sessions. Numbers only,
@@ -27,12 +23,12 @@ export function CohortNumbersRow({ numbers, withNotes = false }: CohortNumbersRo
       <StatTile label="Mentees enrolled" value={numbers.menteesEnrolled} />
       <StatTile
         label="Core attendance rate"
-        value={percent(numbers.coreRate)}
+        value={formatPercentage(numbers.coreRate)}
         note={withNotes ? `Graduation threshold ${numbers.threshold}%` : undefined}
       />
       <StatTile
         label="Overall attendance rate"
-        value={percent(numbers.overallRate)}
+        value={formatPercentage(numbers.overallRate)}
         note={withNotes ? 'Core and extra points' : undefined}
       />
       <StatTile

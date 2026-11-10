@@ -2,6 +2,7 @@
 // leaderboard. The backend computes every rate; these only reshape them for the charts.
 
 import { api, fetchAllPages } from '@/lib/api'
+import { formatPercentage } from '@/lib/format'
 import { ACTIVITY_TYPE_LABELS } from '@/lib/labels'
 import { monthBoundaries, monthForDate } from '@/lib/sessions'
 import type { BarListItem } from '@/components/ui/BarList'
@@ -22,10 +23,6 @@ import type {
   CrossCohortView,
 } from '@/types/committee'
 import type { SessionResponse } from '@/types/session'
-
-export function percent(value: number | null): string {
-  return value === null ? '' : `${Math.round(value)}%`
-}
 
 function settled<T>(result: PromiseSettledResult<T>): T | null {
   return result.status === 'fulfilled' ? result.value : null
@@ -56,7 +53,7 @@ export function monthColumns(
     return {
       label: short ? `M${month}` : `Month ${month}`,
       value: point && point.sessions > 0 ? point.rate : null,
-      display: point ? percent(point.rate) : '',
+      display: point ? (formatPercentage(point.rate) ?? '') : '',
     }
   })
 }
@@ -69,7 +66,7 @@ export function trackBars(performance: TrackPerformanceResponse | null): BarList
   return (performance?.tracks ?? []).map((track) => ({
     label: trackLabel(track.track),
     value: track.bucket.rate,
-    display: percent(track.bucket.rate),
+    display: formatPercentage(track.bucket.rate) ?? '',
   }))
 }
 

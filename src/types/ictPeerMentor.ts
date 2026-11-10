@@ -3,13 +3,14 @@
 
 import type { RateBucket } from '@/types/dashboard'
 import type { SessionBrief, UserSummary } from '@/types/session'
+import type { Percentage } from '@/types/rate'
 
 // Status labels come back too, but the PRD keeps standing labels off peer mentor screens,
 // so they're left out here
 export interface TrackMenteeEntry {
   mentee: UserSummary
   track: RateBucket
-  combined_rate: number
+  combined_rate: Percentage
 }
 
 export interface TrackOverviewResponse {
@@ -45,7 +46,7 @@ export interface MyTrackView {
   track: string
   menteeCount: number
   // ICT session attendance across the track, 0 to 100; null before any session
-  attendanceRate: number | null
+  attendanceRate: Percentage | null
   sessionsSoFar: number
   nextSession: TrackSessionBrief | null
   // Most ICT sessions attended first

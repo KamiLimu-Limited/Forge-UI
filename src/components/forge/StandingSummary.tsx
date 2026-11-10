@@ -2,6 +2,7 @@ import { Card } from '@/components/ui/Card'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { StatTile } from '@/components/ui/StatTile'
 import { TextLink } from '@/components/ui/TextLink'
+import { formatPercentage } from '@/lib/format'
 import { MENTEE_ROUTES } from '@/lib/menteeRoutes'
 import type { HomeStanding, SessionBuckets } from '@/types/home'
 
@@ -10,10 +11,6 @@ interface StandingSummaryProps {
   buckets: SessionBuckets
   // Hidden in the first month, when there is little to break down yet
   showProgressLink?: boolean
-}
-
-function rateText(rate: number | null): string | null {
-  return rate === null ? null : `${Math.round(rate)}%`
 }
 
 // The mentee's numbers, with no status labels or colour coding. One card plus four
@@ -40,8 +37,8 @@ export function StandingSummary({
           <Card>
             <dl className="grid grid-cols-2 gap-3">
               {[
-                { label: 'Core attendance rate', value: rateText(coreRate) },
-                { label: 'Overall attendance rate', value: rateText(overallRate) },
+                { label: 'Core attendance rate', value: formatPercentage(coreRate) },
+                { label: 'Overall attendance rate', value: formatPercentage(overallRate) },
               ].map((rate) => (
                 <div key={rate.label}>
                   <dt className="font-sans text-small text-text-secondary">{rate.label}</dt>
@@ -88,8 +85,8 @@ export function StandingSummary({
         aria-label="Your numbers"
         className="hidden gap-5 md:grid md:grid-cols-2 lg:grid-cols-4"
       >
-        <StatTile label="Core attendance rate" value={rateText(coreRate)} />
-        <StatTile label="Overall attendance rate" value={rateText(overallRate)} />
+        <StatTile label="Core attendance rate" value={formatPercentage(coreRate)} />
+        <StatTile label="Overall attendance rate" value={formatPercentage(overallRate)} />
         <Card>
           <div className="flex flex-col gap-1">
             <p className="font-sans text-small text-text-secondary">Points earned</p>

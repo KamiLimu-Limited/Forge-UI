@@ -4,13 +4,14 @@
 
 import type { ActivityType } from '@/types/activity'
 import type { CohortHealthResponse, RateBucket } from '@/types/dashboard'
+import type { Percentage } from '@/types/rate'
 
 export interface TrendPoint {
   month: number
   sessions: number
   points_earned: number
   points_available: number
-  rate: number
+  rate: Percentage
 }
 
 export interface AttendanceTrendResponse {
@@ -82,7 +83,7 @@ export interface LeaderboardRow {
   is_me: boolean
   total_points: number
   core_attendance: number
-  graduation_rate: number
+  graduation_rate: Percentage
   academic: number
   events: number
   opportunities: number

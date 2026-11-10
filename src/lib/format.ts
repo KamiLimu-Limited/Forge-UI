@@ -1,6 +1,8 @@
 // Date, time and name formatting for the admin screens.
 // Dates read like "Thu 27 Aug" and times like "5:30 PM", in the viewer's time zone.
 
+import type { Percentage } from '@/types/rate'
+
 const dayFormat = new Intl.DateTimeFormat('en-GB', {
   weekday: 'short',
   day: 'numeric',
@@ -122,4 +124,11 @@ export function plural(count: number, one: string, many = `${one}s`): string {
 // "12,400"
 export function formatCount(value: number): string {
   return value.toLocaleString('en-GB')
+}
+
+// 87.5 -> "88%". The value is never scaled or clamped: 0.85 means under 1%, and a value
+// outside 0 to 100 is shown as it is so a bad figure from the API stays visible.
+export function formatPercentage(value: Percentage | null | undefined): string | null {
+  if (value === null || value === undefined || !Number.isFinite(value)) return null
+  return `${Math.round(value)}%`
 }

@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/Card'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { alumniHistoryRoute } from '@/lib/alumniRoutes'
-import { formatLongDate } from '@/lib/format'
+import { formatLongDate, formatPercentage } from '@/lib/format'
 import type { AlumniHomeView, AlumniRecordTab } from '@/types/alumni'
 
 interface AlumniHomeScreenProps {
@@ -34,10 +34,6 @@ function Figure({ label, value }: { label: string; value: string | null }) {
       )}
     </div>
   )
-}
-
-function percent(value: number | null): string | null {
-  return value === null ? null : `${Math.round(value)}%`
 }
 
 // An alumnus's home: their graduation card and links into their past record. Read only.
@@ -71,8 +67,8 @@ export function AlumniHomeScreen({
           )}
         </div>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-8">
-          <Figure label="Core attendance rate" value={percent(data.coreRate)} />
-          <Figure label="Overall attendance rate" value={percent(data.overallRate)} />
+          <Figure label="Core attendance rate" value={formatPercentage(data.coreRate)} />
+          <Figure label="Overall attendance rate" value={formatPercentage(data.overallRate)} />
           <Figure
             label="Total points"
             value={data.totalPoints === null ? null : String(data.totalPoints)}

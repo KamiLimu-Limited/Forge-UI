@@ -26,11 +26,11 @@ const WEEKDAYS = [
 // The most entries a desktop cell shows before "N more"
 const VISIBLE_PER_DAY = 3
 
-const TYPE_BAR: Record<SessionType, string> = {
-  core: 'border-teal-500',
-  ict: 'border-info-text',
-  professional: 'border-text-muted',
-  peer_mentorship: 'border-text-muted',
+const TYPE_CARD: Record<SessionType, string> = {
+  core: 'bg-accent-bg',
+  ict: 'bg-info-bg',
+  professional: 'bg-border',
+  peer_mentorship: 'bg-border',
 }
 
 const TYPE_DOT: Record<SessionType, string> = {
@@ -40,10 +40,10 @@ const TYPE_DOT: Record<SessionType, string> = {
   peer_mentorship: 'bg-text-muted',
 }
 
-const LEGEND = [
-  { dot: 'bg-teal-500', label: 'Core' },
-  { dot: 'bg-info-text', label: 'ICT' },
-  { dot: 'bg-text-muted', label: 'Professional and peer mentorship' },
+const LEGEND: { type: SessionType; label: string }[] = [
+  { type: 'core', label: 'Core' },
+  { type: 'ict', label: 'ICT' },
+  { type: 'professional', label: 'Professional and peer mentorship' },
 ]
 
 function firstSelected(weeks: MonthGridDay[][]): string | null {
@@ -114,7 +114,8 @@ export function SessionMonthGrid({ weeks, hrefFor, now = new Date() }: SessionMo
                     key={day.key}
                     className={cx(
                       'border border-border p-0 align-top md:h-28',
-                      isSelected ? 'bg-accent-bg' : day.inMonth ? 'bg-surface' : 'bg-background'
+                      day.inMonth ? 'bg-surface' : 'bg-background',
+                      isSelected && 'outline outline-2 -outline-offset-2 outline-teal-500'
                     )}
                   >
                     <button
@@ -155,18 +156,21 @@ export function SessionMonthGrid({ weeks, hrefFor, now = new Date() }: SessionMo
                           href={hrefFor(session)}
                           title={session.title}
                           className={cx(
-                            'block truncate rounded-sm border-l-2 bg-background px-1.5 py-0.5 font-sans text-caption hover:text-link',
-                            TYPE_BAR[session.session_type],
-                            session.status === 'draft' && 'border-dashed text-text-secondary',
+                            'block min-w-0 truncate rounded-sm px-1.5 py-0.5 font-sans text-caption hover:text-link',
+                            TYPE_CARD[session.session_type],
                             session.status === 'cancelled'
-                              ? 'text-text-muted line-through'
-                              : 'text-text-primary'
+                              ? 'text-text-muted'
+                              : session.status === 'draft'
+                                ? 'text-text-secondary'
+                                : 'text-text-primary'
                           )}
                         >
-                          <span className="font-mono tabular-nums">
-                            {formatTime(session.starts_at)}
-                          </span>{' '}
-                          {session.status === 'draft' ? `Draft: ${session.title}` : session.title}
+                          <span className={cx(session.status === 'cancelled' && 'line-through')}>
+                            <span className="font-mono tabular-nums">
+                              {formatTime(session.starts_at)}
+                            </span>{' '}
+                            {session.status === 'draft' ? `Draft: ${session.title}` : session.title}
+                          </span>
                         </Link>
                       ))}
                       {hidden > 0 && (
@@ -187,13 +191,15 @@ export function SessionMonthGrid({ weeks, hrefFor, now = new Date() }: SessionMo
         </tbody>
       </table>
 
-      <ul className="flex flex-wrap gap-x-4 gap-y-1" aria-label="Session types">
+      <ul className="flex flex-wrap gap-2" aria-label="Session types">
         {LEGEND.map((item) => (
           <li
-            key={item.label}
-            className="flex items-center gap-1.5 font-sans text-caption text-text-secondary"
+            key={item.type}
+            className={cx(
+              'rounded-sm px-1.5 py-0.5 font-sans text-caption text-text-primary',
+              TYPE_CARD[item.type]
+            )}
           >
-            <span className={cx('h-2 w-2 rounded-full', item.dot)} aria-hidden="true" />
             {item.label}
           </li>
         ))}

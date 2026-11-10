@@ -1,4 +1,5 @@
 import type { Pillar } from '@/lib/labels'
+import type { Percentage } from '@/types/rate'
 
 // The rows on the mentee progress screen. The screen's hook builds them from the
 // API's monthly and track rate buckets, so the components don't depend on the API shape.
@@ -9,7 +10,7 @@ export interface MonthProgressRow {
   attended: number
   scheduled: number
   // Percentage, 0 to 100
-  rate: number
+  rate: Percentage
 }
 
 export interface TrackProgressRow {
@@ -20,7 +21,7 @@ export interface TrackProgressRow {
   scheduled: number
   points: number
   // Whole percentage, 0 to 100
-  rate: number
+  rate: Percentage
 }
 
 export interface ProgressSummary {

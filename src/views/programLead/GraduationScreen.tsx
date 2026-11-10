@@ -24,7 +24,7 @@ import {
 import { TextLink } from '@/components/ui/TextLink'
 import type { ConfirmFields } from '@/hooks/useGraduation'
 import { PROGRAM_LEAD_ROUTES, graduationSequenceRoute } from '@/lib/adminRoutes'
-import { formatDateTime, formatLongDate } from '@/lib/format'
+import { formatDateTime, formatLongDate, formatPercentage } from '@/lib/format'
 import type { GraduateRow, GraduationPreviewView } from '@/types/graduation'
 
 const NOT_AVAILABLE = 'Not available yet'
@@ -68,7 +68,7 @@ function MenteeTable({ rows, label }: { rows: GraduateRow[]; label: string }) {
             <TableCell>
               {row.university ?? <span className="text-text-muted">{NOT_AVAILABLE}</span>}
             </TableCell>
-            <TableCell num>{Math.round(row.coreRate)}%</TableCell>
+            <TableCell num>{formatPercentage(row.coreRate)}</TableCell>
             <TableCell num>{row.totalPoints}</TableCell>
           </TableRow>
         ))}

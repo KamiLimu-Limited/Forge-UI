@@ -3,6 +3,7 @@
 import type { Pillar } from '@/lib/labels'
 import type { AttendanceStatus } from '@/types/attendance'
 import type { MenteeActivityCount, MenteeObjectiveRow } from '@/types/peerMentor'
+import type { Percentage } from '@/types/rate'
 
 // The final result once the cohort is completed. Before that the API sends standing labels,
 // which the PRD keeps off these screens.
@@ -20,8 +21,8 @@ export interface AlumniHomeView {
   // cohort's end date. See docs/api-gaps.md.
   graduatedOn: string | null
   // Rates are 0 to 100; null when they couldn't be read
-  coreRate: number | null
-  overallRate: number | null
+  coreRate: Percentage | null
+  overallRate: Percentage | null
   totalPoints: number | null
   sessionsAttended: number | null
 }

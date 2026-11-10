@@ -15,6 +15,7 @@ import { Steps } from '@/components/ui/Steps'
 import { Textarea } from '@/components/ui/Textarea'
 import type { CorrectedResult, CorrectionDraft, UseCorrectionReturn } from '@/hooks/useGraduation'
 import { PROGRAM_LEAD_ROUTES } from '@/lib/adminRoutes'
+import { formatPercentage } from '@/lib/format'
 import type { GraduationPreviewView } from '@/types/graduation'
 
 interface CorrectionScreenProps {
@@ -98,7 +99,7 @@ export function CorrectionScreen({
                     </dd>
                     <dt className="text-text-secondary">Core attendance rate</dt>
                     <dd className="font-mono text-text-primary">
-                      {Math.round(selected.coreRate)}%
+                      {formatPercentage(selected.coreRate)}
                     </dd>
                     <dt className="text-text-secondary">Threshold</dt>
                     <dd className="font-mono text-text-primary">{data.threshold}%</dd>

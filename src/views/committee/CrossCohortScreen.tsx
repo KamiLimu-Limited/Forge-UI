@@ -13,7 +13,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table'
-import { formatCount } from '@/lib/format'
+import { formatCount, formatPercentage } from '@/lib/format'
 import type { ComparisonMeasure, CrossCohortView } from '@/types/committee'
 import { NoCohortCard, ReadOnlyTag } from './CommitteeStates'
 
@@ -29,7 +29,7 @@ interface CrossCohortScreenProps {
 
 function show(value: number | null, format: ComparisonMeasure['format']): string {
   if (value === null) return 'No data yet'
-  return format === 'percent' ? `${Math.round(value)}%` : value.toFixed(1)
+  return format === 'percent' ? (formatPercentage(value) ?? 'No data yet') : value.toFixed(1)
 }
 
 function Pair({

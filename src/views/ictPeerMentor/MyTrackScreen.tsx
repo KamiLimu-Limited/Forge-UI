@@ -14,7 +14,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table'
-import { formatDay, formatTimeRange, plural } from '@/lib/format'
+import { formatDay, formatPercentage, formatTimeRange, plural } from '@/lib/format'
 import { MENTEE_ROUTES } from '@/lib/menteeRoutes'
 import type { MyTrackView } from '@/types/ictPeerMentor'
 
@@ -71,10 +71,7 @@ export function MyTrackScreen({
         subtitle={`${plural(data.menteeCount, 'mentee')} chose this track.`}
       />
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5">
-        <StatTile
-          label="ICT session attendance"
-          value={data.attendanceRate === null ? null : `${data.attendanceRate}%`}
-        />
+        <StatTile label="ICT session attendance" value={formatPercentage(data.attendanceRate)} />
         <StatTile label="ICT sessions so far" value={data.sessionsSoFar} />
         <div className="hidden md:block">
           <Card className="h-full">

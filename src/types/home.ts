@@ -1,13 +1,14 @@
 import type { Pillar } from '@/lib/labels'
 import type { MonthProgressRow } from '@/types/progress'
+import type { Percentage } from '@/types/rate'
 
 // The data the mentee home screen draws. The screen's hook builds it from the API,
 // so the components don't depend on the API shape.
 
 export interface HomeStanding {
   // Whole percentages, 0 to 100. null until there is something to measure.
-  coreRate: number | null
-  overallRate: number | null
+  coreRate: Percentage | null
+  overallRate: Percentage | null
   pointsEarned: number
   pointsPossible: number
 }

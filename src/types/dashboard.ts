@@ -2,14 +2,15 @@
 
 import type { ActivityType } from '@/types/activity'
 import type { SessionBrief, SessionType, UserSummary } from '@/types/session'
+import type { Percentage } from '@/types/rate'
 
 export interface CohortHealthResponse {
   cohort_id: string
   total_mentees: number
   // Mentees per graduation status
   counts: Record<string, number>
-  average_core_rate: number
-  average_combined_rate: number
+  average_core_rate: Percentage
+  average_combined_rate: Percentage
   pending_override_requests: number
   pending_activities: number
 }
@@ -31,7 +32,7 @@ export interface PointsBreakdownResponse {
 export interface GraduationStatusResponse {
   mentee_id: string
   cohort_id: string
-  combined_rate: number
+  combined_rate: Percentage
   threshold: number
   warning_threshold: number
   points_to_threshold: number
@@ -55,15 +56,15 @@ export interface RateBucket {
   points_available: number
   sessions_attended: number
   sessions_due: number
-  rate: number
+  rate: Percentage
 }
 
 // Rates are percentages, 0 to 100
 export interface AttendanceRateResponse {
   mentee_id: string
   cohort_id: string
-  core_rate: number
-  combined_rate: number
+  core_rate: Percentage
+  combined_rate: Percentage
   by_month: RateBucket[]
   by_track: RateBucket[]
   by_session_type: RateBucket[]
@@ -102,8 +103,8 @@ export interface MenteeSummary {
   mentee: UserSummary
   ict_track: string | null
   total_points: number
-  core_rate: number
-  combined_rate: number
+  core_rate: Percentage
+  combined_rate: Percentage
   sessions_attended: number
   sessions_due: number
 }
@@ -111,7 +112,7 @@ export interface MenteeSummary {
 export interface GroupOverview {
   cohort_id: string
   mentees: MenteeSummary[]
-  average_combined_rate: number
+  average_combined_rate: Percentage
 }
 
 export interface MenteeDrilldown {

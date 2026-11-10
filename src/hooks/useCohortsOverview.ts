@@ -2,14 +2,15 @@
 
 import { api } from '@/lib/api'
 import type { CohortResponse } from '@/types/cohort'
+import type { Percentage } from '@/types/rate'
 import { useActiveCohort } from './useActiveCohort'
 import { useApiQuery } from './useApiQuery'
 
 export interface CohortOverviewRow {
   cohort: CohortResponse
   mentees: number | null
-  // 0 to 1, or null when the API has no figure yet
-  coreRate: number | null
+  // null when the API has no figure yet
+  coreRate: Percentage | null
 }
 
 interface UseCohortsOverviewReturn {

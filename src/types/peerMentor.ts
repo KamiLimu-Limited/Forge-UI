@@ -1,6 +1,7 @@
 import type { Pillar } from '@/lib/labels'
 import type { AttendanceStatus } from '@/types/attendance'
 import type { SessionRating } from '@/types/menteeSessions'
+import type { Percentage } from '@/types/rate'
 
 // What a peer mentor may see of a mentee. Email, phone and standing labels stay out of these
 // types, so a screen can't show them by accident.
@@ -8,8 +9,8 @@ import type { SessionRating } from '@/types/menteeSessions'
 export interface MenteeCardView {
   id: string
   name: string
-  coreRate: number
-  overallRate: number
+  coreRate: Percentage
+  overallRate: Percentage
   points: number
 }
 

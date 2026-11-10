@@ -11,6 +11,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table'
+import { formatPercentage } from '@/lib/format'
 import type { MonthProgressRow } from '@/types/progress'
 
 interface ProgressByMonthCardProps {
@@ -51,7 +52,7 @@ export function ProgressByMonthCard({
                 <span>{row.label}</span>
                 <span className="font-mono tabular-nums">
                   {row.attended} of {row.scheduled},{' '}
-                  <strong className="font-semibold">{Math.round(row.rate)}%</strong>
+                  <strong className="font-semibold">{formatPercentage(row.rate)}</strong>
                 </span>
               </li>
             ))}
@@ -72,7 +73,7 @@ export function ProgressByMonthCard({
                     <TableCell>{row.label}</TableCell>
                     <TableCell num>{row.scheduled}</TableCell>
                     <TableCell num>{row.attended}</TableCell>
-                    <TableCell num>{Math.round(row.rate)}%</TableCell>
+                    <TableCell num>{formatPercentage(row.rate)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

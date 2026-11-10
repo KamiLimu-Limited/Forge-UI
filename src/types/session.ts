@@ -162,3 +162,15 @@ export interface SessionListParams extends PageParams {
   starts_after?: string
   starts_before?: string
 }
+
+// One day in the session month grid
+export interface MonthGridDay {
+  // YYYY-MM-DD in the viewer's time zone
+  key: string
+  date: Date
+  // False for the days that pad out the first and last week
+  inMonth: boolean
+  isToday: boolean
+  // Earliest first
+  sessions: SessionResponse[]
+}

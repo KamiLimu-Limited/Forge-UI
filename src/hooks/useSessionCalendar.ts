@@ -2,9 +2,10 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { api, fetchAllPages } from '@/lib/api'
+import { buildMonthGrid } from '@/lib/monthGrid'
 import { monthBoundaries, monthForDate } from '@/lib/sessions'
 import type { CohortResponse, MonthBoundary } from '@/types/cohort'
-import type { SessionCategory, SessionResponse, SessionStatus } from '@/types/session'
+import type { MonthGridDay, SessionCategory, SessionResponse, SessionStatus } from '@/types/session'
 import { useApiQuery } from './useApiQuery'
 
 export interface CalendarFilters {
@@ -27,6 +28,7 @@ interface UseSessionCalendarReturn {
   setMonth: (month: number) => void
   boundary: MonthBoundary | null
   days: CalendarDay[]
+  weeks: MonthGridDay[][]
   sessionCount: number
   isLoading: boolean
   error: string | null
@@ -110,8 +112,9 @@ export function useSessionCalendar(
     }
   )
 
-  const sessions = monthQuery.data ?? []
+  const sessions = useMemo(() => monthQuery.data ?? [], [monthQuery.data])
   const boundary = monthBoundaries(cohort).find((b) => b.month === month) ?? null
+  const weeks = useMemo(() => buildMonthGrid(boundary, sessions), [boundary, sessions])
 
   return {
     months,
@@ -119,6 +122,7 @@ export function useSessionCalendar(
     setMonth,
     boundary,
     days: groupByDay(sessions),
+    weeks,
     sessionCount: sessions.length,
     isLoading: calendar.isLoading || (month === null && !calendar.error) || monthQuery.isLoading,
     error: calendar.error ?? monthQuery.error,

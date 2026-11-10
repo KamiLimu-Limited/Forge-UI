@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { SessionMonthGrid } from '@/components/forge/SessionMonthGrid'
 import { SessionRow } from '@/components/forge/SessionRow'
 import { NoCohortNotice } from '@/components/layout/NoCohortNotice'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -10,7 +11,9 @@ import { Card } from '@/components/ui/Card'
 import { Chip } from '@/components/ui/Chip'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/ui/ErrorState'
+import { Icon } from '@/components/ui/Icon'
 import { LoadingState } from '@/components/ui/LoadingState'
+import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { Select } from '@/components/ui/Select'
 import { useActiveCohort } from '@/hooks/useActiveCohort'
 import {
@@ -19,8 +22,8 @@ import {
   type CalendarFilters,
 } from '@/hooks/useSessionCalendar'
 import { formatDay, formatDayMonth, parseDateOnly } from '@/lib/format'
-import { ALL_PILLARS, CATEGORY_LABELS, PILLAR_LABELS, SESSION_STATUS_LABELS } from '@/lib/labels'
-import { monthLabel } from '@/lib/sessions'
+import { CATEGORY_LABELS, PILLAR_LABELS, SESSION_STATUS_LABELS } from '@/lib/labels'
+import { monthBoundaries, monthLabel } from '@/lib/sessions'
 import type { MonthBoundary } from '@/types/cohort'
 import type { SessionCategory, SessionResponse, SessionStatus } from '@/types/session'
 
@@ -38,6 +41,13 @@ function sessionHref(session: SessionResponse, now: Date): string {
     : `/admin/sessions/${session.id}`
 }
 
+type CalendarView = 'grid' | 'list'
+
+const VIEW_OPTIONS: { value: CalendarView; label: string }[] = [
+  { value: 'grid', label: 'Calendar' },
+  { value: 'list', label: 'List' },
+]
+
 const CATEGORY_FILTERS = (Object.keys(CATEGORY_LABELS) as SessionCategory[]).map((value) => ({
   value,
   label: CATEGORY_LABELS[value],
@@ -51,12 +61,22 @@ const STATUS_FILTERS = (Object.keys(SESSION_STATUS_LABELS) as SessionStatus[]).m
 export function SessionCalendarPage() {
   const { cohort, isLoading: cohortLoading } = useActiveCohort()
   const [filters, setFilters] = useState<CalendarFilters>(NO_CALENDAR_FILTERS)
+  const [view, setView] = useState<CalendarView>('grid')
   const calendar = useSessionCalendar(cohort, filters)
   const now = new Date()
 
   const index = calendar.month === null ? -1 : calendar.months.indexOf(calendar.month)
   const prev = index > 0 ? calendar.months[index - 1] : null
   const next = index >= 0 && index < calendar.months.length - 1 ? calendar.months[index + 1] : null
+
+  const boundaries = monthBoundaries(cohort)
+  const monthOptions = calendar.months.map((month) => ({
+    value: String(month),
+    label: monthLabel(
+      month,
+      boundaries.find((b) => b.month === month)
+    ),
+  }))
 
   const setFilter = <K extends keyof CalendarFilters>(key: K, value: CalendarFilters[K]) =>
     setFilters((current) => ({ ...current, [key]: value }))
@@ -81,24 +101,32 @@ export function SessionCalendarPage() {
         }
         action={
           <div className="flex flex-wrap items-center gap-3">
-            <div className="flex gap-2" role="group" aria-label="KamiLimu month">
+            <div className="flex items-center gap-2" role="group" aria-label="KamiLimu month">
               <Button
                 variant="secondary"
-                size="sm"
+                className="w-control px-0"
                 onClick={() => prev !== null && calendar.setMonth(prev)}
                 disabled={prev === null}
-                aria-label={prev !== null ? `Previous month, Month ${prev}` : 'No earlier month'}
+                aria-label="Previous month"
               >
-                {prev !== null ? `Month ${prev}` : 'Earlier'}
+                <Icon name="chevron-left" className="size-5" />
               </Button>
+              <Select
+                aria-label="Month"
+                className="min-w-40"
+                options={monthOptions}
+                value={calendar.month === null ? '' : String(calendar.month)}
+                onChange={(e) => calendar.setMonth(Number(e.target.value))}
+                disabled={monthOptions.length === 0}
+              />
               <Button
                 variant="secondary"
-                size="sm"
+                className="w-control px-0"
                 onClick={() => next !== null && calendar.setMonth(next)}
                 disabled={next === null}
-                aria-label={next !== null ? `Next month, Month ${next}` : 'No later month'}
+                aria-label="Next month"
               >
-                {next !== null ? `Month ${next}` : 'Later'}
+                <Icon name="chevron-right" className="size-5" />
               </Button>
             </div>
             <ButtonLink href="/admin/sessions/new">New session</ButtonLink>
@@ -107,6 +135,14 @@ export function SessionCalendarPage() {
       />
 
       <div className="flex flex-col gap-3">
+        <div className="w-full sm:w-64">
+          <SegmentedControl
+            label="Calendar layout"
+            options={VIEW_OPTIONS}
+            value={view}
+            onChange={setView}
+          />
+        </div>
         <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Track">
           <span className="mr-1 font-sans text-small text-text-secondary">Track</span>
           <Chip
@@ -116,25 +152,13 @@ export function SessionCalendarPage() {
           >
             All
           </Chip>
-          {ALL_PILLARS.map((pillar) =>
-            pillar === 'ict' ? (
-              <Chip
-                key={pillar}
-                variant={filters.ictOnly ? 'on' : 'default'}
-                pressed={filters.ictOnly}
-                onClick={() => setFilter('ictOnly', true)}
-              >
-                {PILLAR_LABELS[pillar]}
-              </Chip>
-            ) : (
-              <Chip key={pillar} onClick={() => undefined} disabled>
-                {PILLAR_LABELS[pillar]}
-              </Chip>
-            )
-          )}
-          <span className="font-sans text-caption text-text-muted">
-            Other pillars: not available yet
-          </span>
+          <Chip
+            variant={filters.ictOnly ? 'on' : 'default'}
+            pressed={filters.ictOnly}
+            onClick={() => setFilter('ictOnly', true)}
+          >
+            {PILLAR_LABELS.ict}
+          </Chip>
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:max-w-3xl">
           <Select
@@ -175,6 +199,13 @@ export function SessionCalendarPage() {
                 : 'No sessions match these filters. Clear them to see the whole month.'
             }
             action={<ButtonLink href="/admin/sessions/new">New session</ButtonLink>}
+          />
+        ) : view === 'grid' ? (
+          <SessionMonthGrid
+            key={calendar.month ?? 'none'}
+            weeks={calendar.weeks}
+            hrefFor={(session) => sessionHref(session, now)}
+            now={now}
           />
         ) : (
           <ol className="flex flex-col">

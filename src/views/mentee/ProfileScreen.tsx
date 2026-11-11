@@ -5,8 +5,9 @@ import { ErrorState } from '@/components/ui/ErrorState'
 import { Input } from '@/components/ui/Input'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { Notice } from '@/components/ui/Notice'
-import { Select } from '@/components/ui/Select'
+import { ProfileFields } from '@/components/forge/ProfileFields'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import type { UseProfileFormReturn } from '@/hooks/useProfileForm'
 import type { MenteeProfileData } from '@/types/menteeProfile'
 
 const NOT_AVAILABLE = 'Not available yet'
@@ -18,6 +19,10 @@ interface ProfileScreenProps {
   error?: string | null
   onRetry?: () => void
   onSignOut: () => void
+  profile: UseProfileFormReturn
+  onSaveProfile: () => void
+  isSavingProfile?: boolean
+  profileError?: string | null
 }
 
 function Detail({ label, value }: { label: string; value: string }) {
@@ -29,14 +34,18 @@ function Detail({ label, value }: { label: string; value: string }) {
   )
 }
 
-// The mentee's profile. The API stores none of the profile details and has no way to change
-// a password or a calendar feed, so those cards are built as designed but disabled. See docs/api-gaps.md.
+// The mentee's profile. The API has no way to change a password while signed in or to get a
+// calendar feed, so those cards are built as designed but disabled. See docs/api-gaps.md.
 export function ProfileScreen({
   data,
   isLoading = false,
   error = null,
   onRetry,
   onSignOut,
+  profile,
+  onSaveProfile,
+  isSavingProfile = false,
+  profileError = null,
 }: ProfileScreenProps) {
   return (
     <div className="flex flex-col gap-4 md:gap-5">
@@ -71,34 +80,26 @@ export function ProfileScreen({
           </Card>
 
           <Card>
-            <div className="flex flex-col gap-4">
-              <Notice>Not available yet.</Notice>
-              <div className="grid gap-4 md:grid-cols-2">
-                <Input label="University" disabled />
-                <Input label="Programme of study" disabled />
-                <Select
-                  label="Degree level"
-                  options={[]}
-                  placeholder="Choose one"
-                  value=""
-                  disabled
-                />
-                <Select label="Gender" options={[]} placeholder="Choose one" value="" disabled />
-                <Input label="Phone number" type="tel" disabled />
-                <Input label="Birthday" placeholder="Day and month" disabled />
-              </div>
-              <p className="font-sans text-caption text-text-muted">
-                Only you and the System Admin can see your phone number and birthday.
-              </p>
-              <div className="grid gap-4 md:grid-cols-3">
-                <Input label="LinkedIn" placeholder="Optional" disabled />
-                <Input label="GitHub" placeholder="Optional" disabled />
-                <Input label="Instagram" placeholder="Optional" disabled />
-              </div>
-              <Button disabled fullWidth className="md:w-auto md:self-start">
+            <form
+              noValidate
+              onSubmit={(event) => {
+                event.preventDefault()
+                onSaveProfile()
+              }}
+              className="flex flex-col gap-4"
+            >
+              <ProfileFields form={profile} disabled={isSavingProfile} />
+              {profileError && <Notice variant="danger">{profileError}</Notice>}
+              <Button
+                type="submit"
+                isLoading={isSavingProfile}
+                disabled={!profile.isDirty}
+                fullWidth
+                className="md:w-auto md:self-start"
+              >
                 Save profile
               </Button>
-            </div>
+            </form>
           </Card>
 
           <Card title="Change password">

@@ -1,11 +1,19 @@
 import { LeaderboardBoards } from '@/components/forge/LeaderboardBoards'
+import { PeerMentorBoard } from '@/components/forge/PeerMentorBoard'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { EmptyState } from '@/components/ui/EmptyState'
+import { ErrorState } from '@/components/ui/ErrorState'
+import { LoadingState } from '@/components/ui/LoadingState'
+import { formatDateTime } from '@/lib/format'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
-import type { ExportKind } from '@/types/analytics'
-import type { DimensionEntry, LeaderboardDimension } from '@/types/leaderboard'
+import type { ExportKind, SnapshotRow } from '@/types/analytics'
+import type {
+  DimensionEntry,
+  LeaderboardDimension,
+  PeerMentorDimension,
+  PeerMentorRow,
+} from '@/types/leaderboard'
 import { NoCohortCard, ReadOnlyTag } from './CommitteeStates'
 
 export type CommitteeBoardTab = 'mentees' | 'peer-mentors'
@@ -21,9 +29,22 @@ interface CommitteeLeaderboardsScreenProps {
   isLoading?: boolean
   error?: string | null
   onRetry?: () => void
+  peerRankedBy: PeerMentorDimension
+  onPeerRankedByChange: (dimension: PeerMentorDimension) => void
+  peerEntries: PeerMentorRow[] | null
+  peerLoading?: boolean
+  peerError?: string | null
+  onPeerRetry?: () => void
   onExport: (kind: ExportKind) => void
   // The export being downloaded, if any
   downloading?: ExportKind | null
+  // Newest first; null while loading
+  snapshots: SnapshotRow[] | null
+  snapshotsError?: string | null
+  onDownloadSnapshot: (id: string) => void
+  // Only for System Admins and the Program Lead
+  onTakeSnapshot?: () => void
+  isTakingSnapshot?: boolean
 }
 
 const TABS: { value: CommitteeBoardTab; label: string }[] = [
@@ -47,9 +68,21 @@ export function CommitteeLeaderboardsScreen({
   isLoading = false,
   error = null,
   onRetry,
+  peerRankedBy,
+  onPeerRankedByChange,
+  peerEntries,
+  peerLoading = false,
+  peerError = null,
+  onPeerRetry,
   onExport,
   downloading = null,
+  snapshots,
+  snapshotsError = null,
+  onDownloadSnapshot,
+  onTakeSnapshot,
+  isTakingSnapshot = false,
 }: CommitteeLeaderboardsScreenProps) {
+  const boardExport: ExportKind = tab === 'mentees' ? 'leaderboard' : 'peer-leaderboard'
   return (
     <div className="flex flex-col gap-4 md:gap-5">
       <PageHeader
@@ -58,8 +91,8 @@ export function CommitteeLeaderboardsScreen({
           <div className="flex flex-wrap items-center gap-3">
             <ReadOnlyTag />
             <Button
-              onClick={() => onExport('leaderboard')}
-              isLoading={downloading === 'leaderboard'}
+              onClick={() => onExport(boardExport)}
+              isLoading={downloading === boardExport}
               disabled={!hasCohort}
             >
               Export CSV
@@ -89,13 +122,66 @@ export function CommitteeLeaderboardsScreen({
                 </Card>
               ) : (
                 <Card>
-                  <EmptyState icon="users" title="Not available yet" />
+                  <div className="flex flex-col gap-4">
+                    <PeerMentorBoard
+                      rankedBy={peerRankedBy}
+                      onRankedByChange={onPeerRankedByChange}
+                      entries={peerEntries}
+                      isLoading={peerLoading}
+                      error={peerError}
+                      onRetry={onPeerRetry}
+                    />
+                  </div>
                 </Card>
               )}
             </div>
             <div className="flex min-w-0 flex-col gap-4 md:gap-5">
-              <Card title="Snapshots">
-                <p className="font-sans text-small text-text-muted">Not available yet</p>
+              <Card
+                title="Snapshots"
+                action={
+                  onTakeSnapshot && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={onTakeSnapshot}
+                      isLoading={isTakingSnapshot}
+                    >
+                      Take snapshot
+                    </Button>
+                  )
+                }
+              >
+                {snapshotsError ? (
+                  <ErrorState message={snapshotsError} />
+                ) : !snapshots ? (
+                  <LoadingState label="Loading snapshots" />
+                ) : snapshots.length === 0 ? (
+                  <p className="font-sans text-small text-text-muted">No snapshots yet</p>
+                ) : (
+                  <ul className="flex flex-col divide-y divide-border">
+                    {snapshots.map((snapshot) => (
+                      <li
+                        key={snapshot.id}
+                        className="flex items-center justify-between gap-3 py-2 font-sans text-small"
+                      >
+                        <span className="min-w-0">
+                          <span className="block text-text-primary">{snapshot.label}</span>
+                          <span className="block text-caption text-text-muted">
+                            {formatDateTime(snapshot.takenAt)}
+                          </span>
+                        </span>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => onDownloadSnapshot(snapshot.id)}
+                          aria-label={`Download ${snapshot.label.toLowerCase()} from ${formatDateTime(snapshot.takenAt)}`}
+                        >
+                          Download
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </Card>
               <Card title="Other exports">
                 <div className="flex flex-col gap-3">

@@ -8,10 +8,10 @@ import { LoadingState } from '@/components/ui/LoadingState'
 import { Notice } from '@/components/ui/Notice'
 import { Select } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
-import { APPLICATION_STAGES } from '@/lib/activityForms'
+import { APPLICATION_STAGES, FINAL_OUTCOMES } from '@/lib/activityForms'
 import { plural } from '@/lib/format'
 import { MENTEE_ROUTES } from '@/lib/menteeRoutes'
-import type { OpportunityOutcome } from '@/types/activity'
+import type { FinalOutcome, OpportunityStage } from '@/types/activity'
 import type { ApplicationView } from '@/types/menteeActivities'
 
 const NOT_AVAILABLE = 'Not available yet'
@@ -22,14 +22,16 @@ interface UpdateApplicationScreenProps {
   isLoading?: boolean
   error?: string | null
   onRetry?: () => void
-  stage: OpportunityOutcome
-  onStageChange: (stage: OpportunityOutcome) => void
+  stage: OpportunityStage
+  onStageChange: (stage: OpportunityStage) => void
+  finalOutcome: FinalOutcome
+  onFinalOutcomeChange: (outcome: FinalOutcome) => void
   onSave: () => void
   isSaving?: boolean
   saveError?: string | null
 }
 
-// Moves an application to its next stage. The API only allows this before review.
+// Moves an application to its next stage, until a System Admin reverses it
 export function UpdateApplicationScreen({
   application,
   isLoading = false,
@@ -37,6 +39,8 @@ export function UpdateApplicationScreen({
   onRetry,
   stage,
   onStageChange,
+  finalOutcome,
+  onFinalOutcomeChange,
   onSave,
   isSaving = false,
   saveError = null,
@@ -72,22 +76,21 @@ export function UpdateApplicationScreen({
               <Card>
                 <div className="flex flex-col gap-4">
                   {!application.canUpdate && (
-                    <Notice>This application has been reviewed, so it can no longer change.</Notice>
+                    <Notice>This application was reversed, so it can no longer change.</Notice>
                   )}
                   <Select
                     label="Application stage"
                     options={APPLICATION_STAGES}
                     value={stage}
                     disabled={!application.canUpdate}
-                    onChange={(event) => onStageChange(event.target.value as OpportunityOutcome)}
+                    onChange={(event) => onStageChange(event.target.value as OpportunityStage)}
                   />
                   <Select
                     label="Final outcome"
-                    options={[]}
-                    placeholder="Choose an outcome"
-                    value=""
-                    disabled
-                    hint={NOT_AVAILABLE}
+                    options={FINAL_OUTCOMES}
+                    value={finalOutcome}
+                    disabled={!application.canUpdate}
+                    onChange={(event) => onFinalOutcomeChange(event.target.value as FinalOutcome)}
                   />
                   <Textarea
                     label="Personal notes"

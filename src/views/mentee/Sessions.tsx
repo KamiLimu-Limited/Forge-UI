@@ -7,13 +7,5 @@ import { SessionsScreen } from './SessionsScreen'
 export function Sessions() {
   const participant = useParticipantRole()
   const { data, isLoading, error, refetch } = useMenteeSessions(participant)
-  return (
-    <SessionsScreen
-      data={data}
-      isLoading={isLoading}
-      error={error}
-      onRetry={refetch}
-      saveBlockedNote={participant.saveBlockedNote}
-    />
-  )
+  return <SessionsScreen data={data} isLoading={isLoading} error={error} onRetry={refetch} />
 }

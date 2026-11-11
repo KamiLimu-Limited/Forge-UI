@@ -92,7 +92,7 @@ export function useSessionAttendance(sessionId: string): UseSessionAttendanceRet
   return {
     session: sessionQuery.data,
     rows,
-    presentCount: rows.filter((r) => r.record.status === 'attended').length,
+    presentCount: rows.filter((r) => r.record.status === 'present').length,
     isLoading: sessionQuery.isLoading || recordsQuery.isLoading || directory.isLoading,
     error: sessionQuery.error ?? recordsQuery.error ?? directory.error,
     refetch: () => {

@@ -23,7 +23,7 @@ export interface MenteeAttendanceRow {
 }
 
 export interface MenteeObjectiveRow {
-  skill: string
+  id: string
   label: string
   // "Start 2, Mid not yet rated"
   summary: string
@@ -121,6 +121,8 @@ export interface FacilitatorView {
   inProgress: number
   // Average of the completed sessions' ratings
   average: number | null
+  // Across every peer mentor in the cohort, for comparison
+  peerAverage: number | null
   best: FacilitatorSessionRow | null
   // Newest first
   sessions: FacilitatorSessionRow[]
@@ -146,6 +148,8 @@ export interface SessionRatingsView {
   session: MentoredSessionRatings
   // The peer mentor's average across all their completed sessions
   averageAcrossSessions: number | null
+  // Across every peer mentor in the cohort
+  peerAverage: number | null
 }
 
 export type MeetingMode = 'physical' | 'virtual'

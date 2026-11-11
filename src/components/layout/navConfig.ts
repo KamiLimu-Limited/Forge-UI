@@ -52,7 +52,7 @@ export const NAV_BY_ROLE: Record<UserRole, NavGroup | NavGroup[]> = {
       { label: 'Leaderboard', href: MENTEE_ROUTES.leaderboard, icon: 'chart' },
     ],
   },
-  'peer_mentor_1:1': [
+  peer_mentor_1_1: [
     {
       heading: 'As a peer mentor',
       items: [
@@ -104,7 +104,6 @@ export const NAV_BY_ROLE: Record<UserRole, NavGroup | NavGroup[]> = {
     heading: 'As the Program Lead',
     items: [{ label: 'Admin', href: '/admin', icon: 'home' }],
   },
-  partner: { heading: 'As a partner', items: [] },
   alumni: {
     heading: 'As an alumnus',
     items: [

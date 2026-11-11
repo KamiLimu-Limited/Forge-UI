@@ -11,8 +11,6 @@ import { formatDay } from '@/lib/format'
 import { sessionRatingsRoute } from '@/lib/peerMentorRoutes'
 import type { FacilitatorView } from '@/types/peerMentor'
 
-const NOT_AVAILABLE = 'Not available yet'
-
 interface FacilitatorScreenProps {
   // null until the data loads
   data: FacilitatorView | null
@@ -45,7 +43,7 @@ export function FacilitatorScreen({
             <StatTile label="Sessions completed" value={data.completed} />
             <StatTile label="In progress" value={data.inProgress} />
             <StatTile label="Your average rating" value={data.average?.toFixed(1) ?? null} />
-            <StatTile label="All peer mentors" value={null} emptyLabel={NOT_AVAILABLE} />
+            <StatTile label="All peer mentors" value={data.peerAverage?.toFixed(1) ?? null} />
           </div>
 
           <div className="grid items-start gap-4 md:gap-5 lg:grid-cols-3">

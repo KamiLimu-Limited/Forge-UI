@@ -4,18 +4,39 @@ export type AccountState = 'pending' | 'active' | 'suspended'
 
 export type UserRole =
   | 'mentee'
-  | 'peer_mentor_1:1'
+  | 'peer_mentor_1_1'
   | 'peer_mentor_ict'
   | 'professional_mentor'
   | 'committee'
-  | 'partner'
+  // A committee member who also creates and edits peer mentorship tasks
+  | 'program_delivery_lead'
+  // Every System Admin power plus graduating a cohort
+  | 'program_lead'
   | 'alumni'
   | 'admin'
-  // Not in the API yet (docs/api-gaps.md). The Program Lead has every System Admin power
-  // plus graduating a cohort; the Program Delivery Lead is a committee member who creates
-  // and edits peer mentorship tasks. Typed ahead of the API so the screens can be guarded.
-  | 'program_lead'
-  | 'program_delivery_lead'
+
+export type DegreeLevel = 'diploma' | 'bachelors' | 'masters' | 'doctorate'
+
+export type Gender = 'female' | 'male' | 'non_binary' | 'prefer_not_to_say'
+
+export interface SocialLinks {
+  linkedin?: string | null
+  github?: string | null
+  instagram?: string | null
+  twitter?: string | null
+  website?: string | null
+}
+
+// The profile fields shared by the user, admin user and invite shapes
+export interface UserProfileFields {
+  university: string | null
+  programme_of_study: string | null
+  degree_level: DegreeLevel | null
+  gender: Gender | null
+  phone: string | null
+  birthday: string | null
+  social_links: SocialLinks | null
+}
 
 export interface UserRoleResponse {
   id: string
@@ -24,7 +45,7 @@ export interface UserRoleResponse {
   assigned_at: string
 }
 
-export interface UserProfileResponse {
+export interface UserProfileResponse extends UserProfileFields {
   id: string
   email: string
   first_name: string
@@ -32,7 +53,29 @@ export interface UserProfileResponse {
   account_state: AccountState
   last_login_at: string | null
   created_at: string
+  alumni_since: string | null
+  is_alumni: boolean
   roles: UserRoleResponse[]
+  active_cohort_id: string | null
+  active_role: UserRole | null
+  ict_track: string | null
+}
+
+// GET /users/me/cohorts: one cohort the user holds roles in
+export interface MyCohort {
+  cohort: { id: string; name: string; status: 'draft' | 'active' | 'completed' | 'archived' }
+  roles: UserRole[]
+  is_active_context: boolean
+}
+
+export interface ActiveCohortRequest {
+  cohort_id: string
+  role: UserRole
+}
+
+export interface ActiveCohortResponse {
+  active_cohort_id: string
+  active_role: UserRole
 }
 
 export interface TokenResponse {
@@ -65,7 +108,7 @@ export interface TokenRefreshRequest {
   refresh_token: string
 }
 
-export interface UserProfileUpdateRequest {
+export interface UserProfileUpdateRequest extends Partial<UserProfileFields> {
   first_name?: string | null
   last_name?: string | null
 }
@@ -78,7 +121,7 @@ export interface UserInviteRequest {
   cohort_id?: string | null
 }
 
-export interface BulkInviteUserEntry {
+export interface BulkInviteUserEntry extends Partial<UserProfileFields> {
   email: string
   first_name: string
   last_name: string

@@ -16,7 +16,6 @@ import { RatingScale } from '@/components/ui/RatingScale'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { Textarea } from '@/components/ui/Textarea'
 import { useAttendanceAnswers } from '@/hooks/useAttendanceAnswers'
-import { RATING_GROUPS } from '@/lib/attendanceQuestions'
 import { formatDay, formatTimeRange, plural } from '@/lib/format'
 import { MENTEE_ROUTES, menteeExtensionRoute } from '@/lib/menteeRoutes'
 import type { AttendanceAnswers, SessionRecordView } from '@/types/menteeSessions'
@@ -30,13 +29,11 @@ interface AttendanceScreenProps {
   onSubmit: (answers: AttendanceAnswers) => void
   isSubmitting?: boolean
   submitError?: string | null
-  // Shown at the top while saving is switched off, for example for peer mentors
-  saveBlockedNote?: string | null
 }
 
 const STATUS_OPTIONS: { value: AttendanceAnswers['status']; label: string }[] = [
-  { value: 'attended', label: ATTENDANCE_STATUS_LABELS.attended },
-  { value: 'not_attended', label: ATTENDANCE_STATUS_LABELS.not_attended },
+  { value: 'present', label: ATTENDANCE_STATUS_LABELS.present },
+  { value: 'absent', label: ATTENDANCE_STATUS_LABELS.absent },
 ]
 
 // Shown instead of the form. A submission is final for mentees; the System Admin corrects it.
@@ -68,15 +65,15 @@ function AttendanceForm({
   onSubmit,
   isSubmitting,
   submitError,
-  saveBlockedNote,
 }: {
   session: SessionRecordView
   onSubmit: (answers: AttendanceAnswers) => void
   isSubmitting: boolean
   submitError: string | null
-  saveBlockedNote: string | null
 }) {
-  const form = useAttendanceAnswers()
+  const form = useAttendanceAnswers(
+    session.ratingGroups.flatMap((group) => group.questions.map((question) => question.number))
+  )
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
@@ -109,7 +106,7 @@ function AttendanceForm({
         </Card>
 
         {form.isPresent &&
-          RATING_GROUPS.map((group, index) => (
+          session.ratingGroups.map((group, index) => (
             <Card key={group.title} title={group.title}>
               {index === 0 && (
                 <p className="mb-3 font-sans text-caption text-text-muted">
@@ -118,12 +115,12 @@ function AttendanceForm({
               )}
               {group.questions.map((question) => (
                 <RatingScale
-                  key={question.field}
+                  key={question.number}
                   question={question.text}
-                  value={form.answers.ratings[question.field]}
-                  onChange={(value) => form.setRating(question.field, value)}
+                  value={form.answers.ratings[question.number]}
+                  onChange={(value) => form.setRating(question.number, value)}
                   error={
-                    form.showErrors && form.answers.ratings[question.field] === undefined
+                    form.showErrors && form.answers.ratings[question.number] === undefined
                       ? 'Choose a rating'
                       : undefined
                   }
@@ -160,14 +157,7 @@ function AttendanceForm({
               </p>
             )}
             {submitError && <Notice variant="danger">{submitError}</Notice>}
-            {saveBlockedNote && <Notice>{saveBlockedNote}</Notice>}
-            <Button
-              type="submit"
-              size="lg"
-              fullWidth
-              isLoading={isSubmitting}
-              disabled={Boolean(saveBlockedNote)}
-            >
+            <Button type="submit" size="lg" fullWidth isLoading={isSubmitting}>
               Submit attendance
             </Button>
           </div>
@@ -209,7 +199,6 @@ export function AttendanceScreen({
   onSubmit,
   isSubmitting = false,
   submitError = null,
-  saveBlockedNote = null,
 }: AttendanceScreenProps) {
   return (
     <div className="flex flex-col gap-4 md:gap-5">
@@ -242,7 +231,6 @@ export function AttendanceScreen({
               onSubmit={onSubmit}
               isSubmitting={isSubmitting}
               submitError={submitError}
-              saveBlockedNote={saveBlockedNote}
             />
           ) : (
             <FormUnavailable session={session} />

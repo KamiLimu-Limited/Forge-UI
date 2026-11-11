@@ -22,7 +22,7 @@ export function useAlumniHome(): ApiQuery<AlumniHomeView> {
   return useApiQuery(
     () =>
       cohortId && user
-        ? loadAlumniHome(user.id, user.first_name, cohortId)
+        ? loadAlumniHome(user.first_name, cohortId)
         : Promise.reject(new Error('No alumni cohort')),
     [cohortId, user?.id],
     { fallbackError: cohortId ? "We couldn't load your record. Try again." : NO_COHORT }
@@ -34,9 +34,7 @@ export function useAlumniRecord(): ApiQuery<AlumniRecordView> {
   const cohortId = useAlumniCohortId()
   return useApiQuery(
     () =>
-      cohortId && user
-        ? loadAlumniRecord(user.id, cohortId)
-        : Promise.reject(new Error('No alumni cohort')),
+      cohortId && user ? loadAlumniRecord(cohortId) : Promise.reject(new Error('No alumni cohort')),
     [cohortId, user?.id],
     { fallbackError: cohortId ? "We couldn't load your record. Try again." : NO_COHORT }
   )

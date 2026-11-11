@@ -21,7 +21,7 @@ interface InviteUserFormProps {
 }
 
 // Roles that apply across every cohort rather than one
-const PROGRAMME_ROLES: UserRole[] = ['admin', 'committee', 'partner', 'alumni']
+const PROGRAMME_ROLES: UserRole[] = ['admin', 'program_lead', 'committee', 'alumni']
 
 // "First Middle Last" becomes first name "First", last name "Middle Last"
 function splitName(full: string): { first: string; last: string } {

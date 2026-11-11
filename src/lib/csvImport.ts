@@ -1,20 +1,29 @@
-// Browser-side checks for the user CSV import. The API accepts only
-// email, first_name, last_name and roles (separated by ";").
+// Browser-side checks for the user CSV import. The API takes email, first_name, last_name
+// and roles (separated by ";"), plus optional profile columns. ICT track and peer mentor
+// columns are left out: both are assigned later.
 
+import { DEGREE_LEVEL_LABELS, GENDER_LABELS } from '@/lib/profile'
 import { ALL_ROLES } from '@/lib/roles'
 import type { UserRole } from '@/types/auth'
 import { parseCsv, toCsv } from './csv'
 
 export const ACCEPTED_COLUMNS = ['email', 'first_name', 'last_name', 'roles'] as const
 
-// Profile columns from the design that the API can't store yet
+// The optional profile columns, as the API names them
 export const PROFILE_COLUMNS = [
   'university',
-  'programme',
+  'programme_of_study',
   'degree_level',
   'gender',
   'phone',
+  'birthday',
+  'linkedin',
+  'github',
+  'instagram',
 ] as const
+
+// Other names a spreadsheet might use for a column
+const COLUMN_ALIASES: Record<string, string> = { programme: 'programme_of_study' }
 
 export interface ImportRow {
   line: number
@@ -37,10 +46,11 @@ export interface ParsedImport {
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function normalise(header: string): string {
-  return header
+  const name = header
     .trim()
     .toLowerCase()
     .replace(/[\s-]+/g, '_')
+  return COLUMN_ALIASES[name] ?? name
 }
 
 export function parseImport(text: string): ParsedImport {
@@ -61,7 +71,7 @@ export function parseImport(text: string): ParsedImport {
     }
   }
 
-  const known = new Set<string>([...ACCEPTED_COLUMNS, 'name', 'full_name'])
+  const known = new Set<string>([...ACCEPTED_COLUMNS, ...PROFILE_COLUMNS, 'name', 'full_name'])
   const ignoredColumns = headers.filter((h) => h && !known.has(h))
   const seen = new Set<string>()
 
@@ -98,6 +108,17 @@ export function parseImport(text: string): ParsedImport {
       const value = get(col(key))
       if (value) profile[key] = value
     }
+    const degree = profile.degree_level?.toLowerCase()
+    if (degree && !(degree in DEGREE_LEVEL_LABELS)) {
+      problems.push(`Degree level must be one of ${Object.keys(DEGREE_LEVEL_LABELS).join(', ')}`)
+    }
+    const gender = profile.gender?.toLowerCase()
+    if (gender && !(gender in GENDER_LABELS)) {
+      problems.push(`Gender must be one of ${Object.keys(GENDER_LABELS).join(', ')}`)
+    }
+    if (profile.birthday && !/^\d{4}-\d{2}-\d{2}$/.test(profile.birthday)) {
+      problems.push('Birthday must be written as YYYY-MM-DD')
+    }
 
     return {
       line: index + 2,
@@ -120,8 +141,17 @@ export function parseImport(text: string): ParsedImport {
 // A file with only the columns the API accepts, for the ready rows
 export function buildUploadFile(rows: ImportRow[], fileName: string): File {
   const csv = toCsv([
-    [...ACCEPTED_COLUMNS],
-    ...rows.map((r) => [r.email, r.firstName, r.lastName, r.roles.join(';')]),
+    [...ACCEPTED_COLUMNS, ...PROFILE_COLUMNS],
+    ...rows.map((r) => [
+      r.email,
+      r.firstName,
+      r.lastName,
+      r.roles.join(';'),
+      ...PROFILE_COLUMNS.map((key) => {
+        const value = r.profile[key] ?? ''
+        return key === 'degree_level' || key === 'gender' ? value.toLowerCase() : value
+      }),
+    ]),
   ])
   return new File([csv], fileName.replace(/\.csv$/i, '') + '-ready.csv', { type: 'text/csv' })
 }

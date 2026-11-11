@@ -15,6 +15,7 @@ const meta: Meta<typeof RevealOrderScreen> = {
     order: alphabetical,
     onMove: () => undefined,
     onRehearse: () => undefined,
+    onSaveAndStart: () => undefined,
   },
 }
 

@@ -3,7 +3,7 @@ import { Select } from './Select'
 
 const options = [
   { value: 'mentee', label: 'Mentee' },
-  { value: 'peer_mentor_1:1', label: '1:1 Peer Mentor' },
+  { value: 'peer_mentor_1_1', label: '1:1 Peer Mentor' },
   { value: 'committee', label: 'Committee' },
 ]
 

@@ -51,7 +51,7 @@ export function SessionHistoryList({ rows, selectedId, onSelect }: SessionHistor
                   )}
                 </span>
                 <span className="flex shrink-0 items-center gap-1 text-text-muted">
-                  <AttendanceStateChip state={row.state} />
+                  <AttendanceStateChip state={row.state} isReopened={row.isReopened} />
                   <Icon
                     name="chevron-down"
                     className={cx('size-4 transition-transform', isOpen && 'rotate-180')}
@@ -94,7 +94,7 @@ export function SessionHistoryList({ rows, selectedId, onSelect }: SessionHistor
                 <TableCell className="whitespace-nowrap">{formatDay(row.startsAt)}</TableCell>
                 <TableCell>{row.pillar && <TrackBadge pillar={row.pillar} />}</TableCell>
                 <TableCell>
-                  <AttendanceStateChip state={row.state} />
+                  <AttendanceStateChip state={row.state} isReopened={row.isReopened} />
                 </TableCell>
               </TableRow>
             ))}

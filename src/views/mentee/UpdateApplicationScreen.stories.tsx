@@ -9,8 +9,10 @@ const meta: Meta<typeof UpdateApplicationScreen> = {
   parameters: { layout: 'padded', auth: { user: menteeUser } },
   args: {
     application: sampleApplication,
-    stage: 'shortlisted',
+    stage: 'technical_interview',
     onStageChange: () => undefined,
+    finalOutcome: 'waiting_for_response',
+    onFinalOutcomeChange: () => undefined,
     onSave: () => undefined,
   },
 }

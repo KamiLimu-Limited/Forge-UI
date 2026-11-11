@@ -1,9 +1,13 @@
 import { LeaderboardBoards } from '@/components/forge/LeaderboardBoards'
+import { PeerMentorBoard } from '@/components/forge/PeerMentorBoard'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { Card } from '@/components/ui/Card'
-import { EmptyState } from '@/components/ui/EmptyState'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
-import type { DimensionEntry, LeaderboardDimension } from '@/types/leaderboard'
+import type {
+  DimensionEntry,
+  LeaderboardDimension,
+  PeerMentorDimension,
+  PeerMentorRow,
+} from '@/types/leaderboard'
 
 export type PeerLeaderboardTab = 'peer-mentors' | 'mentees'
 
@@ -22,10 +26,16 @@ interface PeerLeaderboardScreenProps {
   isLoading?: boolean
   error?: string | null
   onRetry?: () => void
+  peerRankedBy: PeerMentorDimension
+  onPeerRankedByChange: (dimension: PeerMentorDimension) => void
+  peerEntries: PeerMentorRow[] | null
+  peerLoading?: boolean
+  peerError?: string | null
+  onPeerRetry?: () => void
 }
 
-// Leaderboards for a 1:1 peer mentor. The API has no peer mentor board yet, so that tab
-// says so; the mentee boards are the same as the mentee Leaderboard. See docs/api-gaps.md.
+// Leaderboards for a peer mentor: the peer mentor board with their own place marked, and
+// the same mentee boards as the mentee Leaderboard
 export function PeerLeaderboardScreen({
   tab,
   onTabChange,
@@ -35,6 +45,12 @@ export function PeerLeaderboardScreen({
   isLoading = false,
   error = null,
   onRetry,
+  peerRankedBy,
+  onPeerRankedByChange,
+  peerEntries,
+  peerLoading = false,
+  peerError = null,
+  onPeerRetry,
 }: PeerLeaderboardScreenProps) {
   return (
     <div className="flex flex-col gap-4 md:gap-5">
@@ -46,9 +62,14 @@ export function PeerLeaderboardScreen({
         onChange={onTabChange}
       />
       {tab === 'peer-mentors' ? (
-        <Card>
-          <EmptyState icon="star" title="Not available yet" />
-        </Card>
+        <PeerMentorBoard
+          rankedBy={peerRankedBy}
+          onRankedByChange={onPeerRankedByChange}
+          entries={peerEntries}
+          isLoading={peerLoading}
+          error={peerError}
+          onRetry={onPeerRetry}
+        />
       ) : (
         <LeaderboardBoards
           dimension={dimension}

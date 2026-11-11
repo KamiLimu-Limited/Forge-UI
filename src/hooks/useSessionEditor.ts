@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { api } from '@/lib/api'
 import { errorMessage } from '@/lib/errors'
 import { fromDateTimeLocal, toDateTimeLocal } from '@/lib/format'
-import { minutesBetween } from '@/lib/sessions'
 import type { CohortResponse } from '@/types/cohort'
 import type {
   MentorAssignment,
@@ -24,15 +23,16 @@ export interface SessionFormValues {
   description: string
   pillar: SessionPillarChoice
   ictTrack: string
+  sessionType: SessionType
   category: SessionCategory
   // '' lets the API work the month out from the start date
   month: string
   start: string
+  // For a peer mentorship task, the deadline
   end: string
   mode: SessionMode
   location: string
   points: number
-  attendanceDeadline: string
   leadMentorId: string
   coMentorIds: string[]
   resourceUrl: string
@@ -73,6 +73,7 @@ function blankValues(): SessionFormValues {
     description: '',
     pillar: 'none',
     ictTrack: '',
+    sessionType: 'theory',
     category: 'thursday',
     month: '',
     start: '',
@@ -80,7 +81,6 @@ function blankValues(): SessionFormValues {
     mode: 'virtual',
     location: '',
     points: DEFAULT_POINTS,
-    attendanceDeadline: '',
     leadMentorId: '',
     coMentorIds: [],
     resourceUrl: '',
@@ -93,8 +93,9 @@ function valuesFromSession(session: SessionDetailResponse): SessionFormValues {
   return {
     title: session.title,
     description: session.description ?? '',
-    pillar: session.session_type === 'ict' || session.track ? 'ict' : 'none',
+    pillar: session.track ? 'ict' : 'none',
     ictTrack: session.track ?? '',
+    sessionType: session.session_type,
     category: session.category,
     month: String(session.kami_limu_month),
     start: toDateTimeLocal(session.starts_at),
@@ -102,9 +103,6 @@ function valuesFromSession(session: SessionDetailResponse): SessionFormValues {
     mode: session.mode,
     location: session.location ?? '',
     points: session.points,
-    attendanceDeadline: session.attendance_deadline
-      ? toDateTimeLocal(session.attendance_deadline)
-      : '',
     leadMentorId: lead?.user.id ?? '',
     coMentorIds: session.mentors.filter((m) => m.mentor_role === 'co_mentor').map((m) => m.user.id),
     resourceUrl: session.resources[0]?.url ?? '',
@@ -119,12 +117,6 @@ function isHttpUrl(value: string): boolean {
   } catch {
     return false
   }
-}
-
-function sessionTypeFor(values: SessionFormValues, original?: SessionType): SessionType {
-  if (values.category === 'peer_mentorship') return 'peer_mentorship'
-  if (values.pillar === 'ict') return 'ict'
-  return original === 'professional' ? 'professional' : 'core'
 }
 
 function mentorList(values: SessionFormValues): MentorAssignment[] {
@@ -158,9 +150,6 @@ export function validateSession(
   if (start && end && end <= start) errors.end = 'The end must be after the start.'
   if (values.resourceUrl.trim() && !isHttpUrl(values.resourceUrl.trim())) {
     errors.resourceUrl = 'Enter a full link that starts with https://'
-  }
-  if (values.attendanceDeadline && !fromDateTimeLocal(values.attendanceDeadline)) {
-    errors.attendanceDeadline = 'Choose a valid deadline.'
   }
   if (options.isEdit && options.timeChanged && !values.rescheduleReason.trim()) {
     errors.rescheduleReason = 'Say why the time is changing. Everyone enrolled sees this.'
@@ -207,16 +196,14 @@ export function useSessionEditor({
       title: values.title.trim(),
       description: values.description.trim() || null,
       starts_at: startsAt,
-      duration_minutes: minutesBetween(startsAt, endsAt),
+      ends_at: endsAt,
       category: values.category,
-      session_type: sessionTypeFor(values),
+      session_type: values.sessionType,
       track: values.pillar === 'ict' ? values.ictTrack : null,
       kami_limu_month: values.month ? Number(values.month) : null,
       mode: values.mode,
       location: values.location.trim() || null,
       points: values.points,
-      attendance_deadline:
-        values.category === 'peer_mentorship' ? fromDateTimeLocal(values.attendanceDeadline) : null,
       status: publish ? 'published' : 'draft',
       mentors: mentorList(values),
       resources,
@@ -224,7 +211,7 @@ export function useSessionEditor({
     return {
       ok: true,
       session: created,
-      message: publish ? 'Session published. The cohort has been notified.' : 'Draft saved.',
+      message: publish ? 'Session published.' : 'Draft saved.',
     }
   }
 
@@ -243,14 +230,13 @@ export function useSessionEditor({
     }
 
     const patch: SessionUpdateRequest = {}
-    const nextType = sessionTypeFor(values, current.session_type)
     const nextTrack = values.pillar === 'ict' ? values.ictTrack : null
     if (values.title.trim() !== current.title) patch.title = values.title.trim()
     if ((values.description.trim() || null) !== current.description) {
       patch.description = values.description.trim() || null
     }
     if (values.category !== current.category) patch.category = values.category
-    if (nextType !== current.session_type) patch.session_type = nextType
+    if (values.sessionType !== current.session_type) patch.session_type = values.sessionType
     if (nextTrack !== current.track) patch.track = nextTrack
     if (values.mode !== current.mode) patch.mode = values.mode
     if ((values.location.trim() || null) !== current.location) {
@@ -259,14 +245,6 @@ export function useSessionEditor({
     if (values.points !== current.points) patch.points = values.points
     if (values.month && Number(values.month) !== current.kami_limu_month && !timeChanged) {
       patch.kami_limu_month = Number(values.month)
-    }
-    const deadline =
-      values.category === 'peer_mentorship' ? fromDateTimeLocal(values.attendanceDeadline) : null
-    if (
-      deadline !==
-      (current.attendance_deadline ? new Date(current.attendance_deadline).toISOString() : null)
-    ) {
-      patch.attendance_deadline = deadline
     }
     if (publish && current.status === 'draft') patch.status = 'published'
 
@@ -280,7 +258,7 @@ export function useSessionEditor({
       await step('The new time', () =>
         api.sessions.reschedule(current.id, {
           starts_at: startsAt,
-          duration_minutes: minutesBetween(startsAt, endsAt),
+          ends_at: endsAt,
           reason: values.rescheduleReason.trim(),
         })
       )
@@ -318,7 +296,7 @@ export function useSessionEditor({
       message: timeChanged
         ? 'Session rescheduled. Everyone enrolled and the mentors have been emailed.'
         : patch.status === 'published'
-          ? 'Session published. The cohort has been notified.'
+          ? 'Session published.'
           : 'Changes saved.',
     }
   }

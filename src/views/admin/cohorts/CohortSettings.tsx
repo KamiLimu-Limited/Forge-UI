@@ -10,6 +10,8 @@ import { Notice } from '@/components/ui/Notice'
 import { useActiveCohort } from '@/hooks/useActiveCohort'
 import { useCohortDetail } from '@/hooks/useCohortDetail'
 import { useCohortForm } from '@/hooks/useCohortForm'
+import { useCohortRules } from '@/hooks/useCohortRules'
+import { errorMessage } from '@/lib/errors'
 import { useToast } from '@/hooks/useToast'
 
 export function CohortSettingsPage() {
@@ -17,13 +19,23 @@ export function CohortSettingsPage() {
   const active = useActiveCohort()
   const detail = useCohortDetail(active.cohortId)
   const form = useCohortForm(detail.data)
+  const rules = useCohortRules(active.cohortId)
 
   const save = async () => {
+    if (!rules.check() || !detail.data) return
     const saved = await form.save()
-    if (!saved || !detail.data) return
+    if (!saved) return
     detail.setData({ ...detail.data, ...saved })
     active.refresh()
-    showToast('Cohort settings saved.')
+    try {
+      await rules.save(detail.data.id)
+      showToast('Cohort settings saved.')
+    } catch (err: unknown) {
+      showToast(
+        `The cohort saved, but the points or questions didn't: ${errorMessage(err, 'try again.')}`,
+        'error'
+      )
+    }
   }
 
   if (!active.isLoading && !active.cohortId) {
@@ -42,7 +54,11 @@ export function CohortSettingsPage() {
         subtitle={`These values apply to ${active.cohort?.name ?? 'this cohort'} only.`}
         action={
           detail.data && (
-            <Button onClick={() => void save()} isLoading={form.isSaving} disabled={!form.isDirty}>
+            <Button
+              onClick={() => void save()}
+              isLoading={form.isSaving}
+              disabled={!form.isDirty && !rules.isDirty}
+            >
               Save changes
             </Button>
           )
@@ -58,12 +74,10 @@ export function CohortSettingsPage() {
       ) : (
         <>
           {form.saveError && <Notice variant="danger">{form.saveError}</Notice>}
-          {detail.data.status === 'completed' && (
-            <Notice variant="warning">
-              This cohort is archived. Change its status to edit it again.
-            </Notice>
+          {detail.data.status === 'archived' && (
+            <Notice variant="warning">This cohort is archived, so it is a read-only record.</Notice>
           )}
-          <CohortFormFields form={form} variant="settings" />
+          <CohortFormFields form={form} rules={rules} variant="settings" />
         </>
       )}
     </>

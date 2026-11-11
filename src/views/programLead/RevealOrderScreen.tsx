@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/Card'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { Icon } from '@/components/ui/Icon'
 import { LoadingState } from '@/components/ui/LoadingState'
+import { Notice } from '@/components/ui/Notice'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import type { RevealMode } from '@/hooks/useGraduation'
 import { PROGRAM_LEAD_ROUTES } from '@/lib/adminRoutes'
@@ -27,8 +28,12 @@ interface RevealOrderScreenProps {
   onModeChange: (mode: RevealMode) => void
   order: GraduateRow[]
   onMove: (id: string, step: -1 | 1) => void
-  // Keeps the order in this browser and opens the rehearsal
+  // Opens the sequence with the saved order
   onRehearse: () => void
+  // Saves this order, then opens the sequence
+  onSaveAndStart: () => void
+  isSaving?: boolean
+  saveError?: string | null
 }
 
 const MODES: { value: RevealMode; label: string }[] = [
@@ -52,6 +57,9 @@ export function RevealOrderScreen({
   order,
   onMove,
   onRehearse,
+  onSaveAndStart,
+  isSaving = false,
+  saveError = null,
 }: RevealOrderScreenProps) {
   const [showAll, setShowAll] = useState(false)
   const shown = showAll ? order : order.slice(0, FIRST_SHOWN)
@@ -71,13 +79,15 @@ export function RevealOrderScreen({
                 Rehearse this order
               </Button>
             )}
-            <div className="flex flex-col gap-1">
-              <Button disabled>Save and start</Button>
-              <span className="font-sans text-caption text-text-muted">Not available yet</span>
-            </div>
+            {data && (
+              <Button onClick={onSaveAndStart} isLoading={isSaving}>
+                Save and start
+              </Button>
+            )}
           </div>
         }
       />
+      {saveError && <Notice variant="danger">{saveError}</Notice>}
       {!hasCohort ? (
         <NoCohortNotice />
       ) : error ? (

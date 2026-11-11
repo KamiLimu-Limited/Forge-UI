@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/Button'
 import { Notice } from '@/components/ui/Notice'
 import { useActiveCohort } from '@/hooks/useActiveCohort'
 import { useCohortForm } from '@/hooks/useCohortForm'
+import { useCohortRules } from '@/hooks/useCohortRules'
+import { errorMessage } from '@/lib/errors'
 import { useToast } from '@/hooks/useToast'
 import { CohortFormFields } from '@/components/forge/CohortFormFields'
 
@@ -15,13 +17,23 @@ export function CreateCohortPage() {
   const { showToast } = useToast()
   const { refresh, setCohortId } = useActiveCohort()
   const form = useCohortForm(null)
+  const rules = useCohortRules(null)
 
   // Both buttons create a draft. "Create cohort" also switches to it and opens its settings.
   const create = async (openSettings: boolean) => {
+    if (!rules.check()) return
     const cohort = await form.save('draft')
     if (!cohort) return
     refresh()
-    showToast(`${cohort.name} created as a draft.`)
+    try {
+      await rules.save(cohort.id)
+      showToast(`${cohort.name} created as a draft.`)
+    } catch (err: unknown) {
+      showToast(
+        `${cohort.name} was created, but its points didn't save: ${errorMessage(err, 'set them in Cohort settings.')}`,
+        'error'
+      )
+    }
     if (openSettings) {
       setCohortId(cohort.id)
       router.push('/admin/settings')
@@ -48,7 +60,7 @@ export function CreateCohortPage() {
         }
       />
       {form.saveError && <Notice variant="danger">{form.saveError}</Notice>}
-      <CohortFormFields form={form} variant="create" />
+      <CohortFormFields form={form} rules={rules} variant="create" />
     </>
   )
 }

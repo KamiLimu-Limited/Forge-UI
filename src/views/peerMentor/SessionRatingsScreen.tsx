@@ -56,7 +56,7 @@ export function SessionRatingsScreen({
               label="Your average across sessions"
               value={data.averageAcrossSessions?.toFixed(1) ?? null}
             />
-            <StatTile label="All peer mentors" value={null} emptyLabel="Not available yet" />
+            <StatTile label="All peer mentors" value={data.peerAverage?.toFixed(1) ?? null} />
           </div>
           {data.session.average === null ? (
             <Card>

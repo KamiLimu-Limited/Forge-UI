@@ -6,7 +6,7 @@ const meta: Meta<typeof SessionRatingsScreen> = {
   title: 'Screens/PeerMentor/SessionRatings',
   component: SessionRatingsScreen,
   parameters: { layout: 'padded' },
-  args: { data: { session: sampleMentoredSession, averageAcrossSessions: 4.3 } },
+  args: { data: { session: sampleMentoredSession, averageAcrossSessions: 4.3, peerAverage: 4.1 } },
 }
 
 export default meta
@@ -18,6 +18,7 @@ export const NoRatings: Story = {
     data: {
       session: { ...sampleMentoredSession, responses: 0, average: null, feedback: [] },
       averageAcrossSessions: 4.3,
+      peerAverage: 4.1,
     },
   },
 }

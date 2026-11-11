@@ -7,13 +7,5 @@ import { ActivitiesScreen } from './ActivitiesScreen'
 export function Activities() {
   const participant = useParticipantRole()
   const { data, isLoading, error, refetch } = useMenteeActivities(participant)
-  return (
-    <ActivitiesScreen
-      data={data}
-      isLoading={isLoading}
-      error={error}
-      onRetry={refetch}
-      saveBlockedNote={participant.saveBlockedNote}
-    />
-  )
+  return <ActivitiesScreen data={data} isLoading={isLoading} error={error} onRetry={refetch} />
 }

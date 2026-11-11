@@ -22,7 +22,13 @@ export function useSubmitAttendance(session: SessionRecordView | null): UseSubmi
   const send = useCallback(
     (answers: AttendanceAnswers) => {
       if (!session) return Promise.reject(new Error('Session not loaded'))
-      return api.attendance.submit({ ...answersToRequest(answers), session_id: session.id })
+      const fields = session.ratingGroups.flatMap((group) =>
+        group.questions.map((question) => question.number)
+      )
+      return api.attendance.submit({
+        ...answersToRequest(answers, fields),
+        session_id: session.id,
+      })
     },
     [session]
   )

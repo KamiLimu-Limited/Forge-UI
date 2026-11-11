@@ -27,13 +27,16 @@ import type { BulkInviteResultEntry } from '@/types/auth'
 
 const FIRST_ROWS = 10
 
-const PROFILE_HEADERS: Record<(typeof PROFILE_COLUMNS)[number], string> = {
+const PROFILE_HEADERS: Partial<Record<(typeof PROFILE_COLUMNS)[number], string>> = {
   university: 'University',
-  programme: 'Programme',
+  programme_of_study: 'Programme',
   degree_level: 'Degree level',
   gender: 'Gender',
   phone: 'Phone',
 }
+
+// The table shows these; the rest are still sent
+const SHOWN_COLUMNS = PROFILE_COLUMNS.filter((column) => PROFILE_HEADERS[column])
 
 interface RowStatusProps {
   row: ImportRow
@@ -131,10 +134,11 @@ export function UserImportPage() {
         ICT track and peer mentor aren&apos;t part of the import. Mentees choose their ICT track
         later on their dashboard, and 1:1 peer mentors are assigned about a month into the cohort.
       </Notice>
-      <Notice variant="warning">
+      <Notice variant="info">
         The columns sent are email, first_name, last_name and roles (separated by a semicolon,
-        mentee when blank). A name column is split into first and last name. University, programme,
-        degree level, gender and phone are checked here but not saved: not available yet.
+        mentee when blank), plus university, programme_of_study, degree_level, gender, phone,
+        birthday, linkedin, github and instagram when the file has them. A name column is split into
+        first and last name.
       </Notice>
 
       {!cohortId && (
@@ -173,7 +177,7 @@ export function UserImportPage() {
                   <TableHeaderCell>Name</TableHeaderCell>
                   <TableHeaderCell>Email</TableHeaderCell>
                   <TableHeaderCell>Role</TableHeaderCell>
-                  {PROFILE_COLUMNS.map((c) => (
+                  {SHOWN_COLUMNS.map((c) => (
                     <TableHeaderCell key={c}>{PROFILE_HEADERS[c]}</TableHeaderCell>
                   ))}
                   <TableHeaderCell>Status</TableHeaderCell>
@@ -209,7 +213,7 @@ export function UserImportPage() {
                       <TableCell className="whitespace-nowrap">
                         {row.roles.map(roleLabel).join(', ')}
                       </TableCell>
-                      {PROFILE_COLUMNS.map((c) => (
+                      {SHOWN_COLUMNS.map((c) => (
                         <TableCell key={c} className="text-text-secondary">
                           {row.profile[c] ?? <span className="text-text-muted">Blank</span>}
                         </TableCell>

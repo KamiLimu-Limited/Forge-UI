@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { Input } from '@/components/ui/Input'
 import { LoadingState } from '@/components/ui/LoadingState'
+import { Notice } from '@/components/ui/Notice'
 import { Select } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
 import { DELIVERY_LEAD_ROUTES } from '@/lib/committeeRoutes'
@@ -22,8 +23,9 @@ interface PeerTaskFormScreenProps {
   onRetry?: () => void
   onChange: (changes: Partial<PeerTaskDraft>) => void
   errors: Partial<Record<keyof PeerTaskDraft, string>>
-  canSave: boolean
   onSave: () => void
+  isSaving?: boolean
+  saveError?: string | null
 }
 
 // Creating or editing a peer mentorship task (COM-TaskForm).
@@ -35,8 +37,9 @@ export function PeerTaskFormScreen({
   onRetry,
   onChange,
   errors,
-  canSave,
   onSave,
+  isSaving = false,
+  saveError = null,
 }: PeerTaskFormScreenProps) {
   const isNew = form?.sessionId === null
   const title = !form
@@ -130,6 +133,7 @@ export function PeerTaskFormScreen({
                   placeholder="Paste a Google Drive link"
                   value={draft.resourceLink}
                   onChange={(event) => onChange({ resourceLink: event.target.value })}
+                  error={errors.resourceLink}
                 />
               </div>
               <p className="font-sans text-small text-text-secondary">
@@ -140,13 +144,11 @@ export function PeerTaskFormScreen({
                 <ButtonLink href={DELIVERY_LEAD_ROUTES.tasks} variant="secondary">
                   Cancel
                 </ButtonLink>
-                <Button type="submit" disabled={!canSave}>
+                <Button type="submit" isLoading={isSaving}>
                   {isNew ? 'Create task' : 'Save changes'}
                 </Button>
-                {!canSave && (
-                  <span className="font-sans text-caption text-text-muted">Not available yet</span>
-                )}
               </div>
+              {saveError && <Notice variant="danger">{saveError}</Notice>}
             </div>
           </Card>
         </form>

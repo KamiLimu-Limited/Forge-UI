@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Notice } from '@/components/ui/Notice'
 import { useActivityForm } from '@/hooks/useActivityForm'
-import { useParticipantRole } from '@/hooks/useParticipantRole'
 import { cx } from '@/lib/cx'
 import { MENTEE_ROUTES } from '@/lib/menteeRoutes'
 import type { ActivityFormConfig } from '@/types/menteeActivities'
@@ -20,7 +19,6 @@ interface ActivityFormScreenProps {
 // One extra activity form, drawn from its settings in lib/activityForms.ts
 export function ActivityFormScreen({ config }: ActivityFormScreenProps) {
   const form = useActivityForm(config)
-  const { saveBlockedNote } = useParticipantRole()
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
@@ -42,7 +40,7 @@ export function ActivityFormScreen({ config }: ActivityFormScreenProps) {
               {config.fields.map((field) => (
                 <div key={field.name} className={cx('min-w-0', !field.half && 'md:col-span-2')}>
                   <ActivityFormField
-                    field={field}
+                    field={form.fieldWithOptions(field)}
                     value={form.values[field.name] ?? ''}
                     onChange={(value) => form.setValue(field.name, value)}
                     isMissing={form.missing.includes(field.name)}
@@ -58,15 +56,9 @@ export function ActivityFormScreen({ config }: ActivityFormScreenProps) {
               <p className="font-sans text-small text-text-secondary">
                 The System Admin may reverse a log that doesn&apos;t qualify.
               </p>
+              {form.optionsError && <Notice variant="danger">{form.optionsError}</Notice>}
               {form.error && <Notice variant="danger">{form.error}</Notice>}
-              {saveBlockedNote && <Notice>{saveBlockedNote}</Notice>}
-              <Button
-                type="submit"
-                size="lg"
-                fullWidth
-                isLoading={form.isSaving}
-                disabled={Boolean(saveBlockedNote)}
-              >
+              <Button type="submit" size="lg" fullWidth isLoading={form.isSaving}>
                 {config.saveLabel}
               </Button>
             </div>

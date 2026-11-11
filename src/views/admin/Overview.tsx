@@ -33,8 +33,8 @@ function overviewSubtitle(cohort: CohortResponse, now: Date): string {
 }
 
 function sessionLine(session: SessionResponse): string {
-  if (session.category === 'peer_mentorship' && session.attendance_deadline) {
-    return `${formatDay(session.starts_at)}, window closes ${formatDateTime(session.attendance_deadline)}`
+  if (session.category === 'peer_mentorship') {
+    return `${formatDay(session.starts_at)}, window closes ${formatDateTime(session.ends_at)}`
   }
   return `${formatDay(session.starts_at)}, ${formatTimeRange(session.starts_at, session.ends_at)}, ${MODE_LABELS[session.mode].toLowerCase()}`
 }

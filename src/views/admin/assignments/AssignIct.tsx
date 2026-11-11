@@ -17,9 +17,8 @@ import { fullName, plural } from '@/lib/format'
 
 export function AssignIctPage() {
   const { showToast } = useToast()
-  const { cohort, cohortId, isLoading: cohortLoading } = useActiveCohort()
-  const tracks = cohort?.ict_tracks_offered ?? []
-  const data = useIctAssignments(cohortId, tracks)
+  const { cohortId, isLoading: cohortLoading } = useActiveCohort()
+  const data = useIctAssignments(cohortId)
 
   const save = async () => {
     const result = await data.save()
@@ -105,7 +104,7 @@ export function AssignIctPage() {
           </Link>
         </Notice>
       )}
-      {!data.isLoading && data.ictMentors.length === 0 && tracks.length > 0 && (
+      {!data.isLoading && data.ictMentors.length === 0 && data.trackCount > 0 && (
         <Notice variant="warning">
           No ICT peer mentors in this cohort yet. Invite them from Users, then assign them here.
         </Notice>

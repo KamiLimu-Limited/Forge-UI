@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/Table'
 import { useActiveCohort } from '@/hooks/useActiveCohort'
 import { useIctTracks, type TrackSummary } from '@/hooks/useIctTracks'
+import { useTrackSelectionWindow } from '@/hooks/useTrackSelectionWindow'
 import { useToast } from '@/hooks/useToast'
 import { fullName, plural } from '@/lib/format'
 import type { EnrollmentResponse } from '@/types/enrollment'
@@ -116,6 +117,7 @@ export function IctTracksPage() {
   const { showToast } = useToast()
   const { cohortId, isLoading: cohortLoading } = useActiveCohort()
   const data = useIctTracks(cohortId)
+  const selection = useTrackSelectionWindow()
   const [isAdding, setIsAdding] = useState(false)
   const [newTrack, setNewTrack] = useState('')
   const [newTrackError, setNewTrackError] = useState<string | null>(null)
@@ -148,6 +150,10 @@ export function IctTracksPage() {
   }
 
   const chosen = data.mentees.length - data.withoutTrack.length
+
+  const saveWindow = async () => {
+    if (await selection.save()) showToast('Selection window saved.')
+  }
 
   return (
     <>
@@ -193,16 +199,39 @@ export function IctTracksPage() {
           <p className="font-sans text-small text-text-secondary">
             {data.isLoading
               ? 'Loading'
-              : `${chosen} of ${plural(data.mentees.length, 'mentee')} chose a track. Opening and closing the window: ${NOT_YET.toLowerCase()}.`}
+              : `${chosen} of ${plural(data.mentees.length, 'mentee')} chose a track. ${selection.isOpen ? 'Selection is open.' : 'Selection is closed.'}`}
           </p>
-          <fieldset disabled className="flex flex-col gap-3 sm:flex-row sm:items-end">
-            <Input label="Opens" type="date" hint={NOT_YET} />
-            <Input label="Closes" type="date" hint={NOT_YET} />
-            <Button variant="secondary" className="sm:mb-6">
-              Reopen window
+          <fieldset
+            disabled={selection.isSaving}
+            className="flex flex-col gap-3 sm:flex-row sm:items-end"
+          >
+            <Input
+              label="Opens"
+              type="date"
+              value={selection.opens}
+              onChange={(e) => selection.setOpens(e.target.value)}
+            />
+            <Input
+              label="Closes"
+              type="date"
+              value={selection.closes}
+              onChange={(e) => selection.setCloses(e.target.value)}
+            />
+            <Button
+              variant="secondary"
+              onClick={() => void saveWindow()}
+              isLoading={selection.isSaving}
+              disabled={!selection.isDirty || Boolean(selection.invalid)}
+            >
+              {selection.isOpen ? 'Save dates' : 'Reopen window'}
             </Button>
           </fieldset>
         </div>
+        {(selection.invalid ?? selection.error) && (
+          <p role="alert" className="mt-3 font-sans text-caption text-danger-text">
+            {selection.invalid ?? selection.error}
+          </p>
+        )}
       </Card>
 
       {data.isLoading ? (

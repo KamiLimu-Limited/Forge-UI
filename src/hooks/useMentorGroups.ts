@@ -48,7 +48,7 @@ export function useMentorGroups(cohortId: string | null): UseMentorGroupsReturn 
           api.cohorts.enrollments.list(cohortId as string, {
             page,
             page_size,
-            role: 'peer_mentor_1:1',
+            role: 'peer_mentor_1_1',
           })
         ),
       ])

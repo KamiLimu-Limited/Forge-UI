@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { Notice } from '@/components/ui/Notice'
 import { useActiveCohort } from '@/hooks/useActiveCohort'
+import { useCohortIctTracks } from '@/hooks/useCohortIctTracks'
 import { useMentorOptions } from '@/hooks/useMentorOptions'
 import { useSessionEditor } from '@/hooks/useSessionEditor'
 import { useToast } from '@/hooks/useToast'
@@ -19,6 +20,7 @@ export function CreateSessionPage() {
   const { cohort, cohortId, isLoading } = useActiveCohort()
   const editor = useSessionEditor({ cohort })
   const mentors = useMentorOptions(cohortId)
+  const ictTracks = useCohortIctTracks(cohortId)
 
   const submit = async (publish: boolean) => {
     const result = await editor.save(publish)
@@ -66,6 +68,7 @@ export function CreateSessionPage() {
             errors={editor.errors}
             onChange={editor.setValue}
             cohort={cohort}
+            ictTracks={(ictTracks.data ?? []).map((track) => track.name)}
             mentors={mentors.mentors}
             mentorsLoading={mentors.isLoading}
             mentorsError={mentors.error}

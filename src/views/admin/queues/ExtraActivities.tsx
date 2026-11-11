@@ -15,7 +15,12 @@ import { useActiveCohort } from '@/hooks/useActiveCohort'
 import { useExtraActivities, type ActivityRow } from '@/hooks/useExtraActivities'
 import { useToast } from '@/hooks/useToast'
 import { formatDay, parseDateOnly, plural } from '@/lib/format'
-import { ACTIVITY_STATUS_LABELS, ACTIVITY_TYPE_LABELS, EVENT_ROLE_LABELS } from '@/lib/labels'
+import {
+  ACTIVITY_STATUS_LABELS,
+  ACTIVITY_TYPE_LABELS,
+  EVENT_ROLE_LABELS,
+  OPPORTUNITY_STAGE_LABELS,
+} from '@/lib/labels'
 import type { ActivityStatus, ActivityType, ExtraActivityResponse } from '@/types/activity'
 
 const PAGE_SIZE = 20
@@ -24,29 +29,22 @@ const TYPE_CHIPS: { value: ActivityType | null; label: string }[] = [
   { value: null, label: 'All types' },
   { value: 'consultation', label: 'Consultations' },
   { value: 'event', label: 'External events' },
-  { value: 'opportunity', label: 'Job and scholarship applications' },
+  { value: 'opportunity', label: 'Job applications' },
+  { value: 'scholarship', label: 'Scholarship applications' },
   { value: 'academic', label: 'KamiLimu to Academia' },
 ]
-
-const OUTCOME_LABELS = {
-  applied: 'Applied',
-  shortlisted: 'Shortlisted',
-  accepted: 'Offer Made',
-  rejected: 'Not successful',
-} as const
 
 function detailsFor(activity: ExtraActivityResponse): string {
   switch (activity.type) {
     case 'event':
       return `${activity.title}, as ${EVENT_ROLE_LABELS[activity.details.event_role]}`
     case 'opportunity':
-      return `${activity.details.organization}, stage ${OUTCOME_LABELS[activity.details.outcome_status]}`
+    case 'scholarship':
+      return `${activity.details.organisation}, ${OPPORTUNITY_STAGE_LABELS[activity.details.stage ?? 'applied'].toLowerCase()}`
     case 'consultation':
-      return activity.details.mentor_name
-        ? `${activity.title}, with ${activity.details.mentor_name}`
-        : activity.title
+      return `${activity.title}, ${activity.details.consultation_type}`
     case 'academic':
-      return `${activity.details.course_name}: ${activity.title}`
+      return `${activity.title}, ${activity.details.kami_limu_pillar}`
   }
 }
 
@@ -90,7 +88,7 @@ export function ExtraActivitiesPage() {
       header: 'Points',
       num: true,
       render: (row) =>
-        row.activity.status === 'rejected' ? (
+        row.activity.status === 'reversed' ? (
           <span className="text-text-muted line-through">{row.activity.points_awarded}</span>
         ) : (
           row.activity.points_awarded
@@ -102,8 +100,8 @@ export function ExtraActivitiesPage() {
       header: 'Actions',
       alignEnd: true,
       render: (row) =>
-        row.activity.status === 'rejected' ? (
-          <StatusChip kind="activity" status="rejected" />
+        row.activity.status === 'reversed' ? (
+          <StatusChip kind="activity" status="reversed" />
         ) : (
           <Button
             variant="secondary"
@@ -123,7 +121,7 @@ export function ExtraActivitiesPage() {
   const confirmReverse = async (reason: string) => {
     if (!reversing) return
     if (await data.reverse(reversing.activity.id, reason)) {
-      showToast(`Reversed. ${reversing.menteeName} has been notified.`)
+      showToast(`Reversed. ${reversing.menteeName}'s points for it are removed.`)
       setReversing(null)
     }
   }

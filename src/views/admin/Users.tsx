@@ -30,7 +30,7 @@ const PAGE_SIZE = 20
 const ROLE_CHIPS: { value: UserRole | null; label: string }[] = [
   { value: null, label: 'All' },
   { value: 'mentee', label: 'Mentees' },
-  { value: 'peer_mentor_1:1', label: '1:1 peer mentors' },
+  { value: 'peer_mentor_1_1', label: '1:1 peer mentors' },
   { value: 'peer_mentor_ict', label: 'ICT peer mentors' },
   { value: 'professional_mentor', label: 'Professional mentors' },
   { value: 'committee', label: 'Committee' },

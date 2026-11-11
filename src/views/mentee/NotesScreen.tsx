@@ -25,12 +25,9 @@ interface NotesScreenProps {
   isSaving?: boolean
   saveError?: string | null
   savedAt?: string | null
-  // Shown at the top while saving is switched off, for example for peer mentors
-  saveBlockedNote?: string | null
 }
 
-// A mentee's private notes for one session. Notes need an attendance record and an open
-// window, so the box is disabled otherwise.
+// A mentee's private notes for one session, editable at any time
 export function NotesScreen({
   session,
   isLoading = false,
@@ -42,11 +39,7 @@ export function NotesScreen({
   isSaving = false,
   saveError = null,
   savedAt = null,
-  saveBlockedNote = null,
 }: NotesScreenProps) {
-  // The API only edits a record while its window is open. See docs/api-gaps.md.
-  const canEdit = session?.recordId !== null && session?.windowState === 'open'
-
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
     onSave()
@@ -66,25 +59,12 @@ export function NotesScreen({
             <form onSubmit={handleSubmit} className="min-w-0 lg:col-span-2">
               <Card>
                 <div className="flex flex-col gap-3">
-                  {saveBlockedNote ? (
-                    <Notice>{saveBlockedNote}</Notice>
-                  ) : (
-                    !canEdit && (
-                      <Notice>
-                        Not available yet.{' '}
-                        {session.recordId
-                          ? 'Notes can only be changed while the attendance window is open.'
-                          : "You can add notes once you've submitted attendance for this session."}
-                      </Notice>
-                    )
-                  )}
                   <Textarea
                     label="Your notes"
                     hint="Only you can see your notes."
                     placeholder="Write anything you want to remember from this session"
                     rows={12}
                     value={notes}
-                    disabled={!canEdit || Boolean(saveBlockedNote)}
                     onChange={(event) => onNotesChange(event.target.value)}
                   />
                   {saveError && <Notice variant="danger">{saveError}</Notice>}
@@ -92,11 +72,7 @@ export function NotesScreen({
                     <span className="font-sans text-caption text-text-muted">
                       {savedAt ? `Last saved ${formatRelativeDateTime(savedAt)}` : ''}
                     </span>
-                    <Button
-                      type="submit"
-                      isLoading={isSaving}
-                      disabled={!canEdit || Boolean(saveBlockedNote)}
-                    >
+                    <Button type="submit" isLoading={isSaving}>
                       Save notes
                     </Button>
                   </div>

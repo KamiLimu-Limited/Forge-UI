@@ -22,7 +22,7 @@ interface UseMentorOptionsReturn {
   refetch: () => void
 }
 
-const DEFAULT_ROLES: UserRole[] = ['professional_mentor', 'peer_mentor_ict', 'peer_mentor_1:1']
+const DEFAULT_ROLES: UserRole[] = ['professional_mentor', 'peer_mentor_ict', 'peer_mentor_1_1']
 
 // People who can lead or co-mentor a session in a cohort, from GET /admin/users
 export function useMentorOptions(

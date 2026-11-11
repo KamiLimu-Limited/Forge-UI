@@ -14,7 +14,14 @@ const meta: Meta<typeof ChooseTrackScreen> = {
   component: ChooseTrackScreen,
   parameters: { layout: 'padded' },
   args: {
-    data: { tracks, currentTrack: null, closesOn: null },
+    data: {
+      tracks,
+      currentTrack: null,
+      isOpen: false,
+      opensOn: null,
+      closesOn: null,
+      cohortId: 'c-2026',
+    },
     selected: null,
     onSelect: () => undefined,
     canSave: false,
@@ -28,7 +35,14 @@ type Story = StoryObj<typeof ChooseTrackScreen>
 export const NotAvailableYet: Story = {}
 export const CurrentTrack: Story = {
   args: {
-    data: { tracks, currentTrack: 'Software Engineering', closesOn: null },
+    data: {
+      tracks,
+      currentTrack: 'Software Engineering',
+      isOpen: false,
+      opensOn: null,
+      closesOn: null,
+      cohortId: 'c-2026',
+    },
     selected: 'Software Engineering',
   },
 }
@@ -44,6 +58,9 @@ export const WindowOpen: Story = {
         ],
       })),
       currentTrack: null,
+      cohortId: 'c-2026',
+      isOpen: true,
+      opensOn: '2026-05-01',
       closesOn: '2026-05-15',
     },
     selected: 'Cybersecurity',
@@ -51,7 +68,16 @@ export const WindowOpen: Story = {
   },
 }
 export const NoTracks: Story = {
-  args: { data: { tracks: [], currentTrack: null, closesOn: null } },
+  args: {
+    data: {
+      tracks: [],
+      currentTrack: null,
+      isOpen: false,
+      opensOn: null,
+      closesOn: null,
+      cohortId: 'c-2026',
+    },
+  },
 }
 export const Loading: Story = { args: { data: null, isLoading: true } }
 export const WithError: Story = {

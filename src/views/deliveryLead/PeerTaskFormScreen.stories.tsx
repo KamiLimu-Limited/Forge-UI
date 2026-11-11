@@ -11,7 +11,6 @@ const meta: Meta<typeof PeerTaskFormScreen> = {
     draft: samplePeerTaskForm.initial,
     onChange: () => undefined,
     errors: {},
-    canSave: false,
     onSave: () => undefined,
   },
 }

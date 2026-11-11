@@ -1,5 +1,6 @@
 import type { Pillar } from '@/lib/labels'
-import type { AttendanceRatings, AttendanceStatus, OverrideRequestStatus } from '@/types/attendance'
+import type { RatingGroupView } from '@/lib/attendanceQuestions'
+import type { AttendanceStatus, OverrideRequestStatus } from '@/types/attendance'
 import type { OpenSession } from '@/types/home'
 import type { SessionType } from '@/types/session'
 
@@ -43,6 +44,8 @@ export interface HistoryRow {
   track: string | null
   sessionType: SessionType
   state: AttendanceStatus
+  // Submitted under an approved extension: "Present (Reopened)"
+  isReopened: boolean
   pointsEarned: number
   ratings: SessionRating[]
   feedback: string | null
@@ -62,12 +65,13 @@ export interface HistoryFilters {
   type: string
 }
 
-export type RatingField = keyof AttendanceRatings
+// A rating question's number, 1 to 9
+export type RatingField = number
 
 export type WindowState = 'open' | 'upcoming' | 'closed'
 
 export interface AttendanceAnswers {
-  status: 'attended' | 'not_attended'
+  status: 'present' | 'absent'
   ratings: Partial<Record<RatingField, number>>
   feedback: string
 }
@@ -97,6 +101,8 @@ export interface SessionRecordView {
   // The mentee's attendance record, if they have one
   recordId: string | null
   recordState: AttendanceStatus | null
+  // The cohort's nine rating questions, grouped
+  ratingGroups: RatingGroupView[]
   notes: string | null
   // ISO date-time of the last save
   savedAt: string | null

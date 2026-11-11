@@ -21,21 +21,21 @@ export const sampleAlumniRecord: AlumniRecordView = {
       title: 'Pitch practice 3',
       startsAt: '2026-04-09T17:30:00+03:00',
       pillar: 'innovation',
-      state: 'attended',
+      state: 'present',
     },
     {
       sessionId: 's-4',
       title: 'Scholarship essays',
       startsAt: '2026-04-02T17:30:00+03:00',
       pillar: 'scholarship',
-      state: 'attended',
+      state: 'present',
     },
     {
       sessionId: 's-3',
       title: 'Cybersecurity: ICT Training 7',
       startsAt: '2026-03-26T17:30:00+03:00',
       pillar: 'ict',
-      state: 'attended',
+      state: 'present',
     },
     {
       sessionId: 's-2',
@@ -52,8 +52,8 @@ export const sampleAlumniRecord: AlumniRecordView = {
     { label: 'KamiLimu to Academia', count: 4 },
   ],
   objectives: [
-    { skill: 'communication', label: 'Communication', summary: 'Start 2, Mid 3, End 4' },
-    { skill: 'leadership', label: 'Leadership', summary: 'Start 3, Mid 4, End 4' },
-    { skill: 'technical', label: 'Technical', summary: 'Start 2, Mid 3, End 5' },
+    { id: 'communication', label: 'Communication', summary: 'Start 2, Mid 3, End 4' },
+    { id: 'leadership', label: 'Leadership', summary: 'Start 3, Mid 4, End 4' },
+    { id: 'technical', label: 'Technical', summary: 'Start 2, Mid 3, End 5' },
   ],
 }

@@ -1,3 +1,4 @@
+import { ratingGroups, type RatingGroupView } from '../src/lib/attendanceQuestions'
 import { PILLAR_LABELS } from '../src/lib/labels'
 import type { MenteeHomeData } from '../src/types/home'
 import type { DimensionEntry } from '../src/types/leaderboard'
@@ -186,8 +187,9 @@ export const sampleHistory: HistoryRow[] = [
     month: 5,
     pillar: 'ict',
     track: 'Cybersecurity',
-    sessionType: 'ict',
-    state: 'attended',
+    sessionType: 'theory',
+    state: 'present',
+    isReopened: false,
     pointsEarned: 10,
     ratings: sampleRatings,
     feedback: 'The practical exercises were the most useful part.',
@@ -202,8 +204,9 @@ export const sampleHistory: HistoryRow[] = [
     month: 5,
     pillar: null,
     track: null,
-    sessionType: 'core',
-    state: 'not_attended',
+    sessionType: 'theory',
+    state: 'absent',
+    isReopened: false,
     pointsEarned: 0,
     ratings: [],
     feedback: null,
@@ -218,8 +221,9 @@ export const sampleHistory: HistoryRow[] = [
     month: 4,
     pillar: 'ict',
     track: 'Cybersecurity',
-    sessionType: 'ict',
+    sessionType: 'theory',
     state: 'missed',
+    isReopened: false,
     pointsEarned: 0,
     ratings: [],
     feedback: null,
@@ -234,8 +238,9 @@ export const sampleHistory: HistoryRow[] = [
     month: 4,
     pillar: null,
     track: null,
-    sessionType: 'core',
+    sessionType: 'theory',
     state: 'excused',
+    isReopened: false,
     pointsEarned: 0,
     ratings: [],
     feedback: null,
@@ -245,6 +250,25 @@ export const sampleHistory: HistoryRow[] = [
 ]
 
 // ---- Attendance and notes screens ----
+
+// Stand-in wording for stories; the real questions come from the cohort
+export const sampleRatingGroups: RatingGroupView[] = ratingGroups(
+  [
+    'How would you rate this session overall?',
+    'How engaging was the session?',
+    'How well was it run?',
+    'How well did you understand the content?',
+    'How much did you learn that was new to you?',
+    'How confident are you to explain it to someone else?',
+    'How likely are you to use this in your studies?',
+    'How likely are you to use this in your career?',
+    'How likely are you to recommend this session to a peer?',
+  ].map((text, index) => ({
+    number: index + 1,
+    group: index < 3 ? 'reaction' : index < 6 ? 'learning' : 'intended_behaviour',
+    text,
+  }))
+)
 
 export const sampleSessionRecord: SessionRecordView = {
   id: 's-open-1',
@@ -261,6 +285,7 @@ export const sampleSessionRecord: SessionRecordView = {
   opensLabel: 'Opens at 7:00 PM',
   recordId: null,
   recordState: null,
+  ratingGroups: sampleRatingGroups,
   notes: null,
   savedAt: null,
 }
@@ -268,7 +293,7 @@ export const sampleSessionRecord: SessionRecordView = {
 export const sampleSubmittedRecord: SessionRecordView = {
   ...sampleSessionRecord,
   recordId: 'r-1',
-  recordState: 'attended',
+  recordState: 'present',
   notes: 'Revisit the threat modelling worksheet.',
   savedAt: '2026-08-26T22:30:00+03:00',
 }
@@ -330,7 +355,7 @@ export const sampleActivities: MenteeActivitiesData = {
       details: 'Safari Tech, Software Intern',
       date: '2026-08-24',
       points: 3,
-      status: 'pending',
+      status: 'active',
       canUpdate: true,
     },
     {
@@ -340,7 +365,7 @@ export const sampleActivities: MenteeActivitiesData = {
       details: 'UoN Career Fair, as participant',
       date: '2026-08-15',
       points: 1,
-      status: 'approved',
+      status: 'active',
       canUpdate: false,
     },
     {
@@ -350,7 +375,7 @@ export const sampleActivities: MenteeActivitiesData = {
       details: 'Career and Employability',
       date: '2026-08-11',
       points: 0,
-      status: 'rejected',
+      status: 'reversed',
       canUpdate: false,
     },
   ],
@@ -361,7 +386,8 @@ export const sampleApplication: ApplicationView = {
   kind: 'job',
   title: 'Software Intern',
   organization: 'Safari Tech',
-  stage: 'shortlisted',
+  stage: 'technical_interview',
+  finalOutcome: 'waiting_for_response',
   points: 3,
   canUpdate: true,
 }
@@ -380,28 +406,28 @@ export const sampleObjectives: MenteeObjectivesData = {
   cohortId: 'c-2026',
   objectives: [
     {
-      skill: 'communication',
+      id: 'communication',
       label: 'Communication',
       group: 'Human',
-      scores: { early: 2, mid: null, late: null },
+      scores: { start: 2, mid: null, end: null },
     },
     {
-      skill: 'leadership',
+      id: 'leadership',
       label: 'Leadership',
       group: 'Human',
-      scores: { early: 3, mid: 4, late: null },
+      scores: { start: 3, mid: 4, end: null },
     },
     {
-      skill: 'technical',
+      id: 'technical',
       label: 'Technical',
       group: 'Technical',
-      scores: { early: 1, mid: null, late: null },
+      scores: { start: 1, mid: null, end: null },
     },
   ],
   windows: [
-    { point: 'early', label: 'Start', isOpen: false, opensLabel: null, closesLabel: null },
+    { point: 'start', label: 'Start', isOpen: false, opensLabel: null, closesLabel: null },
     midWindow,
-    { point: 'late', label: 'End', isOpen: false, opensLabel: '2 Nov', closesLabel: null },
+    { point: 'end', label: 'End', isOpen: false, opensLabel: '2 Nov', closesLabel: null },
   ],
   openWindow: midWindow,
 }

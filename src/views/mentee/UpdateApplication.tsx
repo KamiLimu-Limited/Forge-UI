@@ -17,6 +17,8 @@ export function UpdateApplication({ activityId }: UpdateApplicationProps) {
       onRetry={form.refetch}
       stage={form.stage}
       onStageChange={form.setStage}
+      finalOutcome={form.finalOutcome}
+      onFinalOutcomeChange={form.setFinalOutcome}
       onSave={() => void form.save()}
       isSaving={form.isSaving}
       saveError={form.saveError}

@@ -38,8 +38,12 @@ export const samplePreview: GraduationPreviewView = {
   endDate: '2026-10-31',
   hasEnded: true,
   isGraduated: false,
+  isClosed: false,
   calculatedAt: '2026-11-09T09:40:00+03:00',
+  confirmedAt: null,
+  confirmedByName: null,
   threshold: 80,
+  unavailableReasons: [],
   graduates,
   nonGraduates,
 }
@@ -47,7 +51,13 @@ export const samplePreview: GraduationPreviewView = {
 export const sampleProgramLeadHome: ProgramLeadHomeData = {
   overview: sampleCommitteeOverview,
   home: {
-    graduation: { endDate: '2026-10-31', hasEnded: false, isGraduated: false },
+    graduation: {
+      endDate: '2026-10-31',
+      hasEnded: false,
+      isGraduated: false,
+      isAvailable: false,
+      reasons: [],
+    },
     pendingTotal: 3,
     pendingRequests: [
       { id: 'r-1', menteeName: 'Joy Mbugua', sessionLine: 'User Validation, Sat 22 Aug' },

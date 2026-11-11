@@ -3,26 +3,25 @@ import type { UserProfileResponse, UserRole } from '@/types/auth'
 // Human labels for every role. Use these anywhere a role is shown.
 export const ROLE_LABELS: Record<UserRole, string> = {
   mentee: 'Mentee',
-  'peer_mentor_1:1': '1:1 Peer Mentor',
+  peer_mentor_1_1: '1:1 Peer Mentor',
   peer_mentor_ict: 'ICT Peer Mentor',
   professional_mentor: 'Professional Mentor',
   committee: 'Committee',
-  partner: 'Partner',
   alumni: 'Alumni',
   admin: 'System Admin',
   program_lead: 'Program Lead',
   program_delivery_lead: 'Program Delivery Lead',
 }
 
-// Every role, in the order they appear in pickers. The Program Lead and Program Delivery
-// Lead are left out until the API accepts them.
+// Every role, in the order they appear in pickers
 export const ALL_ROLES: UserRole[] = [
   'mentee',
-  'peer_mentor_1:1',
+  'peer_mentor_1_1',
   'peer_mentor_ict',
   'professional_mentor',
   'committee',
-  'partner',
+  'program_delivery_lead',
+  'program_lead',
   'alumni',
   'admin',
 ]

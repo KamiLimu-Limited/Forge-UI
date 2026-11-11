@@ -1,24 +1,24 @@
 'use client'
 
-import { CohortRulesUnavailable } from './CohortRulesUnavailable'
+import { CohortRules } from './CohortRules'
 import { MonthBoundariesEditor } from './MonthBoundariesEditor'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import type { useCohortForm } from '@/hooks/useCohortForm'
+import type { useCohortRules } from '@/hooks/useCohortRules'
 import { COHORT_STATUS_LABELS } from '@/lib/labels'
 import type { CohortStatus } from '@/types/cohort'
 
 interface CohortFormFieldsProps {
   form: ReturnType<typeof useCohortForm>
+  rules: ReturnType<typeof useCohortRules>
   variant: 'create' | 'settings'
 }
 
-const NOT_YET = 'Not available yet'
-
 // The fields shared by New cohort and Cohort settings
-export function CohortFormFields({ form, variant }: CohortFormFieldsProps) {
+export function CohortFormFields({ form, rules, variant }: CohortFormFieldsProps) {
   const { values, errors, setField } = form
   const disabled = form.isSaving
 
@@ -40,10 +40,9 @@ export function CohortFormFields({ form, variant }: CohortFormFieldsProps) {
               ) : (
                 <Select
                   label="Status"
-                  options={(Object.keys(COHORT_STATUS_LABELS) as CohortStatus[]).map((s) => ({
-                    value: s,
-                    label: COHORT_STATUS_LABELS[s],
-                  }))}
+                  options={(Object.keys(COHORT_STATUS_LABELS) as CohortStatus[])
+                    .filter((s) => s !== 'archived' || values.status === 'archived')
+                    .map((s) => ({ value: s, label: COHORT_STATUS_LABELS[s] }))}
                   value={values.status}
                   onChange={(e) => setField('status', e.target.value as CohortStatus)}
                   hint="Mentees see a cohort only once it is active"
@@ -115,23 +114,40 @@ export function CohortFormFields({ form, variant }: CohortFormFieldsProps) {
               error={errors.graduationThreshold}
               hint="Minimum core attendance rate, as a percentage"
             />
+            <div className="hidden md:block" />
             <Input
-              label="Attendance window"
-              placeholder="Hours after the session ends"
-              disabled
-              hint={NOT_YET}
+              label="Thursday attendance window"
+              type="number"
+              min={1}
+              max={336}
+              inputMode="numeric"
+              value={values.thursdayHours}
+              onChange={(e) => setField('thursdayHours', e.target.value)}
+              error={errors.thursdayHours}
+              hint="Hours after the session ends"
+            />
+            <Input
+              label="Saturday attendance window"
+              type="number"
+              min={1}
+              max={336}
+              inputMode="numeric"
+              value={values.saturdayHours}
+              onChange={(e) => setField('saturdayHours', e.target.value)}
+              error={errors.saturdayHours}
+              hint="Hours after the session ends"
             />
           </fieldset>
         </Card>
       </div>
 
       <div className="flex flex-col gap-5">
-        <CohortRulesUnavailable variant={variant} />
+        <CohortRules form={form} rules={rules} variant={variant} />
         {variant === 'create' && (
           <Card title="Set up later">
             <p className="font-sans text-small text-text-secondary">
-              ICT tracks and rosters can be set from their own pages once the cohort exists. Logging
-              and rating windows and the nine session rating questions: not available yet.
+              ICT tracks, rosters, rating windows and the nine session rating questions are set once
+              the cohort exists.
             </p>
           </Card>
         )}

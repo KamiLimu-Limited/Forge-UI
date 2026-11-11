@@ -32,6 +32,12 @@ export function parseDateOnly(value: string): Date {
   return new Date(year, month - 1, day)
 }
 
+// YYYY-MM-DD of a date-time in the viewer's time zone
+export function toDateOnly(value: string | Date): string {
+  const d = typeof value === 'string' ? new Date(value) : value
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
 // "Thu 27 Aug"
 export function formatDay(value: string | Date): string {
   return dayFormat.format(typeof value === 'string' ? new Date(value) : value).replace(',', '')

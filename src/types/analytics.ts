@@ -1,10 +1,10 @@
 // Committee analytics, leaderboard and export shapes, mapped from the Forge API OpenAPI
-// schema (/analytics/*, /cohorts/{id}/leaderboard, /exports/*). Status counts the API
-// also returns (on track, warning, at risk) are left out: no screen may show them.
+// schema (/analytics/*, /cohorts/{id}/leaderboard, /exports/*).
 
 import type { ActivityType } from '@/types/activity'
 import type { CohortHealthResponse, RateBucket } from '@/types/dashboard'
 import type { Percentage } from '@/types/rate'
+import type { QuestionAverage } from '@/types/sessionFeedback'
 
 export interface TrendPoint {
   month: number
@@ -36,23 +36,21 @@ export interface SessionQuality {
   starts_at: string
   kami_limu_month: number
   responses: number
-  quality: number | null
-  usefulness: number | null
-  understanding: number | null
-  academic_application: number | null
-  career_application: number | null
+  // Across all nine questions
+  average: number | null
+  questions: QuestionAverage[]
 }
 
 export interface SessionQualityResponse {
   cohort_id: string
-  overall_quality: number | null
-  overall_usefulness: number | null
+  overall_average: number | null
+  questions: QuestionAverage[]
   sessions: SessionQuality[]
 }
 
 export interface ActivityEngagement {
   type: ActivityType
-  // Logs per status, for example { pending: 3, approved: 40 }
+  // Logs per status, for example { active: 40, reversed: 1 }
   counts: Record<string, number>
   points_awarded: number
   mentees_participating: number
@@ -83,19 +81,26 @@ export interface LeaderboardRow {
   is_me: boolean
   total_points: number
   core_attendance: number
-  graduation_rate: Percentage
   academic: number
   events: number
-  opportunities: number
+  // Job and scholarship applications together
+  applications: number
   consultations: number
 }
 
 export interface LeaderboardResponse {
   cohort_id: string
-  anonymous: boolean
   generated_at: string
   entries: LeaderboardRow[]
 }
 
 // CSV downloads the committee can take
-export type ExportKind = 'leaderboard' | 'attendance' | 'full-report'
+export type ExportKind = 'leaderboard' | 'peer-leaderboard' | 'attendance' | 'full-report'
+
+// One saved leaderboard, as the snapshots card lists it
+export interface SnapshotRow {
+  id: string
+  // "Mentee leaderboard"
+  label: string
+  takenAt: string
+}

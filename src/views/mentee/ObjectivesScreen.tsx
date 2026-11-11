@@ -25,8 +25,7 @@ interface ObjectivesScreenProps {
   onSave: (ratings: Record<string, number>) => void
   isSaving?: boolean
   saveError?: string | null
-  // Shown at the top while saving is switched off, for example for peer mentors
-  saveBlockedNote?: string | null
+  onAddObjective: () => void
 }
 
 function openLine(data: MenteeObjectivesData): string {
@@ -45,7 +44,7 @@ export function ObjectivesScreen({
   onSave,
   isSaving = false,
   saveError = null,
-  saveBlockedNote = null,
+  onAddObjective,
 }: ObjectivesScreenProps) {
   const form = useObjectiveRatings(data)
   const openWindow = data?.openWindow ?? null
@@ -61,14 +60,7 @@ export function ObjectivesScreen({
   }
 
   const saveButton = (fullWidth: boolean) => (
-    <Button
-      type="submit"
-      form={FORM_ID}
-      size="lg"
-      fullWidth={fullWidth}
-      isLoading={isSaving}
-      disabled={Boolean(saveBlockedNote)}
-    >
+    <Button type="submit" form={FORM_ID} size="lg" fullWidth={fullWidth} isLoading={isSaving}>
       {saveLabel}
     </Button>
   )
@@ -90,15 +82,10 @@ export function ObjectivesScreen({
         keepActionBeside
         action={
           <div className="flex items-start gap-2">
-            <div className="flex flex-col items-end gap-1">
-              <Button variant="secondary" size="sm" disabled>
-                <span className="md:hidden">Add</span>
-                <span className="hidden md:inline">Add objective</span>
-              </Button>
-              <span className="whitespace-nowrap font-sans text-caption text-text-muted">
-                Not available yet
-              </span>
-            </div>
+            <Button variant="secondary" size="sm" onClick={onAddObjective}>
+              <span className="md:hidden">Add</span>
+              <span className="hidden md:inline">Add objective</span>
+            </Button>
             {openWindow && <div className="hidden md:block">{saveButton(false)}</div>}
           </div>
         }
@@ -109,7 +96,11 @@ export function ObjectivesScreen({
         <LoadingState label="Loading your objectives" />
       ) : data.objectives.length === 0 ? (
         <Card>
-          <EmptyState icon="target" title="No objectives yet" />
+          <EmptyState
+            icon="target"
+            title="No objectives yet"
+            action={<Button onClick={onAddObjective}>Add objective</Button>}
+          />
         </Card>
       ) : (
         <form
@@ -119,7 +110,6 @@ export function ObjectivesScreen({
           className="flex flex-col gap-4 md:gap-5"
         >
           {saveError && <Notice variant="danger">{saveError}</Notice>}
-          {saveBlockedNote && <Notice>{saveBlockedNote}</Notice>}
           {OBJECTIVE_GROUPS.map((group) => {
             const objectives = data.objectives.filter((objective) => objective.group === group)
             if (objectives.length === 0) return null
@@ -138,13 +128,13 @@ export function ObjectivesScreen({
                 </div>
                 {objectives.map((objective) => (
                   <ObjectiveRatingRow
-                    key={objective.skill}
+                    key={objective.id}
                     objective={objective}
                     windows={data.windows}
-                    value={form.ratings[objective.skill]}
-                    onChange={(value) => form.setRating(objective.skill, value)}
+                    value={form.ratings[objective.id]}
+                    onChange={(value) => form.setRating(objective.id, value)}
                     error={
-                      form.showErrors && form.ratings[objective.skill] === undefined
+                      form.showErrors && form.ratings[objective.id] === undefined
                         ? 'Choose a rating'
                         : undefined
                     }

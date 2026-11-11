@@ -2,15 +2,12 @@
 // built from it. Confirming, the sequence data, corrections and closing aren't in the API
 // yet (see docs/api-gaps.md). Status labels other than graduated or not are never shown.
 
+import type { UserRole } from '@/types/auth'
 import type { UserSummary } from '@/types/session'
 import type { Percentage } from '@/types/rate'
 
-export type GraduationReportStatus =
-  | 'on_track'
-  | 'warning'
-  | 'at_risk'
-  | 'graduated'
-  | 'not_graduated'
+// Null until graduation is confirmed
+export type GraduationReportStatus = 'graduated' | 'not_graduated'
 
 export interface GraduationReportEntry {
   mentee: UserSummary
@@ -18,8 +15,8 @@ export interface GraduationReportEntry {
   ict_track: string | null
   total_points: number
   core_rate: Percentage
-  combined_rate: Percentage
-  status: GraduationReportStatus
+  overall_rate: Percentage
+  status: GraduationReportStatus | null
 }
 
 export interface GraduationReportResponse {
@@ -28,6 +25,100 @@ export interface GraduationReportResponse {
   generated_at: string
   counts: Record<string, number>
   mentees: GraduationReportEntry[]
+}
+
+// One mentee's result as the graduation routes give it
+export interface GraduationEntry {
+  mentee: UserSummary
+  core_rate: Percentage
+  overall_rate: Percentage
+  core_points: number
+  extra_points: number
+  total_points: number
+  graduated: boolean
+}
+
+// GET and POST /cohorts/{id}/graduation/preview: the calculation, nothing frozen
+export interface GraduationPreview {
+  cohort_id: string
+  threshold: number
+  computed_at: string
+  graduates: GraduationEntry[]
+  non_graduates: GraduationEntry[]
+}
+
+// GET /cohorts/{id}/graduation: the confirmed, frozen result
+export interface GraduationRecord {
+  cohort_id: string
+  threshold: number
+  confirmed_at: string
+  // User id of the Program Lead who confirmed it
+  confirmed_by: string | null
+  graduates: GraduationEntry[]
+  non_graduates: GraduationEntry[]
+}
+
+// GET /dashboard/program-lead/graduation
+export interface GraduationPanel {
+  cohort_id: string
+  preview: GraduationPreview
+  confirmed: boolean
+  confirmed_at: string | null
+  availability: {
+    available: boolean
+    // Why Graduate cohort isn't available, in plain sentences
+    reasons: string[]
+  }
+}
+
+export interface GraduationSequenceResponse {
+  cohort_id: string
+  cohort_name: string
+  // In reveal order
+  graduates: GraduationEntry[]
+  stats: {
+    mentees: number
+    graduates: number
+    sessions_held: number
+    points_distributed: number
+    average_core_rate: Percentage
+  }
+  mentors: { user: UserSummary; roles: UserRole[] }[]
+}
+
+export interface GraduationCorrectionRequest {
+  user_id: string
+  graduated: boolean
+  reason: string
+}
+
+export interface GraduationCorrectionResponse {
+  id: string
+  result_id: string
+  field: string
+  old_value: string
+  new_value: string
+  reason: string
+  corrected_by: string | null
+  created_at: string
+}
+
+// GET /users/me/graduation-card, for graduates
+export interface GraduationCard {
+  cohort: { id: string; name: string; status: string }
+  // YYYY-MM-DD
+  graduated_on: string
+  core_rate: Percentage
+  overall_rate: Percentage
+  total_points: number
+}
+
+// GET /alumni/me/history: one finished cohort and the frozen result
+export interface AlumniCohort {
+  cohort: { id: string; name: string; status: string }
+  roles: UserRole[]
+  // null for a cohort they didn't take part in as a mentee
+  result: GraduationEntry | null
 }
 
 export interface GraduateRow {
@@ -47,15 +138,30 @@ export interface GraduationPreviewView {
   hasEnded: boolean
   // The cohort is completed, so the results are final
   isGraduated: boolean
-  // When the report was worked out
+  // Closed after graduation; read only from then on
+  isClosed: boolean
+  // When the preview was worked out, or when graduation was confirmed
   calculatedAt: string
+  confirmedAt: string | null
+  // null before graduation, or when the name couldn't be looked up
+  confirmedByName: string | null
   threshold: number
   graduates: GraduateRow[]
   nonGraduates: GraduateRow[]
+  // Why Graduate cohort isn't available yet; empty when it is, null when unknown
+  unavailableReasons: string[] | null
 }
 
 export interface ProgramLeadHomeView {
-  graduation: { endDate: string; hasEnded: boolean; isGraduated: boolean }
+  graduation: {
+    endDate: string
+    hasEnded: boolean
+    isGraduated: boolean
+    // Graduate cohort can be confirmed now
+    isAvailable: boolean
+    // Why not, from the graduation panel
+    reasons: string[]
+  }
   pendingRequests: { id: string; menteeName: string; sessionLine: string }[]
   pendingTotal: number
   upcoming: { id: string; title: string; startsAt: string; isVirtual: boolean }[]
@@ -94,7 +200,7 @@ export interface GraduationResultView {
   firstName: string
   cohortName: string
   graduated: boolean
-  // ISO date. The API has no graduation date (gap M43), so this is the cohort's end date.
+  // ISO date: the graduation date for a graduate, otherwise the cohort's end date
   graduatedOn: string
   // 0 to 100
   coreRate: Percentage | null

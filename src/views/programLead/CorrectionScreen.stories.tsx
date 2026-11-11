@@ -15,7 +15,6 @@ const meta: Meta<typeof CorrectionScreen> = {
     onChange: () => undefined,
     selected: mentee,
     errors: {},
-    canSave: false,
     onSave: () => undefined,
   },
 }

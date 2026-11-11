@@ -1,6 +1,6 @@
 'use client'
 
-import { PEER_MENTOR_SAVE_NOTE, type ParticipantRole } from '@/lib/participation'
+import type { ParticipantRole } from '@/lib/participation'
 import { useActiveView } from './useActiveView'
 
 export interface UseParticipantRoleReturn {
@@ -10,8 +10,6 @@ export interface UseParticipantRoleReturn {
   cohortId: string | null
   // For 1:1 and ICT peer mentors, the same cohort; null for mentees
   peerCohortId: string | null
-  // Shown on screens that save, and switches their save off, while peer mentors can't save
-  saveBlockedNote: string | null
 }
 
 // Sessions, activities and objectives for the view picked in "Switch view"
@@ -26,6 +24,5 @@ export function useParticipantRole(): UseParticipantRoleReturn {
     role,
     cohortId: view.cohortId,
     peerCohortId: isPeerMentor ? view.cohortId : null,
-    saveBlockedNote: isPeerMentor ? PEER_MENTOR_SAVE_NOTE : null,
   }
 }

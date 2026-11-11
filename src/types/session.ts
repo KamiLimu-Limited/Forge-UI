@@ -4,11 +4,18 @@ import type { PageParams } from '@/types/page'
 
 export type SessionCategory = 'thursday' | 'saturday' | 'peer_mentorship'
 
-export type SessionType = 'core' | 'ict' | 'professional' | 'peer_mentorship'
+// How the session is taught. ICT sessions are the ones with a `track`.
+export type SessionType = 'theory' | 'tell_and_show' | 'hands_on' | 'simulation'
 
-export type SessionMode = 'physical' | 'virtual' | 'hybrid'
+export type SessionMode = 'physical' | 'virtual'
 
-export type SessionStatus = 'draft' | 'published' | 'cancelled' | 'completed'
+export type SessionStatus =
+  | 'draft'
+  | 'published'
+  | 'live'
+  | 'completed'
+  | 'rescheduled'
+  | 'cancelled'
 
 export type MentorRole = 'lead' | 'co_mentor'
 
@@ -58,8 +65,8 @@ export interface SessionResponse {
   description: string | null
   kami_limu_month: number
   starts_at: string
+  // For peer mentorship sessions (tasks), the deadline
   ends_at: string
-  duration_minutes: number
   category: SessionCategory
   session_type: SessionType
   // ICT track name for ICT sessions, otherwise null
@@ -68,7 +75,6 @@ export interface SessionResponse {
   location: string | null
   points: number
   status: SessionStatus
-  attendance_deadline: string | null
   original_starts_at: string | null
   mentors: SessionMentorResponse[]
   resources: SessionResourceResponse[]
@@ -98,13 +104,14 @@ export interface SessionBrief {
   session_type: SessionType
   track: string | null
   points: number
+  status: SessionStatus
 }
 
 export interface SessionCreateRequest {
   cohort_id: string
   title: string
   starts_at: string
-  duration_minutes: number
+  ends_at: string
   category: SessionCategory
   session_type?: SessionType
   status?: 'draft' | 'published'
@@ -114,7 +121,6 @@ export interface SessionCreateRequest {
   mode?: SessionMode
   location?: string | null
   points?: number | null
-  attendance_deadline?: string | null
   mentors?: MentorAssignment[]
   resources?: ResourceIn[]
 }
@@ -127,7 +133,6 @@ export interface SessionUpdateRequest {
   mode?: SessionMode | null
   location?: string | null
   points?: number | null
-  attendance_deadline?: string | null
   category?: SessionCategory | null
   session_type?: SessionType | null
   // Publish or complete only; cancel with DELETE
@@ -136,8 +141,24 @@ export interface SessionUpdateRequest {
 
 export interface SessionRescheduleRequest {
   starts_at: string
-  duration_minutes?: number | null
+  // Keeps the session's length when left out
+  ends_at?: string | null
   reason?: string | null
+}
+
+// A session the caller can still submit attendance for
+export interface InProgressSession {
+  session: SessionResponse
+  // Includes any approved extension
+  closes_at: string
+  submitted: boolean
+}
+
+// The caller's own notes for a session
+export interface SessionNoteResponse {
+  session_id: string
+  body: string
+  updated_at: string
 }
 
 export interface SessionCancelRequest {

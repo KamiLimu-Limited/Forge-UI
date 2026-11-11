@@ -25,21 +25,15 @@ export interface MarkAllReadResponse {
 }
 
 export type NotificationType =
-  | 'session_published'
+  | 'invitation'
+  | 'password_reset'
+  | 'attendance_window_opens'
+  | 'attendance_window_closing_soon'
   | 'session_rescheduled'
   | 'session_cancelled'
-  | 'attendance_window_opening'
-  | 'attendance_window_closing_soon'
-  | 'graduation_warning'
-  | 'graduation_at_risk'
   | 'override_request_submitted'
   | 'override_request_approved'
   | 'override_request_denied'
-  | 'extra_activity_approved'
-  | 'extra_activity_rejected'
-  | 'peer_task_launched'
-  | 'peer_task_deadline_reminder'
-  | 'cohort_onboarding_invitation'
   | 'broadcast'
 
 export type EmailStatus = 'pending' | 'sent' | 'failed' | 'skipped'

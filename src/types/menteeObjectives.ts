@@ -1,10 +1,10 @@
-import type { RatingPoint } from '@/types/skills'
+import type { RatingPoint } from '@/types/objective'
 
 export type ObjectiveGroup = 'Human' | 'Technical'
 
 export interface ObjectiveRow {
-  // The skill name the API uses
-  skill: string
+  // The objective's id
+  id: string
   label: string
   group: ObjectiveGroup
   scores: Record<RatingPoint, number | null>

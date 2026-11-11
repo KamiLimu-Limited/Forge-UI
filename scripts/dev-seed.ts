@@ -228,7 +228,7 @@ async function ensureInvitations(cohortId: string): Promise<void> {
       alias: 'seed-peer1',
       first_name: 'Seed',
       last_name: 'Peer Mentor',
-      roles: ['peer_mentor_1:1'],
+      roles: ['peer_mentor_1_1'],
     },
     {
       alias: 'seed-ict1',

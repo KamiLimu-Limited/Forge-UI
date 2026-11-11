@@ -8,6 +8,9 @@ import { RevealOrderScreen } from './RevealOrderScreen'
 export function RevealOrder() {
   const router = useRouter()
   const reveal = useRevealOrder()
+  const openSequence = () => {
+    if (reveal.data) router.push(graduationSequenceRoute(reveal.data.cohortId))
+  }
   return (
     <RevealOrderScreen
       data={reveal.data}
@@ -19,10 +22,14 @@ export function RevealOrder() {
       onModeChange={reveal.setMode}
       order={reveal.order}
       onMove={reveal.move}
-      onRehearse={() => {
-        reveal.rehearse()
-        if (reveal.data) router.push(graduationSequenceRoute(reveal.data.cohortId))
+      onRehearse={openSequence}
+      onSaveAndStart={() => {
+        void reveal.save().then((saved) => {
+          if (saved) openSequence()
+        })
       }}
+      isSaving={reveal.isSaving}
+      saveError={reveal.saveError}
     />
   )
 }

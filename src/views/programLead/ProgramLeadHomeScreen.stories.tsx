@@ -19,7 +19,13 @@ export const CohortEnded: Story = {
       ...sampleProgramLeadHome,
       home: {
         ...sampleProgramLeadHome.home,
-        graduation: { endDate: '2026-10-31', hasEnded: true, isGraduated: false },
+        graduation: {
+          endDate: '2026-10-31',
+          hasEnded: true,
+          isGraduated: false,
+          isAvailable: true,
+          reasons: [],
+        },
       },
     },
   },

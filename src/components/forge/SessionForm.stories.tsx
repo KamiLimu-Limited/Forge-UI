@@ -1,5 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { sampleCohort, sampleMentors, sampleSession } from '../../../.storybook/fixtures'
+import {
+  sampleCohort,
+  sampleIctTracks,
+  sampleMentors,
+  sampleSession,
+} from '../../../.storybook/fixtures'
 import { useSessionEditor } from '@/hooks/useSessionEditor'
 import { SessionForm } from './SessionForm'
 
@@ -21,6 +26,7 @@ function Create() {
       errors={editor.errors}
       onChange={editor.setValue}
       cohort={sampleCohort}
+      ictTracks={sampleIctTracks}
       mentors={sampleMentors}
     />
   )
@@ -41,6 +47,7 @@ function Edit({ withErrors }: { withErrors?: boolean }) {
       }
       onChange={editor.setValue}
       cohort={sampleCohort}
+      ictTracks={sampleIctTracks}
       mentors={sampleMentors}
       isEdit
       timeChanged={editor.timeChanged}
@@ -59,6 +66,7 @@ export const MentorsLoading: Story = {
         description: '',
         pillar: 'none',
         ictTrack: '',
+        sessionType: 'theory',
         category: 'thursday',
         month: '',
         start: '',
@@ -66,7 +74,6 @@ export const MentorsLoading: Story = {
         mode: 'virtual',
         location: '',
         points: 10,
-        attendanceDeadline: '',
         leadMentorId: '',
         coMentorIds: [],
         resourceUrl: '',
@@ -75,6 +82,7 @@ export const MentorsLoading: Story = {
       errors={{}}
       onChange={() => undefined}
       cohort={sampleCohort}
+      ictTracks={sampleIctTracks}
       mentors={[]}
       mentorsLoading
     />

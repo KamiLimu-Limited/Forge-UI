@@ -1,10 +1,9 @@
-// A peer mentor's facilitator numbers: the sessions they led or co-led (session_mentors),
-// rated by everyone who attended, from GET /sessions/{id}/feedback. Nothing here covers
-// other peer mentors yet. Their own group's peer mentorship feedback is in lib/peerMentor.ts.
+// A peer mentor's facilitator numbers from the /facilitator routes: the sessions they led or
+// co-led, rated by everyone who attended, and the average across all peer mentors. Their own
+// group's peer mentorship feedback is in lib/peerMentor.ts.
 
-import { api, fetchAllPages } from '@/lib/api'
-import { averageOf } from '@/lib/peerMentor'
-import { feedbackGroups, overallAverage, writtenFeedback } from '@/lib/sessionFeedback'
+import { api } from '@/lib/api'
+import { feedbackGroupsOf } from '@/lib/sessionFeedback'
 import { sessionPillar } from '@/lib/sessions'
 import type {
   FacilitatorSessionRow,
@@ -12,7 +11,7 @@ import type {
   RatingPointView,
   SessionRatingsView,
 } from '@/types/peerMentor'
-import type { SessionResponse } from '@/types/session'
+import type { FacilitatedSession, FacilitatorSummary, RatingTrendPoint } from '@/types/proMentor'
 
 // "Peer Mentorship 3" becomes "PM 3" so the chart axis stays short
 export function shortSessionLabel(title: string): string {
@@ -20,103 +19,88 @@ export function shortSessionLabel(title: string): string {
   return short.length > 10 ? `${short.slice(0, 9)}…` : short
 }
 
-export function facilitatorView(rows: FacilitatorSessionRow[]): FacilitatorView {
-  const newestFirst = [...rows].sort((a, b) => b.startsAt.localeCompare(a.startsAt))
-  const rated = newestFirst.filter(
-    (row): row is FacilitatorSessionRow & { rating: number } =>
-      !row.isInProgress && row.rating !== null
-  )
-  const best = rated.reduce<FacilitatorSessionRow | null>(
-    (top, row) => (top === null || (top.rating ?? 0) < row.rating ? row : top),
-    null
-  )
-  const trend: RatingPointView[] = [...rated].reverse().map((row) => ({
-    label: shortSessionLabel(row.title),
-    title: row.title,
-    rating: row.rating,
-  }))
+function rounded(value: number | null): number | null {
+  return value === null ? null : Math.round(value * 10) / 10
+}
+
+// Ratings keep coming in until the session is marked completed
+function sessionRow(entry: FacilitatedSession): FacilitatorSessionRow {
   return {
-    completed: newestFirst.filter((row) => !row.isInProgress).length,
-    inProgress: newestFirst.filter((row) => row.isInProgress).length,
-    average: averageOf(rated.map((row) => row.rating)),
-    best,
-    sessions: newestFirst,
-    trend,
+    id: entry.session.id,
+    title: entry.session.title,
+    startsAt: entry.session.starts_at,
+    isInProgress: entry.session.status !== 'completed',
+    rating: rounded(entry.average),
+    responses: entry.responses,
   }
 }
 
-function isMentor(session: SessionResponse, userId: string): boolean {
-  return session.mentors.some((mentor) => mentor.user.id === userId)
+export function facilitatorView(
+  summary: FacilitatorSummary,
+  sessions: FacilitatedSession[],
+  trend: RatingTrendPoint[],
+  peerAverage: number | null
+): FacilitatorView {
+  const points: RatingPointView[] = [...trend]
+    .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
+    .flatMap((point) =>
+      point.average === null
+        ? []
+        : [
+            {
+              label: shortSessionLabel(point.title),
+              title: point.title,
+              rating: rounded(point.average) as number,
+            },
+          ]
+    )
+  return {
+    completed: summary.sessions_completed,
+    inProgress: summary.sessions_in_progress,
+    average: rounded(summary.average),
+    peerAverage: rounded(peerAverage),
+    best: summary.best_rated_session ? sessionRow(summary.best_rated_session) : null,
+    sessions: sessions.map(sessionRow).sort((a, b) => b.startsAt.localeCompare(a.startsAt)),
+    trend: points,
+  }
 }
 
-// Sessions in the cohort that have started, that this person leads or co-leads
-async function mentoredSessions(
-  cohortId: string | null,
-  userId: string,
-  now: Date
-): Promise<SessionResponse[]> {
-  const sessions = await fetchAllPages((page, pageSize) =>
-    api.sessions.list({
-      cohort_id: cohortId ?? undefined,
-      starts_before: now.toISOString(),
-      page,
-      page_size: pageSize,
-    })
-  )
-  return sessions.filter(
-    (session) =>
-      (session.status === 'published' || session.status === 'completed') &&
-      isMentor(session, userId)
-  )
-}
-
-export async function loadFacilitator(
-  cohortId: string | null,
-  userId: string,
-  now: Date = new Date()
-): Promise<FacilitatorView> {
-  const sessions = await mentoredSessions(cohortId, userId, now)
-  const rows = await Promise.all(
-    sessions.map(async (session): Promise<FacilitatorSessionRow> => {
-      const [window, feedback] = await Promise.all([
-        api.sessions.attendanceWindow(session.id).catch(() => null),
-        api.sessions.feedback(session.id),
-      ])
-      const closesAt = window?.effective_closes_at ?? session.ends_at
-      return {
-        id: session.id,
-        title: session.title,
-        startsAt: session.starts_at,
-        isInProgress: new Date(closesAt) > now,
-        rating: overallAverage(feedback),
-        responses: feedback.responses,
-      }
-    })
-  )
-  return facilitatorView(rows)
+export async function loadFacilitator(cohortId: string | null): Promise<FacilitatorView> {
+  const id = cohortId ?? undefined
+  const [summary, sessions, trend, peers] = await Promise.all([
+    api.facilitator.summary(id),
+    api.facilitator.sessions(id),
+    api.facilitator.ratingsOverTime(id).catch(() => []),
+    api.facilitator.peerMentorAverage(id).catch(() => null),
+  ])
+  return facilitatorView(summary, sessions, trend, peers?.average ?? null)
 }
 
 export async function loadSessionRatings(
   sessionId: string,
-  cohortId: string | null,
-  userId: string
+  cohortId: string | null
 ): Promise<SessionRatingsView> {
-  const [session, feedback, facilitator] = await Promise.all([
-    api.sessions.getById(sessionId),
-    api.sessions.feedback(sessionId),
-    loadFacilitator(cohortId, userId),
+  const id = cohortId ?? undefined
+  const [ratings, summary, peers] = await Promise.all([
+    api.facilitator.sessionRatings(sessionId),
+    api.facilitator.summary(id).catch(() => null),
+    api.facilitator.peerMentorAverage(id).catch(() => null),
   ])
   return {
     session: {
-      id: session.id,
-      title: session.title,
-      startsAt: session.starts_at,
-      pillar: sessionPillar(session),
-      responses: feedback.responses,
-      average: overallAverage(feedback),
-      groups: feedbackGroups(feedback),
-      feedback: writtenFeedback(feedback),
+      id: ratings.session.id,
+      title: ratings.session.title,
+      startsAt: ratings.session.starts_at,
+      pillar: sessionPillar(ratings.session),
+      responses: ratings.responses,
+      average: rounded(ratings.average),
+      groups: feedbackGroupsOf(ratings.questions),
+      feedback: ratings.feedback.flatMap((entry) => {
+        const text = entry.feedback?.trim()
+        return text ? [text] : []
+      }),
     },
-    averageAcrossSessions: facilitator.average,
+    averageAcrossSessions: rounded(summary?.average ?? null),
+    peerAverage: rounded(peers?.average ?? null),
   }
 }

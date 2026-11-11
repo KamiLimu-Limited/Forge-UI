@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { sampleCohort } from '../../../.storybook/fixtures'
 import { useCohortForm } from '@/hooks/useCohortForm'
+import { useCohortRules } from '@/hooks/useCohortRules'
 import { CohortFormFields } from './CohortFormFields'
 
 const meta: Meta<typeof CohortFormFields> = {
@@ -15,12 +16,15 @@ type Story = StoryObj<typeof CohortFormFields>
 
 function NewCohort() {
   const form = useCohortForm(null)
-  return <CohortFormFields form={form} variant="create" />
+  const rules = useCohortRules(null)
+  return <CohortFormFields form={form} rules={rules} variant="create" />
 }
 
 function Settings() {
-  const form = useCohortForm({ ...sampleCohort, enrollment_counts: { mentee: 40 } })
-  return <CohortFormFields form={form} variant="settings" />
+  const form = useCohortForm({ ...sampleCohort, ict_tracks: [], enrollment_counts: { mentee: 40 } })
+  // Stories have no API, so the points and questions start blank
+  const rules = useCohortRules(null)
+  return <CohortFormFields form={form} rules={rules} variant="settings" />
 }
 
 export const Create: Story = { render: () => <NewCohort /> }

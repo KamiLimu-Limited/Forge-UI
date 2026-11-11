@@ -26,27 +26,36 @@ function session(
 }
 
 const month: SessionResponse[] = [
-  session('a', '2026-08-06T14:30:00Z', 'Opening the month', { session_type: 'core', track: null }),
+  session('a', '2026-08-06T14:30:00Z', 'Opening the month', {
+    session_type: 'theory',
+    track: null,
+  }),
   session('b', '2026-08-08T07:00:00Z', 'Cybersecurity: ICT Training 7', { category: 'saturday' }),
-  session('c', '2026-08-13T14:30:00Z', 'Personal branding', { session_type: 'core', track: null }),
+  session('c', '2026-08-13T14:30:00Z', 'Personal branding', {
+    session_type: 'tell_and_show',
+    track: null,
+  }),
   session('d', '2026-08-15T07:00:00Z', 'Career talk with a mentor', {
-    session_type: 'professional',
+    session_type: 'hands_on',
     category: 'saturday',
     track: null,
   }),
-  session('e', '2026-08-20T14:30:00Z', 'Scholarship essays', { session_type: 'core', track: null }),
+  session('e', '2026-08-20T14:30:00Z', 'Scholarship essays', {
+    session_type: 'simulation',
+    track: null,
+  }),
   session('f', '2026-08-22T07:00:00Z', 'Data science: ICT Training 8', {
     category: 'saturday',
     track: 'Data science',
     status: 'draft',
   }),
   session('g', '2026-08-27T14:30:00Z', 'Community project check-in', {
-    session_type: 'core',
+    session_type: 'theory',
     track: null,
     status: 'cancelled',
   }),
   session('h', '2026-08-29T07:00:00Z', 'Peer mentorship session 3', {
-    session_type: 'peer_mentorship',
+    session_type: 'theory',
     category: 'peer_mentorship',
     track: null,
   }),

@@ -1,11 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { api } from '@/lib/api'
+import { toDateOnly } from '@/lib/format'
 import type { ChooseTrackView } from '@/types/ictTrackSelection'
 import { useActiveView } from './useActiveView'
 import { useApiQuery } from './useApiQuery'
-import { useAuth } from './useAuth'
+import { useAsyncAction } from './useAsyncAction'
+import { useToast } from './useToast'
 
 interface UseChooseTrackReturn {
   data: ChooseTrackView | null
@@ -14,39 +16,40 @@ interface UseChooseTrackReturn {
   refetch: () => void
   selected: string | null
   setSelected: (track: string) => void
-  // Saving needs PUT /cohorts/{id}/ict-track-selection/me, which doesn't exist yet
+  // Only while the selection window is open
   canSave: boolean
+  save: () => Promise<void>
+  isSaving: boolean
+  saveError: string | null
 }
 
-async function loadChooseTrack(
-  activeCohortId: string | null,
-  userId: string
-): Promise<ChooseTrackView> {
+async function loadChooseTrack(activeCohortId: string | null): Promise<ChooseTrackView> {
   const cohortId: string = activeCohortId ?? (await api.dashboard.mentee.overview()).cohort_id
-  const [cohort, enrollments] = await Promise.all([
-    api.cohorts.getById(cohortId),
-    api.cohorts.enrollments.list(cohortId, { role: 'mentee', page_size: 100 }).catch(() => null),
+  const [tracks, selection] = await Promise.all([
+    api.cohorts.ictTracks(cohortId),
+    api.cohorts.trackSelection(cohortId),
   ])
-  const mine = enrollments?.items.find((item) => item.user.id === userId)
   return {
-    tracks: (cohort.ict_tracks_offered ?? []).map((name) => ({
-      name,
-      description: null,
+    cohortId,
+    tracks: tracks.map((track) => ({
+      name: track.name,
+      description: track.description,
+      // The API's lead_mentor is the track's ICT peer mentor, not its lead mentor (gap 20)
       leadMentorName: null,
     })),
-    currentTrack: mine?.ict_track ?? null,
-    closesOn: null,
+    currentTrack: selection.ict_track,
+    isOpen: selection.window.is_open,
+    opensOn: selection.window.opens_at ? toDateOnly(selection.window.opens_at) : null,
+    closesOn: selection.window.closes_at ? toDateOnly(selection.window.closes_at) : null,
   }
 }
 
-// The cohort's ICT tracks and the mentee's current one. The choice is kept here so it is
-// ready to send once the API can save it. See docs/api-gaps.md (M4).
+// The cohort's ICT tracks, the selection window and the mentee's choice, which they can
+// change until the window closes
 export function useChooseTrack(): UseChooseTrackReturn {
   const { cohortId } = useActiveView()
-  const { user } = useAuth()
-  const userId = user?.id ?? ''
-  const query = useApiQuery(() => loadChooseTrack(cohortId, userId), [cohortId, userId], {
-    enabled: userId !== '',
+  const { showToast } = useToast()
+  const query = useApiQuery(() => loadChooseTrack(cohortId), [cohortId], {
     fallbackError: "We couldn't load the ICT tracks. Try again.",
   })
   const [selected, setSelected] = useState<string | null>(null)
@@ -56,6 +59,15 @@ export function useChooseTrack(): UseChooseTrackReturn {
     if (currentTrack) setSelected(currentTrack)
   }, [currentTrack])
 
+  const send = useCallback(
+    (track: string) => {
+      if (!query.data) return Promise.reject(new Error('Tracks not loaded'))
+      return api.cohorts.chooseTrack(query.data.cohortId, track)
+    },
+    [query.data]
+  )
+  const action = useAsyncAction(send, "We couldn't save your track. Try again.")
+
   return {
     data: query.data,
     isLoading: query.isLoading,
@@ -63,6 +75,15 @@ export function useChooseTrack(): UseChooseTrackReturn {
     refetch: query.refetch,
     selected,
     setSelected,
-    canSave: false,
+    canSave: query.data?.isOpen ?? false,
+    save: async () => {
+      if (!selected) return
+      const saved = await action.run(selected)
+      if (!saved || !query.data) return
+      query.setData({ ...query.data, currentTrack: saved.ict_track })
+      showToast(`${saved.ict_track ?? selected} saved as your ICT track.`, 'success')
+    },
+    isSaving: action.isLoading,
+    saveError: action.error,
   }
 }

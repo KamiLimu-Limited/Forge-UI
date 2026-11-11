@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { api, fetchAllPages } from '@/lib/api'
 import { errorMessage } from '@/lib/errors'
 import { fullName } from '@/lib/format'
+import type { IctTrackResponse } from '@/types/cohort'
 import type { EnrollmentResponse } from '@/types/enrollment'
 import { useApiQuery } from './useApiQuery'
 
@@ -16,6 +17,7 @@ export interface IctTrackRow {
 
 interface UseIctAssignmentsReturn {
   rows: IctTrackRow[]
+  trackCount: number
   ictMentors: EnrollmentResponse[]
   menteeCount: number
   menteesWithTrack: number
@@ -28,15 +30,15 @@ interface UseIctAssignmentsReturn {
   isSaving: boolean
 }
 
-// ICT peer mentors to tracks. An ICT peer mentor's enrollment holds one ict_track,
-// so choosing a mentor for a track sets that track on their enrollment.
-export function useIctAssignments(
-  cohortId: string | null,
-  tracksOffered: string[]
-): UseIctAssignmentsReturn {
+// ICT peer mentors to tracks. The API keeps one person per track in `lead_mentor`, who must be
+// an ICT peer mentor in the cohort, so that field holds the track's ICT peer mentor. The
+// track's lead mentor is someone else and has no field yet (docs/api-gaps.md, gap 20). All
+// tracks save together, since the API replaces the whole list.
+export function useIctAssignments(cohortId: string | null): UseIctAssignmentsReturn {
   const query = useApiQuery(
     async () => {
-      const [mentees, ictMentors] = await Promise.all([
+      const [tracks, mentees, ictMentors] = await Promise.all([
+        api.cohorts.ictTracks(cohortId as string),
         fetchAllPages((page, page_size) =>
           api.cohorts.enrollments.list(cohortId as string, { page, page_size, role: 'mentee' })
         ),
@@ -48,7 +50,7 @@ export function useIctAssignments(
           })
         ),
       ])
-      return { mentees, ictMentors }
+      return { tracks, mentees, ictMentors }
     },
     [cohortId],
     { enabled: cohortId !== null, fallbackError: "We couldn't load the ICT assignments." }
@@ -56,18 +58,19 @@ export function useIctAssignments(
   const [draft, setDraft] = useState<Record<string, string>>({})
   const [isSaving, setIsSaving] = useState(false)
 
-  const savedMentorFor = (track: string) =>
-    query.data?.ictMentors.find((m) => m.ict_track === track)?.user.id ?? ''
+  const tracks: IctTrackResponse[] = useMemo(() => query.data?.tracks ?? [], [query.data])
+  const tracksOffered = tracks.map((track) => track.name)
+  const savedMentorFor = (name: string) =>
+    tracks.find((track) => track.name === name)?.lead_mentor?.id ?? ''
 
   const rows = useMemo<IctTrackRow[]>(
     () =>
-      tracksOffered.map((track) => ({
-        track,
-        mentees: (query.data?.mentees ?? []).filter((m) => m.ict_track === track).length,
-        mentorId: track in draft ? draft[track] : savedMentorFor(track),
+      tracks.map((track) => ({
+        track: track.name,
+        mentees: (query.data?.mentees ?? []).filter((m) => m.ict_track === track.name).length,
+        mentorId: track.name in draft ? draft[track.name] : (track.lead_mentor?.id ?? ''),
       })),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tracksOffered, query.data, draft]
+    [tracks, query.data, draft]
   )
 
   const setMentor = (track: string, mentorUserId: string) => {
@@ -90,39 +93,34 @@ export function useIctAssignments(
   }
 
   const save = async () => {
-    const data = query.data
-    if (!data) return { saved: 0, failed: [] }
-    const finalTrack = new Map<string, string | null>()
-    for (const row of rows) if (row.mentorId) finalTrack.set(row.mentorId, row.track)
-    const updates = data.ictMentors
-      .map((m) => ({ mentor: m, track: finalTrack.get(m.user.id) ?? null }))
-      .filter(({ mentor, track }) => {
-        // Leave mentors on tracks this cohort no longer offers alone
-        if (track === null && mentor.ict_track && !tracksOffered.includes(mentor.ict_track))
-          return false
-        return (mentor.ict_track ?? null) !== track
-      })
+    const changed = Object.keys(draft).length
+    if (!query.data || changed === 0) return { saved: 0, failed: [] }
     setIsSaving(true)
-    const results = await Promise.all(
-      updates.map(async ({ mentor, track }) => {
-        try {
-          await api.cohorts.enrollments.update(cohortId as string, mentor.id, { ict_track: track })
-          return null
-        } catch (err: unknown) {
-          return `${fullName(mentor.user)}: ${errorMessage(err, 'not saved')}`
-        }
+    try {
+      await api.cohorts.setIctTracks(cohortId as string, {
+        tracks: tracks.map((track) => {
+          const mentorId = track.name in draft ? draft[track.name] : track.lead_mentor?.id
+          return {
+            name: track.name,
+            description: track.description,
+            lead_mentor_id: mentorId || null,
+          }
+        }),
       })
-    )
-    setIsSaving(false)
-    const failed = results.filter((r): r is string => r !== null)
-    setDraft({})
-    query.refetch()
-    return { saved: updates.length - failed.length, failed }
+      setDraft({})
+      query.refetch()
+      return { saved: changed, failed: [] }
+    } catch (err: unknown) {
+      return { saved: 0, failed: [errorMessage(err, 'The assignments were not saved')] }
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const mentees = query.data?.mentees ?? []
   return {
     rows,
+    trackCount: tracks.length,
     ictMentors: [...(query.data?.ictMentors ?? [])].sort((a, b) =>
       fullName(a.user).localeCompare(fullName(b.user))
     ),

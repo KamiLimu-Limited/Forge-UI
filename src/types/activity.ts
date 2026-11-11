@@ -2,40 +2,58 @@
 
 import type { PageParams } from '@/types/page'
 
-export type ActivityType = 'academic' | 'event' | 'opportunity' | 'consultation'
+// `opportunity` is a job application; scholarships and fellowships are their own type
+export type ActivityType = 'academic' | 'event' | 'opportunity' | 'scholarship' | 'consultation'
 
-export type ActivityStatus = 'pending' | 'approved' | 'rejected'
+// Points count from the moment a log is saved; a System Admin can reverse it with a reason
+export type ActivityStatus = 'active' | 'reversed'
 
-export type EventRole = 'attendee' | 'speaker' | 'volunteer' | 'organizer' | 'panelist'
+export type EventRole = 'participant' | 'speaker' | 'organizer'
 
-export type EventMode = 'physical' | 'virtual' | 'hybrid'
+export type EventMode = 'in_person' | 'virtual'
 
-export type OpportunityOutcome = 'applied' | 'shortlisted' | 'accepted' | 'rejected'
+export type OpportunityStage =
+  | 'applied'
+  | 'general_interview'
+  | 'technical_interview'
+  | 'final_interview'
+  | 'offer_made'
+
+export type FinalOutcome =
+  | 'waiting_for_response'
+  | 'did_not_proceed'
+  | 'offer_made_and_accepted'
+  | 'offer_made_but_rejected'
+
+export type ConsultationStatus = 'scheduled' | 'completed'
 
 export interface AcademicDetails {
-  course_name: string
+  kami_limu_pillar: string
   related_session_ids: string[]
-  kami_limu_pillar: string | null
+  how_applied: string
 }
 
 export interface EventDetails {
   event_role: EventRole
   mode: EventMode
-  organizer: string | null
   learnings: string
 }
 
-export interface OpportunityDetails {
-  organization: string
-  application_date: string
-  outcome_status: OpportunityOutcome
+// Job and scholarship applications share these details
+export interface ApplicationDetails {
+  organisation: string
+  date_applied: string
+  related_session_ids?: string[]
+  how_applied: string
+  stage?: OpportunityStage
+  final_outcome?: FinalOutcome
 }
 
 export interface ConsultationDetails {
-  mentor_id: string | null
-  mentor_name: string | null
-  consultation_date: string
-  outcome: string
+  consultation_type: string
+  summary: string
+  support_received?: string | null
+  status?: ConsultationStatus
 }
 
 interface ActivityBase {
@@ -47,9 +65,10 @@ interface ActivityBase {
   date: string
   status: ActivityStatus
   points_awarded: number
-  reviewed_by: string | null
-  reviewed_at: string | null
-  review_reason: string | null
+  consultant_id: string | null
+  reversed_by: string | null
+  reversed_at: string | null
+  reversal_reason: string | null
   created_at: string
   updated_at: string
 }
@@ -66,7 +85,12 @@ export interface ExternalEventResponse extends ActivityBase {
 
 export interface OpportunityApplicationResponse extends ActivityBase {
   type: 'opportunity'
-  details: OpportunityDetails
+  details: ApplicationDetails
+}
+
+export interface ScholarshipApplicationResponse extends ActivityBase {
+  type: 'scholarship'
+  details: ApplicationDetails
 }
 
 export interface ConsultationSessionResponse extends ActivityBase {
@@ -79,12 +103,11 @@ export type ExtraActivityResponse =
   | AcademicActivityResponse
   | ExternalEventResponse
   | OpportunityApplicationResponse
+  | ScholarshipApplicationResponse
   | ConsultationSessionResponse
 
-export interface ActivityReviewRequest {
-  // Approval only
-  points_awarded?: number | null
-  reason?: string | null
+export interface ActivityReversalRequest {
+  reason: string
 }
 
 export interface ActivityListParams extends PageParams {
@@ -102,38 +125,48 @@ interface ActivityRequestBase {
 }
 
 export interface AcademicActivityRequest extends ActivityRequestBase {
-  details: { course_name: string; related_session_ids?: string[]; kami_limu_pillar?: string | null }
+  details: AcademicDetails
 }
 
 export interface ExternalEventRequest extends ActivityRequestBase {
-  details: {
-    event_role: EventRole
-    mode: EventMode
-    organizer?: string | null
-    learnings: string
-  }
+  details: EventDetails
 }
 
 export interface OpportunityApplicationRequest extends ActivityRequestBase {
-  details: {
-    organization: string
-    application_date: string
-    outcome_status?: OpportunityOutcome
-  }
+  details: ApplicationDetails
+}
+
+export interface ScholarshipApplicationRequest extends ActivityRequestBase {
+  details: ApplicationDetails
 }
 
 export interface ConsultationSessionRequest extends ActivityRequestBase {
-  details: {
-    mentor_id?: string | null
-    mentor_name?: string | null
-    consultation_date: string
-    outcome: string
-  }
+  consultant_id: string
+  details: ConsultationDetails
 }
 
+// Stage, outcome and consultation status changes recalculate the points
 export interface ActivityUpdateRequest {
   title?: string | null
   description?: string | null
   date?: string | null
+  consultant_id?: string | null
   details?: Record<string, unknown> | null
+}
+
+export interface ConsultantRequest {
+  name: string
+  email?: string | null
+  organisation?: string | null
+  // The consultation type they cover, such as Cybersecurity
+  expertise?: string | null
+}
+
+export interface ConsultantResponse {
+  id: string
+  name: string
+  email: string | null
+  organisation: string | null
+  expertise: string | null
+  is_active: boolean
 }

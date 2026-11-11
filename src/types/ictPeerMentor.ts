@@ -5,12 +5,11 @@ import type { RateBucket } from '@/types/dashboard'
 import type { SessionBrief, UserSummary } from '@/types/session'
 import type { Percentage } from '@/types/rate'
 
-// Status labels come back too, but the PRD keeps standing labels off peer mentor screens,
-// so they're left out here
 export interface TrackMenteeEntry {
   mentee: UserSummary
   track: RateBucket
-  combined_rate: Percentage
+  core_rate: Percentage
+  overall_rate: Percentage
 }
 
 export interface TrackOverviewResponse {

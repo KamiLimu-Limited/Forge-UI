@@ -138,7 +138,7 @@ function Objectives({ rows }: { rows: MenteeObjectiveRow[] | null }) {
         <ul>
           {rows.map((row) => (
             <li
-              key={row.skill}
+              key={row.id}
               className="flex flex-col gap-0.5 border-b border-border py-3 last:border-b-0 md:flex-row md:justify-between md:gap-4"
             >
               <span className="font-sans text-body text-text-primary">{row.label}</span>

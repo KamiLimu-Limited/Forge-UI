@@ -98,7 +98,7 @@ export function MenteeDetailScreen({
                 ) : (
                   <ul>
                     {detail.objectives.map((objective) => (
-                      <li key={objective.skill} className={rowClasses}>
+                      <li key={objective.id} className={rowClasses}>
                         <span>{objective.label}</span>
                         <span className="text-text-secondary">{objective.summary}</span>
                       </li>

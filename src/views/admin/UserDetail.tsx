@@ -24,23 +24,15 @@ import {
 } from '@/components/ui/Table'
 import { useActiveCohort } from '@/hooks/useActiveCohort'
 import { useToast } from '@/hooks/useToast'
-import { useUserDetail, useUserEnrollment } from '@/hooks/useUserDetail'
+import { useUserDetail, useUserEnrollment, type AssignmentChanges } from '@/hooks/useUserDetail'
 import { formatDateTime, formatDay, fullName } from '@/lib/format'
 import { ALL_ROLES, roleLabel } from '@/lib/roles'
-import type { AdminUserDetailResponse } from '@/types/admin'
+import { ProfileFields } from '@/components/forge/ProfileFields'
+import { useProfileForm } from '@/hooks/useProfileForm'
+import { cx } from '@/lib/cx'
+import { profileRows } from '@/lib/profile'
+import type { AdminUserDetailResponse, AdminUserUpdateRequest } from '@/types/admin'
 import type { UserRole, UserRoleResponse } from '@/types/auth'
-
-const NOT_YET = 'Not available yet'
-
-const PROFILE_FIELDS = [
-  'University',
-  'Programme',
-  'Degree level',
-  'Gender',
-  'Phone',
-  'Birthday',
-  'Links',
-]
 
 interface EditDetailsProps {
   user: AdminUserDetailResponse
@@ -48,7 +40,7 @@ interface EditDetailsProps {
   onClose: () => void
   isSaving: boolean
   error: string | null
-  onSave: (body: { first_name: string; last_name: string; email: string }) => void
+  onSave: (body: AdminUserUpdateRequest) => void
 }
 
 function EditDetailsDialog({ user, isOpen, onClose, isSaving, error, onSave }: EditDetailsProps) {
@@ -56,6 +48,7 @@ function EditDetailsDialog({ user, isOpen, onClose, isSaving, error, onSave }: E
   const [last, setLast] = useState(user.last_name)
   const [email, setEmail] = useState(user.email)
   const [missing, setMissing] = useState(false)
+  const profile = useProfileForm(user)
 
   useEffect(() => {
     if (!isOpen) return
@@ -63,6 +56,8 @@ function EditDetailsDialog({ user, isOpen, onClose, isSaving, error, onSave }: E
     setLast(user.last_name)
     setEmail(user.email)
     setMissing(false)
+    profile.reset()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, user])
 
   const save = () => {
@@ -70,7 +65,9 @@ function EditDetailsDialog({ user, isOpen, onClose, isSaving, error, onSave }: E
       setMissing(true)
       return
     }
-    onSave({ first_name: first.trim(), last_name: last.trim(), email: email.trim() })
+    const details = profile.check()
+    if (!details) return
+    onSave({ first_name: first.trim(), last_name: last.trim(), email: email.trim(), ...details })
   }
 
   return (
@@ -101,6 +98,7 @@ function EditDetailsDialog({ user, isOpen, onClose, isSaving, error, onSave }: E
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
+        <ProfileFields form={profile} disabled={isSaving} />
         {(missing || error) && (
           <p role="alert" className="font-sans text-small text-danger-text">
             {missing ? 'Fill in every field.' : error}
@@ -184,7 +182,7 @@ function AssignmentsCard({ userId }: AssignmentsCardProps) {
   }, [data.enrollment])
 
   const title = cohort ? `Assignments in ${cohort.name}` : 'Assignments'
-  const tracks = cohort?.ict_tracks_offered ?? []
+  const tracks = data.ictTracks
   const changed =
     data.enrollment !== null &&
     (peerMentorId !== (data.enrollment.peer_mentor_id ?? '') ||
@@ -192,11 +190,11 @@ function AssignmentsCard({ userId }: AssignmentsCardProps) {
 
   const save = async () => {
     if (!data.enrollment) return
-    const body: { peer_mentor_id?: string | null; ict_track?: string | null } = {}
+    const changes: AssignmentChanges = {}
     if (peerMentorId !== (data.enrollment.peer_mentor_id ?? ''))
-      body.peer_mentor_id = peerMentorId || null
-    if (track !== (data.enrollment.ict_track ?? '')) body.ict_track = track || null
-    if (await data.save(body)) showToast('Assignments saved.')
+      changes.peerMentorId = peerMentorId || null
+    if (track && track !== (data.enrollment.ict_track ?? '')) changes.ictTrack = track
+    if (await data.save(changes)) showToast('Assignments saved.')
   }
 
   return (
@@ -316,10 +314,17 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
         <div className="flex flex-col gap-5 lg:col-span-3">
           <Card title="Profile" action={<StatusChip kind="account" status={user.account_state} />}>
             <dl className="grid grid-cols-1 gap-x-4 gap-y-2 font-sans text-small sm:grid-cols-3">
-              {PROFILE_FIELDS.map((field) => (
-                <div key={field} className="contents">
-                  <dt className="text-text-secondary">{field}</dt>
-                  <dd className="text-text-muted sm:col-span-2">{NOT_YET}</dd>
+              {profileRows(user).map((row) => (
+                <div key={row.label} className="contents">
+                  <dt className="text-text-secondary">{row.label}</dt>
+                  <dd
+                    className={cx(
+                      'break-words sm:col-span-2',
+                      row.value === 'Not given' ? 'text-text-muted' : 'text-text-primary'
+                    )}
+                  >
+                    {row.value}
+                  </dd>
                 </div>
               ))}
               <dt className="text-text-secondary">Last signed in</dt>

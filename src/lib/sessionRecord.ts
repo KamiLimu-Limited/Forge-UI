@@ -2,15 +2,15 @@
 // attendance, notes and extension screens, and turns form answers into API requests.
 
 import { api } from '@/lib/api'
-import { RATING_FIELDS } from '@/lib/attendanceQuestions'
+import { ratingGroups } from '@/lib/attendanceQuestions'
 import { formatDateTime, fullName, plural } from '@/lib/format'
 import { SESSION_TYPE_LABELS } from '@/lib/labels'
 import { closesInLabel } from '@/lib/menteeDashboard'
 import { upcomingSession } from '@/lib/menteeSessions'
 import { leadMentor, sessionPillar } from '@/lib/sessions'
 import type {
-  AttendanceRatings,
-  MyAttendanceResponse,
+  AttendanceResponse,
+  AttendanceSubmissionRequest,
   WindowStatusResponse,
 } from '@/types/attendance'
 import type {
@@ -20,12 +20,24 @@ import type {
   SessionRecordView,
   WindowState,
 } from '@/types/menteeSessions'
-import type { MentorRole, ResourceType, SessionDetailResponse } from '@/types/session'
+import type {
+  MentorRole,
+  ResourceType,
+  SessionDetailResponse,
+  SessionNoteResponse,
+} from '@/types/session'
+import type { RatingQuestion } from '@/types/sessionFeedback'
+
+interface RecordParts {
+  session: SessionDetailResponse
+  window: WindowStatusResponse | null
+  record: AttendanceResponse | null
+  questions: RatingQuestion[]
+  note: SessionNoteResponse | null
+}
 
 function recordView(
-  session: SessionDetailResponse,
-  window: WindowStatusResponse | null,
-  record: MyAttendanceResponse | null,
+  { session, window, record, questions, note }: RecordParts,
   now: Date
 ): SessionRecordView {
   const hasStarted = new Date(session.starts_at) <= now
@@ -47,9 +59,9 @@ function recordView(
     opensLabel: upcomingSession(session, now).opensLabel,
     recordId: record?.id ?? null,
     recordState: record?.status ?? null,
-    notes: record?.personal_notes ?? null,
-    // The record's own time, so it only means something once there are notes
-    savedAt: record?.personal_notes ? record.updated_at : null,
+    ratingGroups: ratingGroups(questions),
+    notes: note?.body ?? null,
+    savedAt: note?.updated_at ?? null,
   }
 }
 
@@ -64,19 +76,21 @@ function loadWindow(
   return new Date(session.starts_at) <= now ? request : request.catch(() => null)
 }
 
-async function loadParts(sessionId: string, now: Date) {
+async function loadParts(sessionId: string, now: Date): Promise<RecordParts> {
   const session = await api.sessions.getById(sessionId)
-  const [window, records] = await Promise.all([
+  const [window, records, questions, note] = await Promise.all([
     loadWindow(session, now),
     api.attendance.mine({ session_id: sessionId, cohort_id: session.cohort_id, page_size: 1 }),
+    api.cohorts.ratingQuestions(session.cohort_id),
+    // A 404 means no notes yet
+    api.sessions.myNotes(sessionId).catch(() => null),
   ])
-  return { session, window, record: records.items[0] ?? null }
+  return { session, window, record: records.items[0] ?? null, questions, note }
 }
 
 export async function loadSessionRecord(sessionId: string): Promise<SessionRecordView> {
   const now = new Date()
-  const { session, window, record } = await loadParts(sessionId, now)
-  return recordView(session, window, record, now)
+  return recordView(await loadParts(sessionId, now), now)
 }
 
 const MENTOR_ROLE_LABELS: Record<MentorRole, string> = {
@@ -111,11 +125,11 @@ function movedNote(session: SessionDetailResponse): string | null {
 
 export async function loadSessionDetail(sessionId: string): Promise<SessionDetailView> {
   const now = new Date()
-  const { session, window, record } = await loadParts(sessionId, now)
-  // The PRD has no hybrid sessions any more; the API still allows them, so treat them as virtual
-  const isVirtual = session.mode !== 'physical'
+  const parts = await loadParts(sessionId, now)
+  const { session } = parts
+  const isVirtual = session.mode === 'virtual'
   return {
-    ...recordView(session, window, record, now),
+    ...recordView(parts, now),
     isVirtual,
     whereLabel: isVirtual ? 'Virtual' : session.location?.trim() || 'In person',
     typeLabel: SESSION_TYPE_LABELS[session.session_type],
@@ -148,15 +162,16 @@ export async function loadExtension(sessionId: string): Promise<ExtensionView> {
   }
 }
 
-// Ratings go with Present only
-export function answersToRequest(answers: AttendanceAnswers): AttendanceRatings & {
-  status: AttendanceAnswers['status']
-  feedback: string | null
-} {
-  const isPresent = answers.status === 'attended'
-  const ratings: AttendanceRatings = {}
-  for (const field of RATING_FIELDS) {
-    ratings[field] = isPresent ? (answers.ratings[field] ?? null) : null
+// Present sends all nine ratings in question order and the feedback; Absent sends neither
+export function answersToRequest(
+  answers: AttendanceAnswers,
+  fields: number[]
+): Omit<AttendanceSubmissionRequest, 'session_id'> {
+  if (answers.status === 'absent') return { status: 'absent', ratings: null, feedback: null }
+  const ordered = [...fields].sort((a, b) => a - b)
+  return {
+    status: 'present',
+    ratings: ordered.map((field) => answers.ratings[field] ?? 0),
+    feedback: answers.feedback.trim() || null,
   }
-  return { status: answers.status, feedback: answers.feedback.trim() || null, ...ratings }
 }

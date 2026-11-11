@@ -1,18 +1,19 @@
 // Dashboard types, mapped directly from the Forge API OpenAPI schema
 
-import type { ActivityType } from '@/types/activity'
+import type { ActivityType, ExtraActivityResponse } from '@/types/activity'
+import type { ObjectiveResponse } from '@/types/objective'
 import type { SessionBrief, SessionType, UserSummary } from '@/types/session'
 import type { Percentage } from '@/types/rate'
 
 export interface CohortHealthResponse {
   cohort_id: string
   total_mentees: number
-  // Mentees per graduation status
-  counts: Record<string, number>
   average_core_rate: Percentage
-  average_combined_rate: Percentage
+  average_overall_rate: Percentage
+  points_distributed: number
+  sessions_completed: number
+  sessions_scheduled: number
   pending_override_requests: number
-  pending_activities: number
 }
 
 export interface PointsBreakdownResponse {
@@ -24,17 +25,24 @@ export interface PointsBreakdownResponse {
   total_points: number
   sessions_attended: number
   sessions_due: number
+  sessions_absent: number
+  // Not submitted before the window closed
+  sessions_missed: number
+  points_missed: number
   sessions_excused: number
-  sessions_upcoming: number
+  // Still to come
+  sessions_remaining: number
+  points_remaining: number
 }
 
-// `status` is left out on purpose: the PRD says standing labels are never shown
+// `status` is only set once graduation is confirmed
 export interface GraduationStatusResponse {
   mentee_id: string
   cohort_id: string
-  combined_rate: Percentage
+  status: 'graduated' | 'not_graduated' | null
+  core_rate: Percentage
+  overall_rate: Percentage
   threshold: number
-  warning_threshold: number
   points_to_threshold: number
   is_final: boolean
 }
@@ -42,7 +50,9 @@ export interface GraduationStatusResponse {
 export interface MenteeOverviewResponse {
   cohort_id: string
   points: PointsBreakdownResponse
-  graduation: GraduationStatusResponse
+  core_rate: Percentage
+  overall_rate: Percentage
+  graduation_threshold: number
   next_session: SessionBrief | null
   open_attendance_windows: number
   pending_override_requests: number
@@ -64,13 +74,14 @@ export interface AttendanceRateResponse {
   mentee_id: string
   cohort_id: string
   core_rate: Percentage
-  combined_rate: Percentage
+  // Core plus extra-activity points
+  overall_rate: Percentage
   by_month: RateBucket[]
   by_track: RateBucket[]
   by_session_type: RateBucket[]
 }
 
-export type SessionOutcome = 'attended' | 'absent' | 'excused' | 'upcoming'
+export type SessionOutcome = 'present' | 'absent' | 'missed' | 'excused' | 'remaining'
 
 // One session in the mentee's history, most recent first
 export interface SessionPointsEntry {
@@ -97,14 +108,12 @@ export interface PointsDetailResponse extends PointsBreakdownResponse {
   extra_activities: ActivityPointsEntry[]
 }
 
-// `status` and the at-risk counts are left out on purpose: the PRD says standing labels
-// are never shown
 export interface MenteeSummary {
   mentee: UserSummary
   ict_track: string | null
   total_points: number
   core_rate: Percentage
-  combined_rate: Percentage
+  overall_rate: Percentage
   sessions_attended: number
   sessions_due: number
 }
@@ -112,7 +121,8 @@ export interface MenteeSummary {
 export interface GroupOverview {
   cohort_id: string
   mentees: MenteeSummary[]
-  average_combined_rate: Percentage
+  average_core_rate: Percentage
+  average_overall_rate: Percentage
 }
 
 export interface MenteeDrilldown {
@@ -120,4 +130,15 @@ export interface MenteeDrilldown {
   points: PointsDetailResponse
   rates: AttendanceRateResponse
   graduation: GraduationStatusResponse
+  objectives: ObjectiveResponse[]
+  session_feedback: MenteeSessionFeedback[]
+  recent_activities: ExtraActivityResponse[]
+}
+
+// One of the mentee's own session ratings, as their peer mentor sees it
+export interface MenteeSessionFeedback {
+  session: SessionBrief
+  ratings: (number | null)[] | null
+  feedback: string | null
+  submitted_at: string | null
 }

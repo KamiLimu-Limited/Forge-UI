@@ -16,8 +16,9 @@ export function Correction() {
       onChange={correction.setDraft}
       selected={correction.selected}
       errors={correction.errors}
-      canSave={correction.canSave}
-      onSave={correction.check}
+      onSave={() => void correction.save()}
+      isSaving={correction.isSaving}
+      saveError={correction.saveError}
     />
   )
 }

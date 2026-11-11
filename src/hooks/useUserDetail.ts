@@ -102,13 +102,20 @@ export function useUserDetail(userId: string): UseUserDetailReturn {
   }
 }
 
+// Only the parts that changed
+export interface AssignmentChanges {
+  peerMentorId?: string | null
+  ictTrack?: string
+}
+
 interface UseUserEnrollmentReturn {
   enrollment: EnrollmentResponse | null
   peerMentors: EnrollmentResponse[]
+  ictTracks: string[]
   isLoading: boolean
   error: string | null
   refetch: () => void
-  save: (body: EnrollmentUpdateRequest) => Promise<boolean>
+  save: (changes: AssignmentChanges) => Promise<boolean>
   isSaving: boolean
   saveError: string | null
 }
@@ -120,7 +127,7 @@ export function useUserEnrollment(
 ): UseUserEnrollmentReturn {
   const query = useApiQuery(
     async () => {
-      const [mentees, peerMentors] = await Promise.all([
+      const [mentees, peerMentors, tracks] = await Promise.all([
         fetchAllPages((page, page_size) =>
           api.cohorts.enrollments.list(cohortId as string, { page, page_size, role: 'mentee' })
         ),
@@ -128,21 +135,40 @@ export function useUserEnrollment(
           api.cohorts.enrollments.list(cohortId as string, {
             page,
             page_size,
-            role: 'peer_mentor_1:1',
+            role: 'peer_mentor_1_1',
           })
         ),
+        api.cohorts.ictTracks(cohortId as string),
       ])
-      return { enrollment: mentees.find((e) => e.user.id === userId) ?? null, peerMentors }
+      return {
+        enrollment: mentees.find((e) => e.user.id === userId) ?? null,
+        peerMentors,
+        ictTracks: tracks.map((track) => track.name),
+      }
     },
     [cohortId, userId],
     { enabled: cohortId !== null, fallbackError: "We couldn't load this user's assignments." }
   )
 
-  const enrollmentId = query.data?.enrollment?.id ?? null
+  // The peer mentor is on the enrollment; the ICT track goes through the admin override,
+  // which writes an audit entry
   const saveCall = useCallback(
-    (body: EnrollmentUpdateRequest) =>
-      api.cohorts.enrollments.update(cohortId as string, enrollmentId as string, body),
-    [cohortId, enrollmentId]
+    async (changes: AssignmentChanges): Promise<EnrollmentResponse> => {
+      let enrollment = query.data?.enrollment
+      if (!enrollment) throw new Error('Not enrolled')
+      if (changes.peerMentorId !== undefined) {
+        const body: EnrollmentUpdateRequest = { peer_mentor_id: changes.peerMentorId }
+        enrollment = await api.cohorts.enrollments.update(cohortId as string, enrollment.id, body)
+      }
+      if (changes.ictTrack !== undefined) {
+        const selection = await api.cohorts.overrideTrack(cohortId as string, userId, {
+          ict_track: changes.ictTrack,
+        })
+        enrollment = { ...enrollment, ict_track: selection.ict_track }
+      }
+      return enrollment
+    },
+    [cohortId, userId, query.data]
   )
   const saveAction = useAsyncAction(saveCall, "The assignments weren't saved. Try again.")
 
@@ -157,11 +183,12 @@ export function useUserEnrollment(
   return {
     enrollment: query.data?.enrollment ?? null,
     peerMentors,
+    ictTracks: query.data?.ictTracks ?? [],
     isLoading: query.isLoading,
     error: query.error,
     refetch: query.refetch,
-    save: async (body) => {
-      const updated = await saveAction.run(body)
+    save: async (changes) => {
+      const updated = await saveAction.run(changes)
       if (updated && query.data) query.setData({ ...query.data, enrollment: updated })
       return updated !== null
     },

@@ -20,7 +20,7 @@ interface RecentActivityListProps {
 
 // A reversed log keeps its row, so the mentee can see why their points changed
 function ReversedChip({ row }: { row: ActivityLogRow }) {
-  return row.status === 'rejected' ? <Chip>Reversed</Chip> : null
+  return row.status === 'reversed' ? <Chip>Reversed</Chip> : null
 }
 
 export function RecentActivityList({ rows }: RecentActivityListProps) {

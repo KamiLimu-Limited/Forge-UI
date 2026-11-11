@@ -1,5 +1,6 @@
-// An alumnus's past cohort record, from the mentee routes pointed at that cohort.
-// Each part loads on its own, so one refused route only blanks its own card.
+// An alumnus's past cohort: the frozen result from /alumni/me/history, and the session,
+// activity and objective record from the mentee routes pointed at that cohort. Each part
+// loads on its own, so one refused route only blanks its own card.
 
 import { api, fetchAllPages } from '@/lib/api'
 import { activityCounts, attendanceRows, objectiveRows } from '@/lib/peerMentor'
@@ -19,35 +20,30 @@ function settled<T>(result: PromiseSettledResult<T>): T | null {
   return result.status === 'fulfilled' ? result.value : null
 }
 
-export async function loadAlumniHome(
-  userId: string,
-  firstName: string,
-  cohortId: string
-): Promise<AlumniHomeView> {
-  const cohort = await api.cohorts.getById(cohortId)
-  const [overview, rates, status] = await Promise.allSettled([
+export async function loadAlumniHome(firstName: string, cohortId: string): Promise<AlumniHomeView> {
+  const history = await api.users.alumniHistory()
+  const entry = history.find((item) => item.cohort.id === cohortId) ?? null
+  const [cohort, card, overview] = await Promise.allSettled([
+    entry ? Promise.resolve(entry.cohort) : api.cohorts.getById(cohortId),
+    // Graduates only, so a refusal just means no date
+    api.users.graduationCard(),
     api.dashboard.mentee.overview(cohortId),
-    api.mentees.attendanceRates(userId, cohortId),
-    api.mentees.finalStatus(userId, cohortId),
   ])
-  const points = settled(overview)?.points ?? null
-  const final = settled(status)
+  const result = entry?.result ?? null
+  const graduationCard = settled(card)
   return {
     firstName,
-    cohortName: cohort.name,
-    graduated: final !== null && final.is_final && final.status === 'graduated',
-    graduatedOn: cohort.end_date,
-    coreRate: settled(rates)?.core_rate ?? null,
-    overallRate: settled(rates)?.combined_rate ?? null,
-    totalPoints: points?.total_points ?? null,
-    sessionsAttended: points?.sessions_attended ?? null,
+    cohortName: settled(cohort)?.name ?? '',
+    graduated: result?.graduated ?? false,
+    graduatedOn: graduationCard?.cohort.id === cohortId ? graduationCard.graduated_on : null,
+    coreRate: result?.core_rate ?? null,
+    overallRate: result?.overall_rate ?? null,
+    totalPoints: result?.total_points ?? null,
+    sessionsAttended: settled(overview)?.points.sessions_attended ?? null,
   }
 }
 
-export async function loadAlumniRecord(
-  userId: string,
-  cohortId: string
-): Promise<AlumniRecordView> {
+export async function loadAlumniRecord(cohortId: string): Promise<AlumniRecordView> {
   const cohort = await api.cohorts.getById(cohortId)
   const [history, records, activities, progress] = await Promise.allSettled([
     api.dashboard.mentee.history(cohortId),
@@ -57,14 +53,14 @@ export async function loadAlumniRecord(
     fetchAllPages((page, page_size) =>
       api.extraActivities.mine({ page, page_size, cohort_id: cohortId })
     ),
-    api.skills.progress(userId, cohortId),
+    api.objectives.mine(cohortId),
   ])
   const entries = settled(history)
   const pillarFor = new Map(
     (entries ?? []).map((entry) => [entry.session_id, sessionPillar(entry)])
   )
   const logged = settled(activities)
-  const skills = settled(progress)
+  const objectives = settled(progress)
   return {
     cohortName: cohort.name,
     sessions: entries
@@ -76,10 +72,10 @@ export async function loadAlumniRecord(
     activities: logged
       ? activityCounts(
           logged
-            .filter((activity) => activity.status !== 'rejected')
+            .filter((activity) => activity.status !== 'reversed')
             .map((activity) => activity.type)
         )
       : null,
-    objectives: skills ? objectiveRows(skills) : null,
+    objectives: objectives ? objectiveRows(objectives) : null,
   }
 }

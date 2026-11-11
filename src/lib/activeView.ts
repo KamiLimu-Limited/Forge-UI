@@ -26,7 +26,7 @@ export type ViewRole =
 
 const VIEW_ROLES: Partial<Record<UserRole, ViewRole>> = {
   mentee: 'mentee',
-  'peer_mentor_1:1': 'peer_mentor',
+  peer_mentor_1_1: 'peer_mentor',
   peer_mentor_ict: 'ict_peer_mentor',
   alumni: 'alumni',
   professional_mentor: 'professional_mentor',
@@ -45,6 +45,12 @@ const VIEW_ROLE_ORDER: ViewRole[] = [
   'professional_mentor',
   'committee',
 ]
+
+// The role to save as the account's active role for a view: the one its screens come from
+export function primaryRole(context: RoleContext): UserRole | null {
+  const view = viewRole(context)
+  return context.roles.find((role) => VIEW_ROLES[role] === view) ?? context.roles[0] ?? null
+}
 
 export function viewRole(context: RoleContext | null): ViewRole | null {
   if (!context) return null

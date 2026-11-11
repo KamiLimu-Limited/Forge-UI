@@ -14,6 +14,8 @@ const meta: Meta<typeof GraduationScreen> = {
     graduates: samplePreview.graduates,
     canGraduate: true,
     onRefresh: () => undefined,
+    onGraduate: () => Promise.resolve(false),
+    onCloseCohort: () => Promise.resolve(false),
     confirmFields: { cohortName: '', password: '' },
     onConfirmFieldsChange: () => undefined,
     onResetConfirm: () => undefined,

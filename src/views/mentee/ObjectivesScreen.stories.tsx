@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { PEER_MENTOR_SAVE_NOTE } from '@/lib/participation'
 import { menteeUser } from '../../../.storybook/fixtures'
 import { sampleObjectives } from '../../../.storybook/menteeFixtures'
 import { ObjectivesScreen } from './ObjectivesScreen'
@@ -8,7 +7,7 @@ const meta: Meta<typeof ObjectivesScreen> = {
   title: 'Screens/Mentee/Objectives',
   component: ObjectivesScreen,
   parameters: { layout: 'padded', auth: { user: menteeUser } },
-  args: { data: sampleObjectives, onSave: () => undefined },
+  args: { data: sampleObjectives, onSave: () => undefined, onAddObjective: () => undefined },
 }
 
 export default meta
@@ -38,4 +37,3 @@ export const WithError: Story = {
   },
 }
 // A 1:1 peer mentor using the same screen: everything shows, saving is switched off
-export const AsPeerMentor: Story = { args: { saveBlockedNote: PEER_MENTOR_SAVE_NOTE } }

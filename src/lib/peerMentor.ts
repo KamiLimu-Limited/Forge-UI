@@ -3,11 +3,18 @@
 import { api, fetchAllPages } from '@/lib/api'
 import { formatDateTime, formatDay, toDateTimeLocal } from '@/lib/format'
 import { closesInLabel } from '@/lib/menteeDashboard'
-import { ratingsOf } from '@/lib/menteeSessions'
-import { RATING_POINTS, skillLabel } from '@/lib/menteeObjectives'
+import { ratingGroups, ratingsOf } from '@/lib/attendanceQuestions'
+import { POINT_LABELS, RATING_POINTS, scoreAt } from '@/lib/menteeObjectives'
 import type { ActivityType } from '@/types/activity'
-import type { AttendanceRatings, AttendanceResponse, AttendanceStatus } from '@/types/attendance'
-import type { MenteeDrilldown, MenteeSummary, SessionPointsEntry } from '@/types/dashboard'
+import type { AttendanceResponse, AttendanceStatus } from '@/types/attendance'
+import type {
+  MenteeDrilldown,
+  MenteeSessionFeedback,
+  MenteeSummary,
+  SessionPointsEntry,
+} from '@/types/dashboard'
+import type { ObjectiveResponse } from '@/types/objective'
+import type { RatingQuestion } from '@/types/sessionFeedback'
 import type {
   MenteeActivityCount,
   MenteeAttendanceRow,
@@ -21,15 +28,12 @@ import type {
   PeerSessionView,
 } from '@/types/peerMentor'
 import type { SessionResponse } from '@/types/session'
-import type { RatingPoint, SkillProgressResponse } from '@/types/skills'
-
-const POINT_LABELS: Record<RatingPoint, string> = { early: 'Start', mid: 'Mid', late: 'End' }
 
 const ACTIVITY_ROWS: { type: ActivityType; label: string }[] = [
   { type: 'consultation', label: 'Consultations' },
   { type: 'event', label: 'External events' },
-  // The API has one type for job and scholarship applications. See docs/api-gaps.md.
-  { type: 'opportunity', label: 'Applications' },
+  { type: 'opportunity', label: 'Job applications' },
+  { type: 'scholarship', label: 'Scholarship applications' },
   { type: 'academic', label: 'KamiLimu to Academia' },
 ]
 
@@ -47,7 +51,7 @@ export function menteeCard(summary: MenteeSummary): MenteeCardView {
     id,
     name: `${first_name} ${last_name}`.trim(),
     coreRate: summary.core_rate,
-    overallRate: summary.combined_rate,
+    overallRate: summary.overall_rate,
     points: summary.total_points,
   }
 }
@@ -57,9 +61,8 @@ function attendanceState(
   record: AttendanceResponse | undefined
 ): AttendanceStatus {
   if (record && record.status !== 'pending') return record.status
-  if (entry.outcome === 'attended') return 'attended'
-  if (entry.outcome === 'excused') return 'excused'
-  return 'missed'
+  if (entry.outcome === 'remaining') return 'pending'
+  return entry.outcome
 }
 
 export function attendanceRows(
@@ -67,7 +70,7 @@ export function attendanceRows(
   records: AttendanceResponse[]
 ): MenteeAttendanceRow[] {
   return entries
-    .filter((entry) => entry.outcome !== 'upcoming')
+    .filter((entry) => entry.outcome !== 'remaining')
     .map((entry) => ({
       sessionId: entry.session_id,
       title: entry.title,
@@ -79,30 +82,33 @@ export function attendanceRows(
     }))
 }
 
-export function objectiveRows(progress: SkillProgressResponse): MenteeObjectiveRow[] {
-  return progress.skill_names.map((skill) => {
+export function objectiveRows(objectives: ObjectiveResponse[]): MenteeObjectiveRow[] {
+  return objectives.map((objective) => {
     const scores = RATING_POINTS.flatMap((point) => {
-      const score = progress.ratings.find((rating) => rating.rating_point === point)?.ratings[skill]
-      return score === undefined ? [] : [`${POINT_LABELS[point]} ${score}`]
+      const score = scoreAt(objective, point)
+      return score === null ? [] : [`${POINT_LABELS[point]} ${score}`]
     })
     return {
-      skill,
-      label: skillLabel(skill),
+      id: objective.id,
+      label: objective.text,
       summary: scores.length > 0 ? scores.join(', ') : 'Not yet rated',
     }
   })
 }
 
-function feedbackRows(records: AttendanceResponse[]): MenteeFeedbackRow[] {
-  return records.flatMap((record) => {
-    const ratings = ratingsOf(record)
-    if (ratings.length === 0 && !record.feedback) return []
+function feedbackRows(
+  entries: MenteeSessionFeedback[],
+  questions: RatingQuestion[]
+): MenteeFeedbackRow[] {
+  return entries.flatMap((entry) => {
+    const ratings = ratingsOf(entry.ratings, questions)
+    if (ratings.length === 0 && !entry.feedback) return []
     return [
       {
-        sessionId: record.session_id,
-        title: record.session.title,
+        sessionId: entry.session.id,
+        title: entry.session.title,
         ratings,
-        feedback: record.feedback,
+        feedback: entry.feedback,
       },
     ]
   })
@@ -110,15 +116,15 @@ function feedbackRows(records: AttendanceResponse[]): MenteeFeedbackRow[] {
 
 export function menteeDetail(
   drilldown: MenteeDrilldown,
-  progress: SkillProgressResponse | null,
-  records: AttendanceResponse[] | null
+  records: AttendanceResponse[] | null,
+  questions: RatingQuestion[]
 ): MenteeDetailView {
   return {
     card: menteeCard(drilldown.summary),
     attendance: attendanceRows(drilldown.points.sessions, records ?? []),
-    objectives: progress ? objectiveRows(progress) : null,
+    objectives: objectiveRows(drilldown.objectives),
     activities: activityCounts(drilldown.points.extra_activities.map((activity) => activity.type)),
-    feedback: records ? feedbackRows(records) : null,
+    feedback: feedbackRows(drilldown.session_feedback, questions),
   }
 }
 
@@ -171,40 +177,15 @@ export async function loadPeerSession(
   }
 }
 
-// The design asks nine questions in three groups. The API collects five ratings, so each
-// sits in the group it fits best. See docs/api-gaps.md.
-const FEEDBACK_GROUPS: {
-  label: string
-  questions: { label: string; key: keyof AttendanceRatings }[]
-}[] = [
-  {
-    label: 'Reaction',
-    questions: [
-      { label: 'Quality of the session', key: 'quality_rating' },
-      { label: 'How useful it was', key: 'usefulness_rating' },
-    ],
-  },
-  {
-    label: 'Learning',
-    questions: [{ label: 'How well they understood it', key: 'understanding_score' }],
-  },
-  {
-    label: 'Intended behaviour',
-    questions: [
-      { label: 'Will apply it in their studies', key: 'academic_application_score' },
-      { label: 'Will apply it in their career', key: 'career_application_score' },
-    ],
-  },
-]
-
 export function averageOf(values: number[]): number | null {
   if (values.length === 0) return null
   return Math.round((values.reduce((sum, value) => sum + value, 0) / values.length) * 10) / 10
 }
 
-function answers(records: AttendanceResponse[], key: keyof AttendanceRatings): number[] {
+// Each attendee's answer to one question; ratings arrive in question order
+function answers(records: AttendanceResponse[], questionNumber: number): number[] {
   return records.flatMap((record) => {
-    const value = record[key]
+    const value = record.ratings?.[questionNumber - 1]
     return typeof value === 'number' ? [value] : []
   })
 }
@@ -214,20 +195,19 @@ export function groupFeedback(
   closesAt: string | null,
   records: AttendanceResponse[],
   groupSize: number,
+  questions: RatingQuestion[],
   now: Date = new Date()
 ): GroupFeedbackView {
   // Ratings only count from mentees who attended
-  const attended = records.filter((record) => record.status === 'attended')
-  const groups: FeedbackGroupView[] = FEEDBACK_GROUPS.map((group) => ({
-    label: group.label,
+  const attended = records.filter((record) => record.status === 'present')
+  const groups: FeedbackGroupView[] = ratingGroups(questions).map((group) => ({
+    label: group.title,
     questions: group.questions.map((question) => ({
-      label: question.label,
-      average: averageOf(answers(attended, question.key)),
+      label: question.text,
+      average: averageOf(answers(attended, question.number)),
     })),
   }))
-  const everyAnswer = FEEDBACK_GROUPS.flatMap((group) =>
-    group.questions.flatMap((question) => answers(attended, question.key))
-  )
+  const everyAnswer = questions.flatMap((question) => answers(attended, question.number))
   return {
     id: session.id,
     title: session.title,
@@ -257,11 +237,13 @@ export async function loadGroupFeedback(
     api.sessions.attendanceWindow(sessionId).catch(() => null),
     api.peerMentor.groupAttendance({ session_id: sessionId, page_size: 100 }),
   ])
+  const questions = await api.cohorts.ratingQuestions(session.cohort_id)
   return groupFeedback(
     session,
     window?.effective_closes_at ?? null,
     records.items,
-    group.mentees.length
+    group.mentees.length,
+    questions
   )
 }
 

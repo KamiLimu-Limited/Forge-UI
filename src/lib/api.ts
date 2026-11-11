@@ -15,6 +15,9 @@ import type {
   SuccessResponse,
   ErrorResponse,
   UserRoleResponse,
+  MyCohort,
+  ActiveCohortRequest,
+  ActiveCohortResponse,
 } from '@/types/auth'
 import { ApiError } from '@/types/auth'
 import type {
@@ -27,12 +30,15 @@ import type {
 import type {
   AcademicActivityRequest,
   ActivityListParams,
-  ActivityReviewRequest,
+  ActivityReversalRequest,
   ActivityUpdateRequest,
+  ConsultantRequest,
+  ConsultantResponse,
   ConsultationSessionRequest,
   ExternalEventRequest,
   ExtraActivityResponse,
   OpportunityApplicationRequest,
+  ScholarshipApplicationRequest,
 } from '@/types/activity'
 import type {
   AttendanceListParams,
@@ -40,7 +46,6 @@ import type {
   AttendanceStatusUpdateRequest,
   AttendanceSubmissionRequest,
   AttendanceUpdateRequest,
-  MyAttendanceResponse,
   OverrideListParams,
   OverrideRequestCreate,
   OverrideRequestResponse,
@@ -55,10 +60,17 @@ import type {
   CohortListParams,
   CohortResponse,
   CohortUpdateRequest,
+  IctTrackResponse,
+  IctTracksRequest,
+  PointsConfig,
+  TrackOverrideRequest,
+  TrackSelectionResponse,
+  TrackSelectionWindow,
 } from '@/types/cohort'
 import type {
   AttendanceRateResponse,
   CohortHealthResponse,
+  GraduationStatusResponse,
   GroupOverview,
   MenteeDrilldown,
   MenteeOverviewResponse,
@@ -74,9 +86,15 @@ import type {
   InvitationPreview,
   InvitationResponse,
 } from '@/types/invitation'
-import type { FinalStatusResponse } from '@/types/alumni'
 import type { TrackOverviewResponse, TrackSessionEntry } from '@/types/ictPeerMentor'
-import type { DimensionRankingResponse, LeaderboardDimension } from '@/types/leaderboard'
+import type {
+  DimensionRankingResponse,
+  LeaderboardDimension,
+  LeaderboardKind,
+  LeaderboardSnapshotResponse,
+  PeerMentorDimension,
+  PeerMentorLeaderboardResponse,
+} from '@/types/leaderboard'
 import type {
   AdminNotificationResponse,
   BroadcastRequest,
@@ -93,27 +111,47 @@ import type {
   SessionQualityResponse,
   TrackPerformanceResponse,
 } from '@/types/analytics'
-import type { GraduationReportResponse } from '@/types/graduation'
-import type { Page, PageParams } from '@/types/page'
-import type { SessionAttendanceSummary } from '@/types/proMentor'
-import type { SessionFeedbackResponse } from '@/types/sessionFeedback'
 import type {
+  AlumniCohort,
+  GraduationCard,
+  GraduationCorrectionRequest,
+  GraduationCorrectionResponse,
+  GraduationPanel,
+  GraduationPreview,
+  GraduationRecord,
+  GraduationReportResponse,
+  GraduationSequenceResponse,
+} from '@/types/graduation'
+import type { Page, PageParams } from '@/types/page'
+import type {
+  FacilitatedSession,
+  FacilitatorSummary,
+  PeerMentorAverage,
+  RatingTrendPoint,
+  SessionAttendanceSummary,
+  SessionRatings,
+} from '@/types/proMentor'
+import type { RatingQuestion, SessionFeedbackResponse } from '@/types/sessionFeedback'
+import type {
+  InProgressSession,
   MentorAssignment,
   ResourceIn,
   SessionCancelRequest,
   SessionCreateRequest,
   SessionDetailResponse,
   SessionListParams,
+  SessionNoteResponse,
   SessionRescheduleRequest,
   SessionResponse,
   SessionUpdateRequest,
 } from '@/types/session'
 import type {
-  SkillProgressResponse,
-  SkillRatingRequest,
-  SkillRatingResponse,
-  SkillRatingWindowStatus,
-} from '@/types/skills'
+  ObjectiveCreateRequest,
+  ObjectiveRatingRequest,
+  ObjectiveResponse,
+  ObjectiveUpdateRequest,
+  ObjectiveWindowsResponse,
+} from '@/types/objective'
 import { API_BASE_URL } from './config'
 
 const TOKEN_KEY = 'forge_access_token'
@@ -304,6 +342,13 @@ export const api = {
         false
       ),
 
+    // Re-checks the password before graduating; send the token as X-Confirmation-Token
+    confirmPassword: (password: string) =>
+      request<{ confirmation_token: string; expires_at: string }>(
+        '/api/v1/auth/confirm-password',
+        json('POST', { password })
+      ),
+
     // Takes the tokens explicitly because sign-out clears them from storage first.
     // The API reads refresh_token from the body, never the query string.
     logout: (accessToken: string, refreshToken?: string) =>
@@ -360,6 +405,18 @@ export const api = {
 
   users: {
     getMe: () => request<UserProfileResponse>('/api/v1/users/me'),
+
+    // Every cohort the caller holds a role in, and which one they last viewed
+    myCohorts: () => request<MyCohort[]>('/api/v1/users/me/cohorts'),
+
+    // Graduates only
+    graduationCard: () => request<GraduationCard>('/api/v1/users/me/graduation-card'),
+
+    // Alumni only: finished cohorts with frozen results
+    alumniHistory: () => request<AlumniCohort[]>('/api/v1/alumni/me/history'),
+
+    setActiveCohort: (body: ActiveCohortRequest) =>
+      request<ActiveCohortResponse>('/api/v1/users/me/active-cohort', json('PUT', body)),
     updateMe: (body: UserProfileUpdateRequest) =>
       request<UserProfileResponse>('/api/v1/users/me', {
         method: 'PATCH',
@@ -424,7 +481,112 @@ export const api = {
     update: (cohortId: string, body: CohortUpdateRequest) =>
       request<CohortResponse>(`/api/v1/cohorts/${cohortId}`, json('PATCH', body)),
 
-    // Committee of the cohort. The only graduation route the API has so far.
+    graduation: {
+      preview: (cohortId: string) =>
+        request<GraduationPreview>(`/api/v1/cohorts/${cohortId}/graduation/preview`),
+
+      // Runs the calculation again; nothing is frozen
+      refreshPreview: (cohortId: string) =>
+        request<GraduationPreview>(`/api/v1/cohorts/${cohortId}/graduation/preview`, {
+          method: 'POST',
+        }),
+
+      // The confirmed record, once the cohort has graduated
+      record: (cohortId: string) =>
+        request<GraduationRecord>(`/api/v1/cohorts/${cohortId}/graduation`),
+
+      // Program Lead, with a token from auth.confirmPassword
+      graduate: (cohortId: string, confirmationToken: string) =>
+        request<GraduationRecord>(`/api/v1/cohorts/${cohortId}/graduate`, {
+          method: 'POST',
+          headers: { 'X-Confirmation-Token': confirmationToken },
+        }),
+
+      sequence: (cohortId: string) =>
+        request<GraduationSequenceResponse>(`/api/v1/cohorts/${cohortId}/graduation/sequence`),
+
+      // Every graduate's user id, in reveal order
+      setRevealOrder: (cohortId: string, revealOrder: string[]) =>
+        request<GraduationSequenceResponse>(
+          `/api/v1/cohorts/${cohortId}/graduation/sequence-settings`,
+          json('PATCH', { reveal_order: revealOrder })
+        ),
+
+      correct: (cohortId: string, body: GraduationCorrectionRequest) =>
+        request<GraduationCorrectionResponse>(
+          `/api/v1/cohorts/${cohortId}/graduation/corrections`,
+          json('POST', body)
+        ),
+
+      panel: (cohortId: string) =>
+        request<GraduationPanel>(
+          `/api/v1/dashboard/program-lead/graduation${qs({ cohort_id: cohortId })}`
+        ),
+    },
+
+    // Read only from then on; archives the peer mentor assignments
+    close: (cohortId: string) =>
+      request<CohortResponse>(`/api/v1/cohorts/${cohortId}/close`, { method: 'POST' }),
+
+    // A closed or imported cohort becomes a read-only record
+    archive: (cohortId: string) =>
+      request<CohortResponse>(`/api/v1/cohorts/${cohortId}/archive`, { method: 'PATCH' }),
+
+    // Every cohort member can read these
+    ictTracks: (cohortId: string) =>
+      request<IctTrackResponse[]>(`/api/v1/cohorts/${cohortId}/ict-tracks`),
+
+    // Replaces the whole list. Each lead mentor must be an ICT peer mentor in the cohort, and
+    // a track mentees have chosen can't be removed. System Admin or Program Lead.
+    setIctTracks: (cohortId: string, body: IctTracksRequest) =>
+      request<IctTrackResponse[]>(`/api/v1/cohorts/${cohortId}/ict-tracks`, json('PUT', body)),
+
+    // The selection window and the caller's own choice
+    trackSelection: (cohortId: string) =>
+      request<TrackSelectionResponse>(`/api/v1/cohorts/${cohortId}/ict-track-selection`),
+
+    // While the window is open
+    chooseTrack: (cohortId: string, ictTrack: string) =>
+      request<TrackSelectionResponse>(
+        `/api/v1/cohorts/${cohortId}/ict-track-selection/me`,
+        json('PUT', { ict_track: ictTrack })
+      ),
+
+    // Both dates null closes it. System Admin or Program Lead.
+    setTrackSelectionWindow: (
+      cohortId: string,
+      body: { opens_at: string | null; closes_at: string | null }
+    ) =>
+      request<TrackSelectionWindow>(
+        `/api/v1/cohorts/${cohortId}/ict-track-selection/window`,
+        json('PUT', body)
+      ),
+
+    // Sets a mentee's track for them, even after the window closes, with an audit entry
+    overrideTrack: (cohortId: string, menteeId: string, body: TrackOverrideRequest) =>
+      request<TrackSelectionResponse>(
+        `/api/v1/cohorts/${cohortId}/ict-track-selection/${menteeId}`,
+        json('PUT', body)
+      ),
+
+    // The nine session rating questions, in the order ratings are sent
+    ratingQuestions: (cohortId: string) =>
+      request<RatingQuestion[]>(`/api/v1/cohorts/${cohortId}/rating-questions`),
+
+    // Nine wordings, in question order. System Admin or Program Lead.
+    setRatingQuestions: (cohortId: string, questions: string[]) =>
+      request<RatingQuestion[]>(
+        `/api/v1/cohorts/${cohortId}/rating-questions`,
+        json('PUT', { questions })
+      ),
+
+    pointsConfig: (cohortId: string) =>
+      request<PointsConfig>(`/api/v1/cohorts/${cohortId}/points-config`),
+
+    // Applies to logs submitted or updated from now on
+    setPointsConfig: (cohortId: string, body: PointsConfig) =>
+      request<PointsConfig>(`/api/v1/cohorts/${cohortId}/points-config`, json('PUT', body)),
+
     graduationReport: (cohortId: string) =>
       request<GraduationReportResponse>(`/api/v1/cohorts/${cohortId}/graduation-report`),
 
@@ -455,6 +617,9 @@ export const api = {
 
     getById: (sessionId: string) => request<SessionDetailResponse>(`/api/v1/sessions/${sessionId}`),
 
+    // The caller's sessions with an open window, soonest closing first
+    inProgress: () => request<InProgressSession[]>('/api/v1/sessions/in-progress'),
+
     attendanceWindow: (sessionId: string) =>
       request<WindowStatusResponse>(`/api/v1/sessions/${sessionId}/attendance-window`),
 
@@ -482,17 +647,24 @@ export const api = {
         `/api/v1/sessions/${sessionId}/resources`,
         json('PATCH', { resources })
       ),
+
+    // The caller's own notes, editable at any time
+    myNotes: (sessionId: string) =>
+      request<SessionNoteResponse>(`/api/v1/sessions/${sessionId}/notes/me`),
+
+    saveMyNotes: (sessionId: string, body: string) =>
+      request<SessionNoteResponse>(`/api/v1/sessions/${sessionId}/notes/me`, json('PUT', { body })),
   },
 
   attendance: {
     mine: (params?: AttendanceListParams) =>
-      request<Page<MyAttendanceResponse>>(`/api/v1/attendance/me${qs(params)}`),
+      request<Page<AttendanceResponse>>(`/api/v1/attendance/me${qs(params)}`),
 
     submit: (body: AttendanceSubmissionRequest) =>
-      request<MyAttendanceResponse>('/api/v1/attendance', json('POST', body)),
+      request<AttendanceResponse>('/api/v1/attendance', json('POST', body)),
 
     update: (recordId: string, body: AttendanceUpdateRequest) =>
-      request<MyAttendanceResponse>(`/api/v1/attendance/${recordId}`, json('PATCH', body)),
+      request<AttendanceResponse>(`/api/v1/attendance/${recordId}`, json('PATCH', body)),
 
     setStatus: (recordId: string, body: AttendanceStatusUpdateRequest) =>
       request<AttendanceResponse>(`/api/v1/attendance/${recordId}/status`, json('PATCH', body)),
@@ -540,17 +712,66 @@ export const api = {
     logOpportunity: (body: OpportunityApplicationRequest) =>
       request<ExtraActivityResponse>('/api/v1/extra-activities/opportunities', json('POST', body)),
 
+    logScholarship: (body: ScholarshipApplicationRequest) =>
+      request<ExtraActivityResponse>('/api/v1/extra-activities/scholarships', json('POST', body)),
+
     logConsultation: (body: ConsultationSessionRequest) =>
       request<ExtraActivityResponse>('/api/v1/extra-activities/consultations', json('POST', body)),
 
     update: (activityId: string, body: ActivityUpdateRequest) =>
       request<ExtraActivityResponse>(`/api/v1/extra-activities/${activityId}`, json('PATCH', body)),
 
-    reject: (activityId: string, body: ActivityReviewRequest) =>
+    // Removes the points and keeps the record with the reason. System Admin or Program Lead.
+    reverse: (activityId: string, body: ActivityReversalRequest) =>
       request<ExtraActivityResponse>(
-        `/api/v1/extra-activities/${activityId}/reject`,
-        json('PATCH', body)
+        `/api/v1/extra-activities/${activityId}/reverse`,
+        json('POST', body)
       ),
+  },
+
+  // The caller's own facilitator numbers. Peer mentors only.
+  facilitator: {
+    summary: (cohortId?: string) =>
+      request<FacilitatorSummary>(`/api/v1/facilitator/me/summary${qs({ cohort_id: cohortId })}`),
+
+    sessions: (cohortId?: string) =>
+      request<FacilitatedSession[]>(
+        `/api/v1/facilitator/me/sessions${qs({ cohort_id: cohortId })}`
+      ),
+
+    sessionRatings: (sessionId: string) =>
+      request<SessionRatings>(`/api/v1/facilitator/me/sessions/${sessionId}/ratings`),
+
+    ratingsOverTime: (cohortId?: string) =>
+      request<RatingTrendPoint[]>(
+        `/api/v1/facilitator/me/ratings-over-time${qs({ cohort_id: cohortId })}`
+      ),
+
+    peerMentorAverage: (cohortId?: string) =>
+      request<PeerMentorAverage>(
+        `/api/v1/facilitator/peer-mentor-average${qs({ cohort_id: cohortId })}`
+      ),
+
+    // What the caller's own 1:1 mentees said about peer mentorship sessions
+    peerMentorshipFeedback: (cohortId?: string) =>
+      request<SessionRatings[]>(
+        `/api/v1/peer-mentor/me/peer-mentorship-feedback${qs({ cohort_id: cohortId })}`
+      ),
+  },
+
+  consultants: {
+    list: () => request<ConsultantResponse[]>('/api/v1/consultants'),
+
+    // System Admin
+    create: (body: ConsultantRequest) =>
+      request<ConsultantResponse>('/api/v1/consultants', json('POST', body)),
+
+    update: (consultantId: string, body: Partial<ConsultantRequest>) =>
+      request<ConsultantResponse>(`/api/v1/consultants/${consultantId}`, json('PATCH', body)),
+
+    // Past consultation logs keep their link
+    remove: (consultantId: string) =>
+      request<void>(`/api/v1/consultants/${consultantId}`, { method: 'DELETE' }),
   },
 
   dashboard: {
@@ -589,7 +810,7 @@ export const api = {
 
   mentees: {
     finalStatus: (menteeId: string, cohortId: string) =>
-      request<FinalStatusResponse>(
+      request<GraduationStatusResponse>(
         `/api/v1/mentees/${menteeId}/graduation-status${qs({ cohort_id: cohortId })}`
       ),
 
@@ -644,19 +865,28 @@ export const api = {
       request<MarkAllReadResponse>('/api/v1/notifications/read-all', json('PATCH', {})),
   },
 
-  skills: {
+  objectives: {
+    mine: (cohortId: string) =>
+      request<ObjectiveResponse[]>(`/api/v1/objectives/me${qs({ cohort_id: cohortId })}`),
+
     windows: (cohortId: string) =>
-      request<SkillRatingWindowStatus[]>(
-        `/api/v1/skill-ratings/windows${qs({ cohort_id: cohortId })}`
+      request<ObjectiveWindowsResponse>(`/api/v1/objectives/windows${qs({ cohort_id: cohortId })}`),
+
+    // A mentee's objectives, for their peer mentor and staff
+    forMentee: (menteeId: string, cohortId: string) =>
+      request<ObjectiveResponse[]>(
+        `/api/v1/mentees/${menteeId}/objectives${qs({ cohort_id: cohortId })}`
       ),
 
-    progress: (menteeId: string, cohortId: string) =>
-      request<SkillProgressResponse>(
-        `/api/v1/mentees/${menteeId}/skill-progress${qs({ cohort_id: cohortId })}`
-      ),
+    create: (body: ObjectiveCreateRequest) =>
+      request<ObjectiveResponse>('/api/v1/objectives', json('POST', body)),
 
-    rate: (body: SkillRatingRequest) =>
-      request<SkillRatingResponse>('/api/v1/skill-ratings', json('POST', body)),
+    update: (objectiveId: string, body: ObjectiveUpdateRequest) =>
+      request<ObjectiveResponse>(`/api/v1/objectives/${objectiveId}`, json('PATCH', body)),
+
+    // While that rating point's window is open
+    rate: (objectiveId: string, body: ObjectiveRatingRequest) =>
+      request<ObjectiveResponse>(`/api/v1/objectives/${objectiveId}/ratings`, json('POST', body)),
   },
 
   leaderboard: {
@@ -665,6 +895,21 @@ export const api = {
 
     full: (cohortId: string) =>
       request<LeaderboardResponse>(`/api/v1/cohorts/${cohortId}/leaderboard`),
+
+    // Peer mentors and staff
+    peerMentors: (cohortId: string, rankedBy: PeerMentorDimension) =>
+      request<PeerMentorLeaderboardResponse>(
+        `/api/v1/cohorts/${cohortId}/leaderboard/peer-mentors${qs({ ranked_by: rankedBy })}`
+      ),
+
+    snapshots: (cohortId: string) =>
+      request<LeaderboardSnapshotResponse[]>(`/api/v1/cohorts/${cohortId}/leaderboard/snapshots`),
+
+    // System Admin or Program Lead
+    takeSnapshot: (cohortId: string) =>
+      request<LeaderboardSnapshotResponse[]>(`/api/v1/cohorts/${cohortId}/leaderboard/snapshots`, {
+        method: 'POST',
+      }),
 
     // Committee of the cohort
     exportCsv: (cohortId: string) => requestCsv(`/api/v1/cohorts/${cohortId}/leaderboard/export`),
@@ -695,7 +940,7 @@ export const api = {
   exports: {
     attendance: (cohortId: string) => requestCsv(`/api/v1/exports/attendance/${cohortId}`, 'POST'),
     fullReport: (cohortId: string) => requestCsv(`/api/v1/exports/full-report/${cohortId}`, 'POST'),
-    leaderboard: (cohortId: string) =>
-      requestCsv(`/api/v1/exports/leaderboard/${cohortId}`, 'POST'),
+    leaderboard: (cohortId: string, board: LeaderboardKind = 'mentee') =>
+      requestCsv(`/api/v1/exports/leaderboard/${cohortId}${qs({ board })}`, 'POST'),
   },
 }

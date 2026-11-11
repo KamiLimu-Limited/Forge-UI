@@ -15,7 +15,7 @@ export type RoleGroup = 'all' | 'mentees' | 'peer-mentors' | 'professional-mento
 export const ROLE_GROUPS: Record<RoleGroup, UserRole[]> = {
   all: [],
   mentees: ['mentee'],
-  'peer-mentors': ['peer_mentor_1:1', 'peer_mentor_ict'],
+  'peer-mentors': ['peer_mentor_1_1', 'peer_mentor_ict'],
   'professional-mentors': ['professional_mentor'],
   committee: ['committee'],
 }

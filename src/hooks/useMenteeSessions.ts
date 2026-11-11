@@ -8,7 +8,6 @@ import {
   upcomingSession,
 } from '@/lib/menteeSessions'
 import type { MenteeSessionsData } from '@/types/menteeSessions'
-import { loadPeerSessions } from '@/lib/peerParticipation'
 import type { ParticipantCohort } from '@/types/participation'
 import { useApiQuery, type ApiQuery } from './useApiQuery'
 
@@ -38,15 +37,8 @@ async function loadSessions(cohortId: string | null): Promise<MenteeSessionsData
 }
 
 // The active view's cohort. Peer mentors take part through the same screens.
-export function useMenteeSessions({
-  cohortId,
-  peerCohortId,
-}: ParticipantCohort): ApiQuery<MenteeSessionsData> {
-  return useApiQuery(
-    () => (peerCohortId ? loadPeerSessions(peerCohortId) : loadSessions(cohortId)),
-    [cohortId, peerCohortId],
-    {
-      fallbackError: "We couldn't load your sessions. Try again.",
-    }
-  )
+export function useMenteeSessions({ cohortId }: ParticipantCohort): ApiQuery<MenteeSessionsData> {
+  return useApiQuery(() => loadSessions(cohortId), [cohortId], {
+    fallbackError: "We couldn't load your sessions. Try again.",
+  })
 }

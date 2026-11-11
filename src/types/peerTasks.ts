@@ -1,5 +1,5 @@
 // Peer mentorship tasks: sessions with category peer_mentorship, opening at starts_at and
-// due at attendance_deadline. The Program Delivery Lead creates and edits them.
+// due at their end time. The Program Delivery Lead creates and edits them.
 
 import type { Pillar } from '@/lib/labels'
 

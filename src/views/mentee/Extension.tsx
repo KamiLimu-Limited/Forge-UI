@@ -1,6 +1,5 @@
 'use client'
 
-import { useParticipantRole } from '@/hooks/useParticipantRole'
 import { useExtensionRequest } from '@/hooks/useExtensionRequest'
 import { ExtensionScreen } from './ExtensionScreen'
 
@@ -10,7 +9,6 @@ interface ExtensionProps {
 
 export function Extension({ sessionId }: ExtensionProps) {
   const extension = useExtensionRequest(sessionId)
-  const { saveBlockedNote } = useParticipantRole()
   return (
     <ExtensionScreen
       data={extension.data}
@@ -23,7 +21,6 @@ export function Extension({ sessionId }: ExtensionProps) {
       onSend={() => void extension.send()}
       isSending={extension.isSending}
       sendError={extension.sendError}
-      saveBlockedNote={saveBlockedNote}
     />
   )
 }

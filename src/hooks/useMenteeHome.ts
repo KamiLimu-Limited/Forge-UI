@@ -3,8 +3,10 @@
 import { api } from '@/lib/api'
 import { monthRows, RANK_BOARDS, rankFor, sessionBuckets } from '@/lib/menteeDashboard'
 import { loadOpenSessions, loadProgrammeMonth } from '@/lib/menteeSessions'
+import { toDateOnly } from '@/lib/format'
 import { sessionPillar } from '@/lib/sessions'
-import type { MenteeHomeData, NextSession } from '@/types/home'
+import type { TrackSelectionResponse } from '@/types/cohort'
+import type { MenteeHomeData, NextSession, TrackPrompt } from '@/types/home'
 import type { SessionBrief } from '@/types/session'
 import { useActiveView } from './useActiveView'
 import { useApiQuery, type ApiQuery } from './useApiQuery'
@@ -27,6 +29,12 @@ async function loadNextSession(brief: SessionBrief | null): Promise<NextSession 
   }
 }
 
+// Shown while selection is open and the mentee hasn't chosen
+function trackPromptFor(selection: TrackSelectionResponse | null): TrackPrompt | null {
+  if (!selection?.window.is_open || selection.ict_track || !selection.window.closes_at) return null
+  return { closesOn: toDateOnly(selection.window.closes_at) }
+}
+
 async function loadHome(
   userId: string,
   firstName: string,
@@ -36,19 +44,14 @@ async function loadHome(
   const overview = await api.dashboard.mentee.overview(activeCohortId ?? undefined)
   const cohortId = overview.cohort_id
 
-  const [rates, month, enrollments, nextSession, openSessions, future, ...boards] =
+  const [rates, month, enrollments, nextSession, openSessions, selection, ...boards] =
     await Promise.allSettled([
       api.mentees.attendanceRates(overview.points.mentee_id, cohortId),
       loadProgrammeMonth(overview),
       api.cohorts.enrollments.list(cohortId, { role: 'mentee', page_size: 100 }),
       loadNextSession(overview.next_session),
       loadOpenSessions(cohortId),
-      api.sessions.list({
-        cohort_id: cohortId,
-        status: 'published',
-        starts_after: new Date().toISOString(),
-        page_size: 1,
-      }),
+      api.cohorts.trackSelection(cohortId),
       ...RANK_BOARDS.map((board) => api.leaderboard.dimension(cohortId, board.dimension)),
     ])
 
@@ -71,22 +74,15 @@ async function loadHome(
     peerMentorName: null,
     // If the enrollment couldn't be read, don't tell the mentee nobody is assigned
     hasPeerMentor: enrollment ? enrollment.peer_mentor_id !== null : true,
-    // There is no API for choosing a track yet. See docs/api-gaps.md.
-    trackPrompt: null,
+    trackPrompt: trackPromptFor(settled(selection)),
     standing: {
-      coreRate: hasSessions ? (attendanceRates?.core_rate ?? null) : null,
-      overallRate: hasSessions
-        ? (attendanceRates?.combined_rate ?? overview.graduation.combined_rate)
-        : null,
+      coreRate: hasSessions ? overview.core_rate : null,
+      overallRate: hasSessions ? overview.overall_rate : null,
       // Extra activity points count too, as in the overall rate
       pointsEarned: overview.points.total_points,
       pointsPossible: overview.points.core_points_available,
     },
-    buckets: sessionBuckets(
-      overview.points,
-      overview.open_attendance_windows,
-      settled(future)?.total ?? 0
-    ),
+    buckets: sessionBuckets(overview.points, overview.open_attendance_windows),
     nextSession: settled(nextSession),
     openSessions: settled(openSessions) ?? [],
     months: monthRows(attendanceRates?.by_month ?? [], programmeMonth),

@@ -13,7 +13,7 @@ export const RANK_BOARDS: Array<{ dimension: LeaderboardDimension; label: string
   { dimension: 'core_attendance', label: 'Core attendance' },
   { dimension: 'academic', label: 'Academic' },
   { dimension: 'events', label: 'Events' },
-  { dimension: 'opportunities', label: 'Applications' },
+  { dimension: 'applications', label: 'Applications' },
   { dimension: 'consultations', label: 'Consultations' },
 ]
 
@@ -51,17 +51,16 @@ export function trackRows(buckets: RateBucket[]): TrackProgressRow[] {
   })
 }
 
+// Missed covers both a closed window with no submission and a submitted absence
 export function sessionBuckets(
   points: PointsBreakdownResponse,
-  openWindows: number,
-  // The API's sessions_upcoming means started and not submitted, not still to come
-  remaining: number
+  openWindows: number
 ): SessionBuckets {
   return {
     attended: points.sessions_attended,
     inProgress: openWindows,
-    missed: Math.max(0, points.sessions_due - points.sessions_attended - points.sessions_excused),
-    remaining,
+    missed: points.sessions_missed + points.sessions_absent,
+    remaining: points.sessions_remaining,
   }
 }
 

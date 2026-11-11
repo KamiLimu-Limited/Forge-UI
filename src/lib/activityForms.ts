@@ -1,13 +1,15 @@
 // The five extra activity forms as settings, and how each saves to the API.
 // A field marked `unavailable` is one the API can't store yet. See docs/api-gaps.md.
 
-import { MODE_LABELS } from '@/lib/labels'
+import { FINAL_OUTCOME_LABELS, OPPORTUNITY_STAGE_LABELS } from '@/lib/labels'
 import { api } from '@/lib/api'
 import type {
+  ConsultationStatus,
   EventMode,
   EventRole,
   ExtraActivityResponse,
-  OpportunityOutcome,
+  FinalOutcome,
+  OpportunityStage,
 } from '@/types/activity'
 import type {
   ActivityField,
@@ -44,23 +46,27 @@ const CONSULTATION_TYPES = toOptions([
 ])
 
 const EVENT_ROLES: { value: EventRole; label: string }[] = [
-  { value: 'attendee', label: 'Participant' },
+  { value: 'participant', label: 'Participant' },
   { value: 'speaker', label: 'Speaker' },
   { value: 'organizer', label: 'Organizer' },
 ]
 
 const EVENT_MODES: { value: EventMode; label: string }[] = [
-  { value: 'physical', label: MODE_LABELS.physical },
-  { value: 'virtual', label: MODE_LABELS.virtual },
-  { value: 'hybrid', label: MODE_LABELS.hybrid },
+  { value: 'in_person', label: 'In person' },
+  { value: 'virtual', label: 'Virtual' },
 ]
 
-// The API's four stages, in plain words
-export const APPLICATION_STAGES: { value: OpportunityOutcome; label: string }[] = [
-  { value: 'applied', label: 'Applied' },
-  { value: 'shortlisted', label: 'Interview stage' },
-  { value: 'accepted', label: 'Offer made' },
-  { value: 'rejected', label: 'Did not proceed' },
+export const APPLICATION_STAGES: { value: OpportunityStage; label: string }[] = (
+  Object.keys(OPPORTUNITY_STAGE_LABELS) as OpportunityStage[]
+).map((value) => ({ value, label: OPPORTUNITY_STAGE_LABELS[value] }))
+
+export const FINAL_OUTCOMES: { value: FinalOutcome; label: string }[] = (
+  Object.keys(FINAL_OUTCOME_LABELS) as FinalOutcome[]
+).map((value) => ({ value, label: FINAL_OUTCOME_LABELS[value] }))
+
+const CONSULTATION_STATUSES: { value: ConsultationStatus; label: string }[] = [
+  { value: 'completed', label: 'Completed' },
+  { value: 'scheduled', label: 'Scheduled' },
 ]
 
 const SUPPORT_OPTIONS = toOptions([
@@ -86,9 +92,8 @@ const APPLICATION_EXTRAS: ActivityField[] = [
   {
     name: 'preparation',
     label: 'KamiLimu preparation source',
-    kind: 'select',
-    half: true,
-    unavailable: true,
+    kind: 'textarea',
+    placeholder: 'Which KamiLimu lessons helped, and how?',
   },
   { name: 'confidence', label: 'Confidence level', kind: 'select', half: true, unavailable: true },
   {
@@ -98,7 +103,14 @@ const APPLICATION_EXTRAS: ActivityField[] = [
     options: SUPPORT_OPTIONS,
   },
   { name: 'supportMode', label: 'Mode of support', kind: 'select', half: true, unavailable: true },
-  { name: 'finalOutcome', label: 'Final outcome', kind: 'select', half: true, unavailable: true },
+  {
+    name: 'finalOutcome',
+    label: 'Final outcome',
+    kind: 'select',
+    options: FINAL_OUTCOMES,
+    initial: 'waiting_for_response',
+    half: true,
+  },
   NOTES,
 ]
 
@@ -113,8 +125,9 @@ export const ACTIVITY_FORMS: Record<ActivityKind, ActivityFormConfig> = {
       {
         name: 'consultant',
         label: 'Consultant',
-        kind: 'text',
-        placeholder: "Consultant's name",
+        kind: 'select',
+        optionsFrom: 'consultants',
+        placeholder: 'Choose a consultant',
         half: true,
       },
       {
@@ -135,8 +148,15 @@ export const ACTIVITY_FORMS: Record<ActivityKind, ActivityFormConfig> = {
         label: 'Support received',
         kind: 'textarea',
         placeholder: 'What help did you get?',
+        optional: true,
       },
-      { name: 'status', label: 'Status', kind: 'select', unavailable: true },
+      {
+        name: 'status',
+        label: 'Status',
+        kind: 'segmented',
+        options: CONSULTATION_STATUSES,
+        initial: 'completed',
+      },
       NOTES,
     ],
   },
@@ -153,6 +173,7 @@ export const ACTIVITY_FORMS: Record<ActivityKind, ActivityFormConfig> = {
         kind: 'text',
         placeholder: 'Who ran it',
         half: true,
+        unavailable: true,
       },
       { name: 'date', label: 'Event date', kind: 'date' },
       {
@@ -160,14 +181,14 @@ export const ACTIVITY_FORMS: Record<ActivityKind, ActivityFormConfig> = {
         label: 'Type of attendance',
         kind: 'segmented',
         options: EVENT_ROLES,
-        initial: 'attendee',
+        initial: 'participant',
       },
       {
         name: 'mode',
         label: 'How it ran',
         kind: 'segmented',
         options: EVENT_MODES,
-        initial: 'physical',
+        initial: 'in_person',
       },
       {
         name: 'about',
@@ -338,7 +359,8 @@ export function isActivityKind(value: string): value is ActivityKind {
   return value in ACTIVITY_FORMS
 }
 
-// Every field the mentee can fill in is required; segmented and stage fields start filled
+// Every field the mentee can fill in is required unless marked optional; segmented and stage
+// fields start filled
 export function initialValues(config: ActivityFormConfig): ActivityFormValues {
   return Object.fromEntries(
     config.fields
@@ -350,19 +372,15 @@ export function initialValues(config: ActivityFormConfig): ActivityFormValues {
 // The field names still empty
 export function missingFields(config: ActivityFormConfig, values: ActivityFormValues): string[] {
   return config.fields
-    .filter((field) => !field.unavailable && !(values[field.name] ?? '').trim())
+    .filter((field) => !field.unavailable && !field.optional && !(values[field.name] ?? '').trim())
     .map((field) => field.name)
 }
 
-// The API has no separate job and scholarship types, so the first line says which
-export const JOB_MARKER = 'Job application'
-export const SCHOLARSHIP_MARKER = 'Scholarship application'
-
-// The API has one description, so these three answers share it under headings
+// The API has no field for these answers, so they share the description under headings.
+// See docs/api-gaps.md.
 function academicDescription(values: ActivityFormValues): string {
   return [
     `Lesson or experience used: ${values.lesson.trim()}`,
-    `How I applied it: ${values.how.trim()}`,
     `Outcome: ${values.outcome.trim()}`,
   ].join('\n\n')
 }
@@ -379,8 +397,13 @@ export function saveActivity(
       return api.extraActivities.logConsultation({
         ...base,
         title: v.consultationType,
-        description: v.support,
-        details: { mentor_name: v.consultant, consultation_date: v.date, outcome: v.summary },
+        consultant_id: v.consultant,
+        details: {
+          consultation_type: v.consultationType,
+          summary: v.summary,
+          support_received: v.support || null,
+          status: v.status as ConsultationStatus,
+        },
       })
     case 'event':
       return api.extraActivities.logEvent({
@@ -390,30 +413,35 @@ export function saveActivity(
         details: {
           event_role: v.role as EventRole,
           mode: v.mode as EventMode,
-          organizer: v.organizer,
           learnings: v.reflection,
         },
       })
+    // The type of job and support received have no API field yet, so they go in the
+    // description. See docs/api-gaps.md.
     case 'job':
       return api.extraActivities.logOpportunity({
         ...base,
         title: v.role,
-        description: `${JOB_MARKER}\n\nType of job: ${v.jobType}\n\nSupport received: ${v.support}`,
+        description: `Type of job: ${v.jobType}\n\nSupport received: ${v.support}`,
         details: {
-          organization: v.organization,
-          application_date: v.date,
-          outcome_status: v.stage as OpportunityOutcome,
+          organisation: v.organization,
+          date_applied: v.date,
+          how_applied: v.preparation,
+          stage: v.stage as OpportunityStage,
+          final_outcome: v.finalOutcome as FinalOutcome,
         },
       })
     case 'scholarship':
-      return api.extraActivities.logOpportunity({
+      return api.extraActivities.logScholarship({
         ...base,
         title: v.name,
-        description: `${SCHOLARSHIP_MARKER}\n\nPurpose: ${v.purpose}\n\nSupport received: ${v.support}`,
+        description: `Purpose: ${v.purpose}\n\nSupport received: ${v.support}`,
         details: {
-          organization: v.name,
-          application_date: v.date,
-          outcome_status: v.stage as OpportunityOutcome,
+          organisation: v.name,
+          date_applied: v.date,
+          how_applied: v.preparation,
+          stage: v.stage as OpportunityStage,
+          final_outcome: v.finalOutcome as FinalOutcome,
         },
       })
     case 'academic':
@@ -421,7 +449,7 @@ export function saveActivity(
         ...base,
         title: v.workType,
         description: academicDescription(values),
-        details: { course_name: v.workType, kami_limu_pillar: v.pillar },
+        details: { kami_limu_pillar: v.pillar, related_session_ids: [], how_applied: v.how },
       })
   }
 }

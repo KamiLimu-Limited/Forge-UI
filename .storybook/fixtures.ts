@@ -6,7 +6,23 @@ import type { MentorOption } from '../src/hooks/useMentorOptions'
 
 // Sample users for stories. Not real people.
 
+const NO_PROFILE = {
+  university: null,
+  programme_of_study: null,
+  degree_level: null,
+  gender: null,
+  phone: null,
+  birthday: null,
+  social_links: null,
+  alumni_since: null,
+  is_alumni: false,
+  active_cohort_id: null,
+  active_role: null,
+  ict_track: null,
+} satisfies Partial<UserProfileResponse>
+
 export const adminUser: UserProfileResponse = {
+  ...NO_PROFILE,
   id: 'u-admin',
   email: 'amina.otieno@example.com',
   first_name: 'Amina',
@@ -18,6 +34,7 @@ export const adminUser: UserProfileResponse = {
 }
 
 export const menteeUser: UserProfileResponse = {
+  ...NO_PROFILE,
   id: 'u-mentee',
   email: 'brian.kamau@example.com',
   first_name: 'Brian',
@@ -30,6 +47,7 @@ export const menteeUser: UserProfileResponse = {
 
 // A 1:1 peer mentor has six links, so phones get the side menu instead of tabs
 export const peerMentorUser: UserProfileResponse = {
+  ...NO_PROFILE,
   id: 'u-peer-mentor',
   email: 'hansel.omondi@example.com',
   first_name: 'Hansel',
@@ -38,11 +56,12 @@ export const peerMentorUser: UserProfileResponse = {
   last_login_at: '2026-10-21T17:40:00Z',
   created_at: '2026-02-01T08:00:00Z',
   roles: [
-    { id: 'r3', role: 'peer_mentor_1:1', cohort_id: 'c-2026', assigned_at: '2026-02-01T08:00:00Z' },
+    { id: 'r3', role: 'peer_mentor_1_1', cohort_id: 'c-2026', assigned_at: '2026-02-01T08:00:00Z' },
   ],
 }
 
 export const twoCohortUser: UserProfileResponse = {
+  ...NO_PROFILE,
   id: 'u-peer',
   email: 'wanjiru.mwangi@example.com',
   first_name: 'Wanjiru',
@@ -51,13 +70,14 @@ export const twoCohortUser: UserProfileResponse = {
   last_login_at: '2026-10-22T07:05:00Z',
   created_at: '2025-02-01T08:00:00Z',
   roles: [
-    { id: 'r3', role: 'peer_mentor_1:1', cohort_id: 'c-2026', assigned_at: '2026-02-01T08:00:00Z' },
+    { id: 'r3', role: 'peer_mentor_1_1', cohort_id: 'c-2026', assigned_at: '2026-02-01T08:00:00Z' },
     { id: 'r4', role: 'alumni', cohort_id: 'c-2025', assigned_at: '2025-02-01T08:00:00Z' },
   ],
 }
 
 // Graduated: keeps the mentee role in the same cohort, so the alumni view must win
 export const graduateUser: UserProfileResponse = {
+  ...NO_PROFILE,
   id: 'u-graduate',
   email: 'faith.njeri@example.com',
   first_name: 'Faith',
@@ -87,16 +107,15 @@ export const sampleCohort: CohortResponse = {
     start: `2026-${String(i + 3).padStart(2, '0')}-26`,
     end: `2026-${String(i + 4).padStart(2, '0')}-25`,
   })),
-  ict_tracks_offered: [
-    'Cloud Engineering',
-    'Software Engineering',
-    'Data Science',
-    'Cybersecurity',
-  ],
-  skill_names: null,
-  skill_rating_windows: null,
-  leaderboard_anonymous: false,
-  peer_mentorship_deadline_hours: null,
+  thursday_window_hours: 24,
+  saturday_window_hours: 48,
+  objective_windows: null,
+  extra_log_window_days: 14,
+  track_selection_opens_at: null,
+  track_selection_closes_at: null,
+  is_imported: false,
+  closed_at: null,
+  archived_at: null,
   created_at: '2026-02-01T08:00:00Z',
   updated_at: '2026-02-01T08:00:00Z',
 }
@@ -118,19 +137,24 @@ export const sampleSession: SessionResponse = {
   kami_limu_month: 5,
   starts_at: '2026-08-27T14:30:00Z',
   ends_at: '2026-08-27T17:00:00Z',
-  duration_minutes: 150,
   category: 'thursday',
-  session_type: 'ict',
+  session_type: 'theory',
   track: 'Cybersecurity',
   mode: 'virtual',
   location: 'https://meet.google.com/abc-defg-hij',
   points: 10,
   status: 'published',
-  attendance_deadline: null,
   original_starts_at: null,
   mentors: [],
   resources: [],
 }
+
+export const sampleIctTracks = [
+  'Cloud Engineering',
+  'Software Engineering',
+  'Data Science',
+  'Cybersecurity',
+]
 
 export const sampleMentors: MentorOption[] = [
   {
@@ -151,7 +175,7 @@ export const sampleMentors: MentorOption[] = [
     id: 'm-3',
     name: 'Achieng Odhiambo',
     email: 'achieng.odhiambo@example.com',
-    role: 'peer_mentor_1:1',
+    role: 'peer_mentor_1_1',
     roleLabel: '1:1 Peer Mentor',
   },
 ]
@@ -163,6 +187,7 @@ export function sampleEnrollment(id: string, first: string, last: string): Enrol
     role: 'mentee',
     peer_mentor_id: null,
     ict_track: null,
+    archived_at: null,
     enrolled_at: '2026-03-26T08:00:00Z',
     user: {
       id: `u-${id}`,

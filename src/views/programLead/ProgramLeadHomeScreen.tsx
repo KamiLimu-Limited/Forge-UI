@@ -28,6 +28,7 @@ function graduationLine(data: ProgramLeadHomeData): string {
   if (graduation.isGraduated) return 'This cohort has graduated. Results are final.'
   if (!graduation.hasEnded)
     return `Available after the cohort end date, ${formatLongDate(graduation.endDate)}. The System Admin prepares the preview and you confirm it.`
+  if (!graduation.isAvailable && graduation.reasons.length > 0) return graduation.reasons.join(' ')
   return 'The cohort has ended. Check the preview, then confirm it.'
 }
 
@@ -81,7 +82,7 @@ export function ProgramLeadHomeScreen({
             <Card title="Graduation">
               <div className="flex flex-col gap-3">
                 <p className="font-sans text-body text-text-secondary">{graduationLine(data)}</p>
-                {data.home.graduation.hasEnded && !data.home.graduation.isGraduated ? (
+                {data.home.graduation.isAvailable && !data.home.graduation.isGraduated ? (
                   <ButtonLink href={PROGRAM_LEAD_ROUTES.graduation} size="lg" fullWidth>
                     Graduate cohort
                   </ButtonLink>

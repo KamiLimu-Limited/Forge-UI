@@ -1,12 +1,14 @@
 // Admin types, mapped directly from the Forge API OpenAPI schema
 
-import type { AccountState, UserRole, UserRoleResponse } from '@/types/auth'
+import type { AccountState, UserProfileFields, UserRole, UserRoleResponse } from '@/types/auth'
 import type { Page, PageParams } from '@/types/page'
 
 /** @deprecated Use `Page<T>` from `@/types/page`. */
 export type PaginatedResponse<T> = Page<T>
 
-export interface AdminUserListResponse {
+export interface AdminUserListResponse extends UserProfileFields {
+  alumni_since: string | null
+  is_alumni: boolean
   id: string
   email: string
   first_name: string
@@ -16,7 +18,12 @@ export interface AdminUserListResponse {
   created_at: string
 }
 
-export interface AdminUserDetailResponse {
+export interface AdminUserDetailResponse extends UserProfileFields {
+  alumni_since: string | null
+  is_alumni: boolean
+  active_cohort_id: string | null
+  active_role: UserRole | null
+  ict_track: string | null
   id: string
   email: string
   first_name: string
@@ -28,7 +35,7 @@ export interface AdminUserDetailResponse {
   roles: UserRoleResponse[]
 }
 
-export interface AdminUserUpdateRequest {
+export interface AdminUserUpdateRequest extends Partial<UserProfileFields> {
   first_name?: string | null
   last_name?: string | null
   email?: string | null

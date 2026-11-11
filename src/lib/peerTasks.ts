@@ -2,15 +2,16 @@
 // meetings. Tasks are sessions, so they come from GET /sessions.
 
 import { api, fetchAllPages } from '@/lib/api'
-import { fullName, toDateTimeLocal } from '@/lib/format'
+import { fromDateTimeLocal, fullName, toDateTimeLocal } from '@/lib/format'
 import { SESSION_STATUS_LABELS } from '@/lib/labels'
 import { monthBoundaries, monthLabel } from '@/lib/sessions'
 import type { GroupMeetingsView, PeerTaskOption } from '@/types/adminIntegrations'
 import type { PeerTaskDraft, PeerTaskFormView, PeerTaskRow, PeerTasksView } from '@/types/peerTasks'
-import type { SessionResponse } from '@/types/session'
+import type { SessionResponse, SessionUpdateRequest } from '@/types/session'
 
+// A task's end time is its deadline
 export function dueAt(session: SessionResponse): string {
-  return session.attendance_deadline ?? session.ends_at
+  return session.ends_at
 }
 
 export function taskState(session: SessionResponse, now: Date = new Date()): PeerTaskRow['state'] {
@@ -90,6 +91,61 @@ export async function loadPeerTaskForm(
   }
 }
 
+// Creates a published task, or saves what changed on an existing one. A new time goes
+// through reschedule so everyone gets the change.
+export async function savePeerTask(
+  cohortId: string,
+  sessionId: string | null,
+  draft: PeerTaskDraft
+): Promise<SessionResponse> {
+  const startsAt = fromDateTimeLocal(draft.opensAt) as string
+  const endsAt = fromDateTimeLocal(draft.dueAt) as string
+  const link = draft.resourceLink.trim()
+  if (!sessionId) {
+    return api.sessions.create({
+      cohort_id: cohortId,
+      title: draft.title.trim(),
+      description: draft.description.trim() || null,
+      kami_limu_month: draft.month ? Number(draft.month) : null,
+      starts_at: startsAt,
+      ends_at: endsAt,
+      category: 'peer_mentorship',
+      points: Number(draft.points),
+      status: 'published',
+      resources: link ? [{ resource_type: 'drive_folder', url: link }] : [],
+    })
+  }
+  const current = await api.sessions.getById(sessionId)
+  const patch: SessionUpdateRequest = {}
+  if (draft.title.trim() !== current.title) patch.title = draft.title.trim()
+  if ((draft.description.trim() || null) !== current.description) {
+    patch.description = draft.description.trim() || null
+  }
+  if (draft.month && Number(draft.month) !== current.kami_limu_month) {
+    patch.kami_limu_month = Number(draft.month)
+  }
+  if (Number(draft.points) !== current.points) patch.points = Number(draft.points)
+  if (Object.keys(patch).length > 0) await api.sessions.update(sessionId, patch)
+  const moved =
+    new Date(startsAt).getTime() !== new Date(current.starts_at).getTime() ||
+    new Date(endsAt).getTime() !== new Date(current.ends_at).getTime()
+  if (moved) await api.sessions.reschedule(sessionId, { starts_at: startsAt, ends_at: endsAt })
+  if (link !== (current.resources[0]?.url ?? '')) {
+    const rest = current.resources.slice(1).map((resource) => ({
+      resource_type: resource.resource_type,
+      url: resource.url,
+      description: resource.description,
+    }))
+    await api.sessions.setResources(sessionId, [
+      ...(link
+        ? [{ resource_type: current.resources[0]?.resource_type ?? 'drive_folder', url: link }]
+        : []),
+      ...rest,
+    ])
+  }
+  return api.sessions.getById(sessionId)
+}
+
 // What's missing before the task could be saved
 export function taskDraftErrors(
   draft: PeerTaskDraft
@@ -101,6 +157,9 @@ export function taskDraftErrors(
   if (draft.opensAt && draft.dueAt && draft.dueAt <= draft.opensAt)
     errors.dueAt = 'Due must be after it opens'
   if (!/^\d+$/.test(draft.points)) errors.points = 'Enter a whole number of points'
+  if (draft.resourceLink.trim() && !/^https?:\/\//.test(draft.resourceLink.trim())) {
+    errors.resourceLink = 'Enter a full link that starts with https://'
+  }
   return errors
 }
 
@@ -113,7 +172,7 @@ export async function loadGroupMeetings(
   const [sessions, mentors, mentees] = await Promise.all([
     loadTaskSessions(cohortId),
     fetchAllPages((page, page_size) =>
-      api.cohorts.enrollments.list(cohortId, { page, page_size, role: 'peer_mentor_1:1' })
+      api.cohorts.enrollments.list(cohortId, { page, page_size, role: 'peer_mentor_1_1' })
     ),
     fetchAllPages((page, page_size) =>
       api.cohorts.enrollments.list(cohortId, { page, page_size, role: 'mentee' })

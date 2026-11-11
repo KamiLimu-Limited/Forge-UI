@@ -63,11 +63,11 @@ export function useExtraActivities(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query.data, directory.mentees, search])
 
-  const rejectCall = useCallback(
-    (id: string, reason: string) => api.extraActivities.reject(id, { reason }),
+  const reverseCall = useCallback(
+    (id: string, reason: string) => api.extraActivities.reverse(id, { reason }),
     []
   )
-  const rejectAction = useAsyncAction(rejectCall, "The activity wasn't reversed. Try again.")
+  const reverseAction = useAsyncAction(reverseCall, "The activity wasn't reversed. Try again.")
 
   return {
     rows,
@@ -78,13 +78,13 @@ export function useExtraActivities(
       directory.refetch()
     },
     reverse: async (id, reason) => {
-      const updated = await rejectAction.run(id, reason)
+      const updated = await reverseAction.run(id, reason)
       if (!updated || !query.data) return false
       query.setData(query.data.map((a) => (a.id === id ? updated : a)))
       return true
     },
-    isReversing: rejectAction.isLoading,
-    reverseError: rejectAction.error,
-    clearReverseError: rejectAction.clearError,
+    isReversing: reverseAction.isLoading,
+    reverseError: reverseAction.error,
+    clearReverseError: reverseAction.clearError,
   }
 }

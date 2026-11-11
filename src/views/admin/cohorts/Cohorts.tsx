@@ -64,7 +64,7 @@ export function CohortsPage() {
       header: 'Actions',
       alignEnd: true,
       render: (row) =>
-        row.cohort.status === 'completed' ? (
+        row.cohort.status === 'completed' || row.cohort.status === 'archived' ? (
           <ButtonLink
             variant="secondary"
             size="sm"

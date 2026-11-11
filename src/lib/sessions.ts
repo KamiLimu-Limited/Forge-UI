@@ -7,9 +7,9 @@ import type { SessionBrief, SessionResponse } from '@/types/session'
 // The API only stores a pillar for ICT sessions (track holds the ICT track name).
 // Other pillars have no field yet, so they get no badge. See docs/api-gaps.md.
 export function sessionPillar(
-  session: Pick<SessionResponse | SessionBrief, 'session_type' | 'track'>
+  session: Pick<SessionResponse | SessionBrief, 'track'>
 ): Pillar | null {
-  return session.session_type === 'ict' || session.track ? 'ict' : null
+  return session.track ? 'ict' : null
 }
 
 // Months sorted by number, or an empty list when the cohort has no boundaries

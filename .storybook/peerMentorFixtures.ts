@@ -23,13 +23,13 @@ export const sampleMenteeDetail: MenteeDetailView = {
       sessionId: 's-1',
       title: 'Cybersecurity: ICT Training 7',
       startsAt: '2026-08-13T17:30:00+03:00',
-      state: 'attended',
+      state: 'present',
     },
     {
       sessionId: 's-2',
       title: 'Scholarship Principles in Practice 3',
       startsAt: '2026-08-06T17:30:00+03:00',
-      state: 'attended',
+      state: 'present',
     },
     {
       sessionId: 's-3',
@@ -47,18 +47,18 @@ export const sampleMenteeDetail: MenteeDetailView = {
       sessionId: 's-5',
       title: 'Peer Mentorship 3',
       startsAt: '2026-07-10T19:00:00+03:00',
-      state: 'attended',
+      state: 'present',
     },
     {
       sessionId: 's-6',
       title: 'Innovation Workshop',
       startsAt: '2026-07-02T17:30:00+03:00',
-      state: 'attended',
+      state: 'present',
     },
   ],
   objectives: [
-    { skill: 'communication', label: 'Communication', summary: 'Start 2' },
-    { skill: 'technical', label: 'Technical', summary: 'Start 1, Mid 3' },
+    { id: 'communication', label: 'Communication', summary: 'Start 2' },
+    { id: 'technical', label: 'Technical', summary: 'Start 1, Mid 3' },
   ],
   activities: [
     { label: 'Consultations', count: 3 },
@@ -127,6 +127,7 @@ export const sampleFacilitator: FacilitatorView = {
   completed: 4,
   inProgress: 1,
   average: 4.3,
+  peerAverage: 4.1,
   best: {
     id: 's-3',
     title: 'Writing a CV that gets read',

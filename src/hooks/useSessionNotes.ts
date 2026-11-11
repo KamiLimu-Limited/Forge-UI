@@ -15,12 +15,11 @@ interface UseSessionNotesReturn {
   savedAt: string | null
 }
 
-// Notes live on the attendance record, so saving needs one. See docs/api-gaps.md.
 export function useSessionNotes(session: SessionRecordView | null): UseSessionNotesReturn {
   const { showToast } = useToast()
   const [notes, setNotes] = useState('')
   const [savedAt, setSavedAt] = useState<string | null>(null)
-  const recordId = session?.recordId ?? null
+  const sessionId = session?.id ?? null
 
   useEffect(() => {
     setNotes(session?.notes ?? '')
@@ -29,10 +28,10 @@ export function useSessionNotes(session: SessionRecordView | null): UseSessionNo
 
   const send = useCallback(
     (text: string) => {
-      if (!recordId) return Promise.reject(new Error('No attendance record'))
-      return api.attendance.update(recordId, { personal_notes: text })
+      if (!sessionId) return Promise.reject(new Error('Session not loaded'))
+      return api.sessions.saveMyNotes(sessionId, text)
     },
-    [recordId]
+    [sessionId]
   )
   const action = useAsyncAction(send, "We couldn't save your notes. Try again.")
 

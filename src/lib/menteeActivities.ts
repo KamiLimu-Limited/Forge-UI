@@ -1,8 +1,11 @@
 // Turns the mentee's activity logs into the rows the activities screens draw
 
-import { SCHOLARSHIP_MARKER } from '@/lib/activityForms'
 import { EVENT_ROLE_LABELS } from '@/lib/labels'
-import type { ExtraActivityResponse, OpportunityApplicationResponse } from '@/types/activity'
+import type {
+  ExtraActivityResponse,
+  OpportunityApplicationResponse,
+  ScholarshipApplicationResponse,
+} from '@/types/activity'
 import type {
   ActivityKind,
   ActivityLogRow,
@@ -31,12 +34,14 @@ const TYPE_LABELS: Record<ActivityKind, string> = {
 
 const TILE_ORDER: ActivityKind[] = ['consultation', 'event', 'job', 'scholarship', 'academic']
 
-function applicationKind(activity: OpportunityApplicationResponse): 'job' | 'scholarship' {
-  return activity.description?.startsWith(SCHOLARSHIP_MARKER) ? 'scholarship' : 'job'
+type ApplicationResponse = OpportunityApplicationResponse | ScholarshipApplicationResponse
+
+export function isApplication(activity: ExtraActivityResponse): activity is ApplicationResponse {
+  return activity.type === 'opportunity' || activity.type === 'scholarship'
 }
 
 function activityKind(activity: ExtraActivityResponse): ActivityKind {
-  return activity.type === 'opportunity' ? applicationKind(activity) : activity.type
+  return activity.type === 'opportunity' ? 'job' : activity.type
 }
 
 function detailLine(activity: ExtraActivityResponse): string {
@@ -44,9 +49,7 @@ function detailLine(activity: ExtraActivityResponse): string {
     case 'event':
       return `${activity.title}, as ${EVENT_ROLE_LABELS[activity.details.event_role]}`
     case 'opportunity':
-      return applicationKind(activity) === 'job'
-        ? `${activity.details.organization}, ${activity.title}`
-        : activity.title
+      return `${activity.details.organisation}, ${activity.title}`
     default:
       return activity.title
   }
@@ -62,7 +65,7 @@ function logRow(activity: ExtraActivityResponse): ActivityLogRow {
     date: activity.date,
     points: activity.points_awarded,
     status: activity.status,
-    canUpdate: activity.type === 'opportunity' && activity.status === 'pending',
+    canUpdate: isApplication(activity) && activity.status === 'active',
   }
 }
 
@@ -85,14 +88,15 @@ export function activitiesData(activities: ExtraActivityResponse[]): MenteeActiv
   }
 }
 
-export function applicationView(activity: OpportunityApplicationResponse): ApplicationView {
+export function applicationView(activity: ApplicationResponse): ApplicationView {
   return {
     id: activity.id,
-    kind: applicationKind(activity),
+    kind: activity.type === 'scholarship' ? 'scholarship' : 'job',
     title: activity.title,
-    organization: activity.details.organization,
-    stage: activity.details.outcome_status,
+    organization: activity.details.organisation,
+    stage: activity.details.stage ?? 'applied',
+    finalOutcome: activity.details.final_outcome ?? 'waiting_for_response',
     points: activity.points_awarded,
-    canUpdate: activity.status === 'pending',
+    canUpdate: activity.status === 'active',
   }
 }

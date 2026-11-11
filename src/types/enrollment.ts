@@ -12,19 +12,20 @@ export interface EnrollmentResponse {
   peer_mentor_id: string | null
   ict_track: string | null
   enrolled_at: string
+  // Set when a closed cohort's peer mentor assignments are archived
+  archived_at: string | null
   user: UserSummary
 }
 
+// The peer mentor and ICT track are assigned later, not at enrolment
 export interface EnrollmentRequest {
   user_id: string
   role?: UserRole
-  peer_mentor_id?: string | null
-  ict_track?: string | null
 }
 
+// ICT tracks change only through track selection or the admin override
 export interface EnrollmentUpdateRequest {
   peer_mentor_id?: string | null
-  ict_track?: string | null
 }
 
 export interface EnrollmentListParams extends PageParams {

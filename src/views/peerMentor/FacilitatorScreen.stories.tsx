@@ -20,6 +20,7 @@ export const FirstSessionOpen: Story = {
       completed: 0,
       inProgress: 1,
       average: null,
+      peerAverage: 4.1,
       best: null,
       sessions: sampleFacilitator.sessions.slice(0, 1),
       trend: [],
@@ -28,7 +29,15 @@ export const FirstSessionOpen: Story = {
 }
 export const NoSessionsYet: Story = {
   args: {
-    data: { completed: 0, inProgress: 0, average: null, best: null, sessions: [], trend: [] },
+    data: {
+      completed: 0,
+      inProgress: 0,
+      average: null,
+      peerAverage: null,
+      best: null,
+      sessions: [],
+      trend: [],
+    },
   },
 }
 export const Loading: Story = { args: { data: null, isLoading: true } }

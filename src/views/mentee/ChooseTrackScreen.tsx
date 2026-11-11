@@ -7,7 +7,8 @@ import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { LoadingState } from '@/components/ui/LoadingState'
-import { formatLongDate } from '@/lib/format'
+import { Notice } from '@/components/ui/Notice'
+import { formatLongDate, toDateOnly } from '@/lib/format'
 import { MENTEE_ROUTES } from '@/lib/menteeRoutes'
 import type { ChooseTrackView } from '@/types/ictTrackSelection'
 
@@ -19,9 +20,20 @@ interface ChooseTrackScreenProps {
   onRetry?: () => void
   selected: string | null
   onSelect: (track: string) => void
-  // False until the API can save a track choice
+  // Only while the selection window is open
   canSave: boolean
   onSave?: () => void
+  isSaving?: boolean
+  saveError?: string | null
+}
+
+// The line beside Save: when selection closes, or why it can't be saved
+function windowLine(data: ChooseTrackView): string {
+  if (data.isOpen) return data.closesOn ? `Selection closes ${formatLongDate(data.closesOn)}.` : ''
+  if (data.opensOn && data.opensOn > toDateOnly(new Date())) {
+    return `Selection opens ${formatLongDate(data.opensOn)}.`
+  }
+  return 'Selection is closed. Ask the System Admin if you need to change your track.'
 }
 
 function subtitle(closesOn: string | null): string {
@@ -39,6 +51,8 @@ export function ChooseTrackScreen({
   onSelect,
   canSave,
   onSave,
+  isSaving = false,
+  saveError = null,
 }: ChooseTrackScreenProps) {
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
@@ -69,22 +83,20 @@ export function ChooseTrackScreen({
             onSelect={onSelect}
             disabled={!canSave}
           />
+          {saveError && <Notice variant="danger">{saveError}</Notice>}
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
             <Button
               type="submit"
               size="lg"
               fullWidth
-              disabled={!canSave || !selected}
+              isLoading={isSaving}
+              disabled={!canSave || !selected || selected === data.currentTrack}
               className="md:w-auto"
             >
               Save my track
             </Button>
             <p className="text-center font-sans text-small text-text-muted md:text-left">
-              {canSave
-                ? data.closesOn
-                  ? `Selection closes ${formatLongDate(data.closesOn)}.`
-                  : null
-                : 'Not available yet'}
+              {windowLine(data)}
             </p>
           </div>
         </form>

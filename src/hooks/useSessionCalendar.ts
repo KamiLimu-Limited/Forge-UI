@@ -93,17 +93,18 @@ export function useSessionCalendar(
         const result = await api.cohorts.calendarMonth(cohortId as string, month as number)
         return result.flatMap((m) => m.sessions)
       }
-      return fetchAllPages((page, page_size) =>
+      const listed = await fetchAllPages((page, page_size) =>
         api.sessions.list({
           page,
           page_size,
           cohort_id: cohortId as string,
           kami_limu_month: month as number,
-          session_type: filters.ictOnly ? 'ict' : undefined,
           category: filters.category || undefined,
           status: filters.status || undefined,
         })
       )
+      // ICT sessions are the ones with a track, and the API can't filter on that
+      return filters.ictOnly ? listed.filter((session) => session.track) : listed
     },
     [cohortId, month, hasFilters, filters.ictOnly, filters.category, filters.status],
     {

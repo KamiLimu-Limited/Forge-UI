@@ -1,8 +1,9 @@
 // Shapes the professional mentor's session summaries, feedback and materials for the
-// screens. The summary route has no mentor role or status, so each session's detail is
-// read too (see docs/api-gaps.md).
+// screens. The summary route has no mentor role, so each session's detail is read too
+// (see docs/api-gaps.md).
 
 import { api } from '@/lib/api'
+import { averageOf } from '@/lib/peerMentor'
 import { SESSION_STATUS_LABELS } from '@/lib/labels'
 import { feedbackGroups, overallAverage } from '@/lib/sessionFeedback'
 import { sessionPillar } from '@/lib/sessions'
@@ -39,10 +40,18 @@ export async function loadProRows(
       endsAt: detail?.ends_at ?? null,
       pillar: sessionPillar(summary.session),
       role: mine?.mentor_role ?? null,
-      statusLabel: detail ? SESSION_STATUS_LABELS[detail.status] : null,
+      statusLabel: SESSION_STATUS_LABELS[summary.session.status],
       attended: summary.attended,
       eligible: summary.eligible,
-      rating: summary.responses > 0 ? summary.average_quality : null,
+      // The mean of the nine question averages
+      rating:
+        summary.responses > 0
+          ? averageOf(
+              summary.question_averages.flatMap((question) =>
+                question.average === null ? [] : [question.average]
+              )
+            )
+          : null,
       materialsUrl: materialsLink(detail),
     }
   })

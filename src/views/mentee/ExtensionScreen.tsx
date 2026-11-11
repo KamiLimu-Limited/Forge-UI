@@ -27,8 +27,6 @@ interface ExtensionScreenProps {
   onSend: () => void
   isSending?: boolean
   sendError?: string | null
-  // Shown at the top while saving is switched off, for example for peer mentors
-  saveBlockedNote?: string | null
 }
 
 // A mentee who missed a window asks for it to be reopened. The form shows when there is
@@ -44,7 +42,6 @@ export function ExtensionScreen({
   onSend,
   isSending = false,
   sendError = null,
-  saveBlockedNote = null,
 }: ExtensionScreenProps) {
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
@@ -110,13 +107,11 @@ export function ExtensionScreen({
                       error={reasonError ?? undefined}
                     />
                     {sendError && <Notice variant="danger">{sendError}</Notice>}
-                    {saveBlockedNote && <Notice>{saveBlockedNote}</Notice>}
                     <Button
                       type="submit"
                       size="lg"
                       fullWidth
                       isLoading={isSending}
-                      disabled={Boolean(saveBlockedNote)}
                       className="md:w-auto md:self-start"
                     >
                       Send request

@@ -24,7 +24,7 @@ export const Draft: Story = {
       ...sampleSession,
       status: 'draft',
       title: 'Innovation Solution Ideation',
-      session_type: 'core',
+      session_type: 'theory',
       track: null,
     },
   },
@@ -34,7 +34,7 @@ export const InPerson: Story = {
     session: {
       ...sampleSession,
       title: 'KamiLimu In-Person Sessions',
-      session_type: 'core',
+      session_type: 'theory',
       track: null,
       mode: 'physical',
       location: 'Nairobi Garage',

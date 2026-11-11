@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react'
 import type { MenteeObjectivesData } from '@/types/menteeObjectives'
 
 interface UseObjectiveRatingsReturn {
+  // Objective id to its rating
   ratings: Record<string, number>
-  setRating: (skill: string, value: number) => void
+  setRating: (objectiveId: string, value: number) => void
   // Turns on the per-objective messages after a failed save
   showErrors: boolean
   // True when every objective has a rating; otherwise shows what's missing
@@ -23,18 +24,19 @@ export function useObjectiveRatings(data: MenteeObjectivesData | null): UseObjec
     const saved: Record<string, number> = {}
     for (const objective of data.objectives) {
       const score = objective.scores[point]
-      if (score !== null) saved[objective.skill] = score
+      if (score !== null) saved[objective.id] = score
     }
     setRatings(saved)
   }, [data])
 
   return {
     ratings,
-    setRating: (skill, value) => setRatings((current) => ({ ...current, [skill]: value })),
+    setRating: (objectiveId, value) =>
+      setRatings((current) => ({ ...current, [objectiveId]: value })),
     showErrors,
     check: () => {
       const isComplete = (data?.objectives ?? []).every(
-        (objective) => ratings[objective.skill] !== undefined
+        (objective) => ratings[objective.id] !== undefined
       )
       setShowErrors(!isComplete)
       return isComplete

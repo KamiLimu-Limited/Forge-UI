@@ -1,5 +1,4 @@
-// Shows the API's fixed skills as objectives until it stores each mentee's own.
-// See docs/api-gaps.md.
+// Turns a person's objectives and the rating windows into what the objectives screens draw
 
 import { formatDay, formatDayMonth } from '@/lib/format'
 import type {
@@ -8,62 +7,63 @@ import type {
   ObjectiveRow,
   RatingWindowView,
 } from '@/types/menteeObjectives'
-import type { RatingPoint, SkillProgressResponse, SkillRatingWindowStatus } from '@/types/skills'
+import type {
+  ObjectiveResponse,
+  ObjectiveType,
+  ObjectiveWindow,
+  RatingPoint,
+} from '@/types/objective'
 
-export const RATING_POINTS: RatingPoint[] = ['early', 'mid', 'late']
+export const RATING_POINTS: RatingPoint[] = ['start', 'mid', 'end']
 
-const POINT_LABELS: Record<RatingPoint, string> = { early: 'Start', mid: 'Mid', late: 'End' }
+export const POINT_LABELS: Record<RatingPoint, string> = { start: 'Start', mid: 'Mid', end: 'End' }
 
 export const OBJECTIVE_GROUPS: ObjectiveGroup[] = ['Human', 'Technical']
 
-// "problem_solving" to "Problem solving"
-export function skillLabel(skill: string): string {
-  const words = skill.replace(/_/g, ' ')
-  return words.charAt(0).toUpperCase() + words.slice(1)
-}
+const GROUP_FOR: Record<ObjectiveType, ObjectiveGroup> = { human: 'Human', technical: 'Technical' }
 
-function skillGroup(skill: string): ObjectiveGroup {
-  return skill.toLowerCase().includes('technical') ? 'Technical' : 'Human'
-}
-
-function windowView(point: RatingPoint, status?: SkillRatingWindowStatus): RatingWindowView {
+function windowView(point: RatingPoint, window?: ObjectiveWindow): RatingWindowView {
   return {
     point,
     label: POINT_LABELS[point],
-    isOpen: status?.is_open ?? false,
-    opensLabel: status?.opens_at ? formatDayMonth(status.opens_at) : null,
-    closesLabel: status?.closes_at ? formatDay(status.closes_at) : null,
+    isOpen: window?.is_open ?? false,
+    opensLabel: window?.opens_at ? formatDayMonth(window.opens_at) : null,
+    closesLabel: window?.closes_at ? formatDay(window.closes_at) : null,
+  }
+}
+
+export function scoreAt(objective: ObjectiveResponse, point: RatingPoint): number | null {
+  return objective.ratings.find((rating) => rating.rating_point === point)?.score ?? null
+}
+
+export function objectiveRow(objective: ObjectiveResponse): ObjectiveRow {
+  return {
+    id: objective.id,
+    label: objective.text,
+    group: GROUP_FOR[objective.type],
+    scores: {
+      start: scoreAt(objective, 'start'),
+      mid: scoreAt(objective, 'mid'),
+      end: scoreAt(objective, 'end'),
+    },
   }
 }
 
 export function objectivesData(
   cohortId: string,
-  progress: SkillProgressResponse,
-  statuses: SkillRatingWindowStatus[]
+  objectives: ObjectiveResponse[],
+  windows: ObjectiveWindow[]
 ): MenteeObjectivesData {
-  const scoreFor = (skill: string, point: RatingPoint) =>
-    progress.ratings.find((rating) => rating.rating_point === point)?.ratings[skill] ?? null
-
-  const objectives: ObjectiveRow[] = progress.skill_names.map((skill) => ({
-    skill,
-    label: skillLabel(skill),
-    group: skillGroup(skill),
-    scores: {
-      early: scoreFor(skill, 'early'),
-      mid: scoreFor(skill, 'mid'),
-      late: scoreFor(skill, 'late'),
-    },
-  }))
-  const windows = RATING_POINTS.map((point) =>
+  const views = RATING_POINTS.map((point) =>
     windowView(
       point,
-      statuses.find((status) => status.rating_point === point)
+      windows.find((window) => window.rating_point === point)
     )
   )
   return {
     cohortId,
-    objectives,
-    windows,
-    openWindow: windows.find((window) => window.isOpen) ?? null,
+    objectives: objectives.map(objectiveRow),
+    windows: views,
+    openWindow: views.find((window) => window.isOpen) ?? null,
   }
 }

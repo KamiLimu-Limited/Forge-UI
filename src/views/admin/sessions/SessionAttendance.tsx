@@ -34,9 +34,11 @@ function detailFor(row: AttendanceRow): string {
   if (row.pendingRequest) return 'Extension requested'
   const submitted = row.record.submitted_at ? formatDateTime(row.record.submitted_at) : null
   switch (row.record.status) {
-    case 'attended':
-      return submitted ? `Submitted ${submitted}` : 'Present'
-    case 'not_attended':
+    case 'present':
+      return submitted
+        ? `Submitted ${submitted}${row.record.source === 'reopened' ? ' under an extension' : ''}`
+        : 'Present'
+    case 'absent':
       return 'Submitted as absent'
     case 'missed':
       return 'Window closed'
@@ -44,18 +46,15 @@ function detailFor(row: AttendanceRow): string {
       return 'Excused by an admin'
     case 'pending':
       return 'Not submitted yet'
-    case 'disputed':
-      return 'Under review'
   }
 }
 
 const EXPLANATIONS: Record<AttendanceStatus, string> = {
-  attended: 'Submitted as present. This counts towards their attendance rate.',
-  not_attended: 'They submitted that they did not attend. Absent counts against every rate.',
+  present: 'Submitted as present. This counts towards their attendance rate.',
+  absent: 'They submitted that they did not attend. Absent counts against every rate.',
   missed: 'The window closed without a submission. Missed counts as absent in every rate.',
   excused: "This absence is excused, so it doesn't count against them.",
   pending: "The window is open and they haven't submitted yet.",
-  disputed: 'This record is under review.',
 }
 
 function headerSubtitle(session: SessionDetailResponse, present: number, total: number): string {
@@ -86,7 +85,7 @@ interface RecordPanelProps {
 function RecordPanel({ row, isSaving, error, onExcuse }: RecordPanelProps) {
   const [reason, setReason] = useState('')
   const [missing, setMissing] = useState(false)
-  const canExcuse = row.record.status !== 'excused' && row.record.status !== 'attended'
+  const canExcuse = row.record.status !== 'excused' && row.record.status !== 'present'
 
   useEffect(() => {
     setReason('')
@@ -171,7 +170,7 @@ export function SessionAttendancePage({ sessionId }: SessionAttendancePageProps)
   // Start on the first record that might need attention
   useEffect(() => {
     if (selectedId || data.rows.length === 0) return
-    const first = data.rows.find((r) => r.record.status !== 'attended') ?? data.rows[0]
+    const first = data.rows.find((r) => r.record.status !== 'present') ?? data.rows[0]
     setSelectedId(first.record.id)
   }, [data.rows, selectedId])
 

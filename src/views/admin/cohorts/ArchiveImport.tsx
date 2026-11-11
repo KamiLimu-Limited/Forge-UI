@@ -1,5 +1,8 @@
 'use client'
 
+import { useState } from 'react'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { useArchiveCohort } from '@/hooks/useArchiveCohort'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { BackLink } from '@/components/ui/BackLink'
 import { Button } from '@/components/ui/Button'
@@ -31,11 +34,13 @@ const STEPS = [
   },
 ]
 
-// The API has no archive import or reconciliation routes yet. The page shows the
-// three steps and an empty reconciliation table; every action is disabled.
+// The API has no archive import or reconciliation routes yet, so those steps and the empty
+// reconciliation table are disabled. Archiving a closed or imported cohort works.
 export function ArchiveImportPage({ cohortId }: ArchiveImportPageProps) {
   const { cohorts } = useActiveCohort()
   const name = cohorts.find((c) => c.id === cohortId)?.name ?? 'this cohort'
+  const archive = useArchiveCohort(cohortId)
+  const [isConfirming, setIsConfirming] = useState(false)
 
   return (
     <>
@@ -45,9 +50,9 @@ export function ArchiveImportPage({ cohortId }: ArchiveImportPageProps) {
         subtitle={`Bring ${name}'s earlier data in as a read-only record, and check the calculations against it.`}
       />
       <Notice variant="info">
-        Archive import and reconciliation are not available yet. Nothing on this page uploads or
-        changes data.
+        Archive import and reconciliation are not available yet. Nothing on this page uploads data.
       </Notice>
+      {archive.isArchived && <Notice>{name} is archived, so it is a read-only record.</Notice>}
       <Card>
         <Steps steps={STEPS} />
         <Button variant="secondary" className="mt-5" disabled>
@@ -87,8 +92,29 @@ export function ArchiveImportPage({ cohortId }: ArchiveImportPageProps) {
         <Button variant="secondary" disabled>
           Download differences
         </Button>
-        <Button disabled>Archive {name}</Button>
+        <Button
+          onClick={() => setIsConfirming(true)}
+          disabled={!archive.canArchive}
+          title={archive.canArchive ? undefined : 'Close the cohort first'}
+        >
+          Archive {name}
+        </Button>
       </div>
+      <ConfirmDialog
+        isOpen={isConfirming}
+        onClose={() => setIsConfirming(false)}
+        title={`Archive ${name}?`}
+        confirmLabel="Archive cohort"
+        isLoading={archive.isArchiving}
+        error={archive.error}
+        onConfirm={() => {
+          void archive.archive().then((done) => {
+            if (done) setIsConfirming(false)
+          })
+        }}
+      >
+        <p>It becomes a read-only record. Alumni and cross-cohort comparisons keep using it.</p>
+      </ConfirmDialog>
     </>
   )
 }

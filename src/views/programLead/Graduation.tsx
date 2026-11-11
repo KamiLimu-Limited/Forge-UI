@@ -21,7 +21,14 @@ export function Graduation() {
       onSearch={preview.setSearch}
       graduates={preview.graduates}
       canGraduate={preview.canGraduate}
-      onRefresh={preview.refetch}
+      onRefresh={() => void preview.refresh()}
+      isRefreshing={preview.isRefreshing}
+      onGraduate={preview.graduate}
+      isGraduating={preview.isGraduating}
+      graduateError={preview.graduateError}
+      onCloseCohort={preview.close}
+      isClosing={preview.isClosing}
+      closeError={preview.closeError}
       confirmFields={confirm.fields}
       onConfirmFieldsChange={confirm.setFields}
       onResetConfirm={confirm.reset}

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { RATING_FIELDS } from '@/lib/attendanceQuestions'
 import type { AttendanceAnswers, AttendanceDraft, RatingField } from '@/types/menteeSessions'
 
 const EMPTY: AttendanceDraft = { status: null, ratings: {}, feedback: '' }
@@ -27,16 +26,17 @@ interface UseAttendanceAnswersReturn {
 // picked; nothing starts selected, so nobody is marked present by default. Present needs
 // every rating and the feedback. Absent needs nothing else, since the API only takes
 // ratings for Present.
-export function useAttendanceAnswers(): UseAttendanceAnswersReturn {
+export function useAttendanceAnswers(fields: RatingField[]): UseAttendanceAnswersReturn {
   const [answers, setAnswers] = useState<AttendanceDraft>(EMPTY)
   const [showErrors, setShowErrors] = useState(false)
 
-  const isPresent = answers.status === 'attended'
+  const isPresent = answers.status === 'present'
   const hasStatus = answers.status !== null
-  const ratedCount = RATING_FIELDS.filter((field) => answers.ratings[field] !== undefined).length
+  const ratedCount = fields.filter((field) => answers.ratings[field] !== undefined).length
   const isFeedbackWritten = answers.feedback.trim().length > 0
   const isComplete =
-    hasStatus && (!isPresent || (ratedCount === RATING_FIELDS.length && isFeedbackWritten))
+    hasStatus &&
+    (!isPresent || (fields.length > 0 && ratedCount === fields.length && isFeedbackWritten))
 
   return {
     answers,
@@ -50,7 +50,7 @@ export function useAttendanceAnswers(): UseAttendanceAnswersReturn {
     isPresent,
     hasStatus,
     ratedCount,
-    totalRatings: RATING_FIELDS.length,
+    totalRatings: fields.length,
     isFeedbackWritten,
     isComplete,
     showErrors,

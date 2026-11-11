@@ -5,7 +5,13 @@ import { useRouter } from 'next/navigation'
 import { initialValues, missingFields, saveActivity } from '@/lib/activityForms'
 import { api } from '@/lib/api'
 import { MENTEE_ROUTES } from '@/lib/menteeRoutes'
-import type { ActivityFormConfig, ActivityFormValues } from '@/types/menteeActivities'
+import type {
+  ActivityField,
+  ActivityFormConfig,
+  ActivityFormValues,
+  FieldOption,
+} from '@/types/menteeActivities'
+import { useApiQuery } from './useApiQuery'
 import { useAsyncAction } from './useAsyncAction'
 import { useToast } from './useToast'
 
@@ -17,6 +23,16 @@ interface UseActivityFormReturn {
   save: () => Promise<void>
   isSaving: boolean
   error: string | null
+  // The field with its loaded options, for fields that load them
+  fieldWithOptions: (field: ActivityField) => ActivityField
+  optionsError: string | null
+}
+
+async function loadConsultantOptions(): Promise<FieldOption[]> {
+  const consultants = await api.consultants.list()
+  return consultants
+    .filter((consultant) => consultant.is_active)
+    .map((consultant) => ({ value: consultant.id, label: consultant.name }))
 }
 
 export function useActivityForm(config: ActivityFormConfig): UseActivityFormReturn {
@@ -24,6 +40,11 @@ export function useActivityForm(config: ActivityFormConfig): UseActivityFormRetu
   const { showToast } = useToast()
   const [values, setValues] = useState(() => initialValues(config))
   const [missing, setMissing] = useState<string[]>([])
+  const needsConsultants = config.fields.some((field) => field.optionsFrom === 'consultants')
+  const consultants = useApiQuery(loadConsultantOptions, [], {
+    enabled: needsConsultants,
+    fallbackError: "We couldn't load the consultant list. Try again.",
+  })
 
   const send = useCallback(
     async (answers: ActivityFormValues) => {
@@ -52,5 +73,18 @@ export function useActivityForm(config: ActivityFormConfig): UseActivityFormRetu
     },
     isSaving: action.isLoading,
     error: action.error,
+    fieldWithOptions: (field) =>
+      field.optionsFrom === 'consultants'
+        ? {
+            ...field,
+            options: consultants.data ?? [],
+            placeholder: consultants.isLoading
+              ? 'Loading consultants'
+              : consultants.data?.length === 0
+                ? 'No consultants on the list yet'
+                : field.placeholder,
+          }
+        : field,
+    optionsError: consultants.error,
   }
 }

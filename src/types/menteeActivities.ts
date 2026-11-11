@@ -1,7 +1,6 @@
-import type { ActivityStatus, OpportunityOutcome } from '@/types/activity'
+import type { ActivityStatus, FinalOutcome, OpportunityStage } from '@/types/activity'
 
-// The five logs the mentee sees. The API has four types, so job and scholarship
-// applications share "opportunity". See docs/api-gaps.md.
+// The five logs the mentee sees. A job application is the API's `opportunity` type.
 export type ActivityKind = 'consultation' | 'event' | 'job' | 'scholarship' | 'academic'
 
 export interface ActivityTile {
@@ -22,7 +21,7 @@ export interface ActivityLogRow {
   date: string
   points: number
   status: ActivityStatus
-  // Only applications still waiting for review can change
+  // Applications can move stage until they're reversed
   canUpdate: boolean
 }
 
@@ -38,7 +37,8 @@ export interface ApplicationView {
   kind: 'job' | 'scholarship'
   title: string
   organization: string
-  stage: OpportunityOutcome
+  stage: OpportunityStage
+  finalOutcome: FinalOutcome
   points: number
   canUpdate: boolean
 }
@@ -63,6 +63,10 @@ export interface ActivityField {
   half?: boolean
   // The API can't store this yet, so it is shown disabled
   unavailable?: boolean
+  // Options loaded when the form opens instead of fixed ones
+  optionsFrom?: 'consultants'
+  // May be left empty
+  optional?: boolean
 }
 
 export interface ActivityFormConfig {

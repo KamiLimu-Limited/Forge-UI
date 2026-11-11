@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { cx } from '@/lib/cx'
 import { formatDay, formatTime, plural } from '@/lib/format'
+import { SESSION_TYPE_OPTIONS } from '@/lib/labels'
 import type { MonthGridDay, SessionResponse, SessionType } from '@/types/session'
 import { SessionRow } from './SessionRow'
 
@@ -26,25 +27,22 @@ const WEEKDAYS = [
 // The most entries a desktop cell shows before "N more"
 const VISIBLE_PER_DAY = 3
 
+// Coloured by how the session is taught
 const TYPE_CARD: Record<SessionType, string> = {
-  core: 'bg-accent-bg',
-  ict: 'bg-info-bg',
-  professional: 'bg-border',
-  peer_mentorship: 'bg-border',
+  theory: 'bg-accent-bg',
+  tell_and_show: 'bg-info-bg',
+  hands_on: 'bg-success-bg',
+  simulation: 'bg-border',
 }
 
 const TYPE_DOT: Record<SessionType, string> = {
-  core: 'bg-teal-500',
-  ict: 'bg-info-text',
-  professional: 'bg-text-muted',
-  peer_mentorship: 'bg-text-muted',
+  theory: 'bg-teal-500',
+  tell_and_show: 'bg-info-text',
+  hands_on: 'bg-success-text',
+  simulation: 'bg-text-muted',
 }
 
-const LEGEND: { type: SessionType; label: string }[] = [
-  { type: 'core', label: 'Core' },
-  { type: 'ict', label: 'ICT' },
-  { type: 'professional', label: 'Professional and peer mentorship' },
-]
+const LEGEND = SESSION_TYPE_OPTIONS
 
 function firstSelected(weeks: MonthGridDay[][]): string | null {
   const days = weeks.flat()
@@ -194,10 +192,10 @@ export function SessionMonthGrid({ weeks, hrefFor, now = new Date() }: SessionMo
       <ul className="flex flex-wrap gap-2" aria-label="Session types">
         {LEGEND.map((item) => (
           <li
-            key={item.type}
+            key={item.value}
             className={cx(
               'rounded-sm px-1.5 py-0.5 font-sans text-caption text-text-primary',
-              TYPE_CARD[item.type]
+              TYPE_CARD[item.value]
             )}
           >
             {item.label}

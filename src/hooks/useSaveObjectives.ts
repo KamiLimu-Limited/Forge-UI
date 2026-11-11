@@ -7,6 +7,7 @@ import { useAsyncAction } from './useAsyncAction'
 import { useToast } from './useToast'
 
 interface UseSaveObjectivesReturn {
+  // Objective id to its rating
   save: (ratings: Record<string, number>) => Promise<void>
   isSaving: boolean
   error: string | null
@@ -21,7 +22,12 @@ export function useSaveObjectives(
     (ratings: Record<string, number>) => {
       const point = data?.openWindow?.point
       if (!data || !point) return Promise.reject(new Error('No rating window is open'))
-      return api.skills.rate({ cohort_id: data.cohortId, rating_point: point, ratings })
+      // One rating per objective; any that fails fails the save, and the rest stay saved
+      return Promise.all(
+        Object.entries(ratings).map(([objectiveId, score]) =>
+          api.objectives.rate(objectiveId, { rating_point: point, score })
+        )
+      )
     },
     [data]
   )

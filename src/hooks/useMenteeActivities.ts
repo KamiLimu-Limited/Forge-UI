@@ -3,7 +3,6 @@
 import { api, fetchAllPages } from '@/lib/api'
 import { activitiesData } from '@/lib/menteeActivities'
 import type { MenteeActivitiesData } from '@/types/menteeActivities'
-import { loadPeerActivities } from '@/lib/peerParticipation'
 import type { ParticipantCohort } from '@/types/participation'
 import { useApiQuery, type ApiQuery } from './useApiQuery'
 
@@ -18,13 +17,8 @@ async function loadActivities(cohortId: string | null): Promise<MenteeActivities
 // The active view's cohort. Peer mentors take part through the same screens.
 export function useMenteeActivities({
   cohortId,
-  peerCohortId,
 }: ParticipantCohort): ApiQuery<MenteeActivitiesData> {
-  return useApiQuery(
-    () => (peerCohortId ? loadPeerActivities(peerCohortId) : loadActivities(cohortId)),
-    [cohortId, peerCohortId],
-    {
-      fallbackError: "We couldn't load your activities. Try again.",
-    }
-  )
+  return useApiQuery(() => loadActivities(cohortId), [cohortId], {
+    fallbackError: "We couldn't load your activities. Try again.",
+  })
 }

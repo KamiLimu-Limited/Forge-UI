@@ -15,6 +15,7 @@ import { ErrorState } from '@/components/ui/ErrorState'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { Notice } from '@/components/ui/Notice'
 import { useActiveCohort } from '@/hooks/useActiveCohort'
+import { useCohortIctTracks } from '@/hooks/useCohortIctTracks'
 import { useMentorOptions } from '@/hooks/useMentorOptions'
 import { useSessionDetail } from '@/hooks/useSessionDetail'
 import { useSessionEditor } from '@/hooks/useSessionEditor'
@@ -25,15 +26,20 @@ import type { SessionDetailResponse, SessionStatus } from '@/types/session'
 const STATUS_NOTES: Record<SessionStatus, string> = {
   draft: 'Only admins can see this session until you publish it.',
   published: 'Visible to participants',
+  live: 'Happening now',
   completed: 'This session has finished.',
+  rescheduled: 'Visible to participants at its new time',
   cancelled: "Cancelled. It no longer counts towards anyone's attendance.",
 }
 
 const SUBTITLES: Record<SessionStatus, string> = {
-  draft: 'Draft. Publishing notifies everyone in the cohort.',
+  draft: 'Draft.',
   published:
     'Published. Changes to the date or time notify everyone enrolled and the assigned mentors.',
+  live: 'Live now.',
   completed: 'Completed.',
+  rescheduled:
+    'Rescheduled. Changes to the date or time notify everyone enrolled and the assigned mentors.',
   cancelled: 'Cancelled. This session can no longer be edited.',
 }
 
@@ -93,6 +99,7 @@ export function EditSessionPage({ sessionId }: EditSessionPageProps) {
   const cohort = cohorts.find((c) => c.id === session?.cohort_id) ?? null
   const editor = useSessionEditor({ cohort, session })
   const mentors = useMentorOptions(session?.cohort_id ?? null)
+  const ictTracks = useCohortIctTracks(session?.cohort_id ?? null)
   const [isCancelOpen, setIsCancelOpen] = useState(false)
 
   const isCancelled = session?.status === 'cancelled'
@@ -179,6 +186,7 @@ export function EditSessionPage({ sessionId }: EditSessionPageProps) {
         errors={editor.errors}
         onChange={editor.setValue}
         cohort={cohort}
+        ictTracks={(ictTracks.data ?? []).map((track) => track.name)}
         mentors={mentors.mentors}
         mentorsLoading={mentors.isLoading}
         mentorsError={mentors.error}

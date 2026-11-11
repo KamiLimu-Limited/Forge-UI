@@ -18,7 +18,7 @@ export const OpenNow: Story = {
   args: { session: { ...sampleSessionDetail, windowState: 'open', startsSoonLabel: null } },
 }
 export const Submitted: Story = {
-  args: { session: { ...sampleSessionDetail, windowState: 'open', recordState: 'attended' } },
+  args: { session: { ...sampleSessionDetail, windowState: 'open', recordState: 'present' } },
 }
 export const Missed: Story = {
   args: { session: { ...sampleSessionDetail, windowState: 'closed', startsSoonLabel: null } },

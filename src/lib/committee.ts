@@ -79,14 +79,14 @@ export function activityBars(engagement: ActivityEngagementResponse | null): Bar
     .sort((a, b) => b.value - a.value)
 }
 
-// The average of each session's quality rating, per KamiLimu month
+// The average of each session's rating across the nine questions, per KamiLimu month
 export function ratingColumns(quality: SessionQualityResponse | null): ColumnChartItem[] {
   const byMonth = new Map<number, number[]>()
   for (const session of quality?.sessions ?? []) {
-    if (session.quality === null || session.responses === 0) continue
+    if (session.average === null || session.responses === 0) continue
     byMonth.set(session.kami_limu_month, [
       ...(byMonth.get(session.kami_limu_month) ?? []),
-      session.quality,
+      session.average,
     ])
   }
   return [...byMonth.entries()]
@@ -107,25 +107,15 @@ async function loadSessions(cohortId: string): Promise<SessionResponse[]> {
   )
 }
 
-export async function loadCohortNumbers(
-  cohort: CohortDetailResponse,
-  now: Date = new Date()
-): Promise<CohortNumbers> {
-  const [health, leaderboard, sessions] = await Promise.allSettled([
-    api.dashboard.cohortHealth(cohort.id),
-    api.leaderboard.full(cohort.id),
-    loadSessions(cohort.id),
-  ])
-  if (health.status === 'rejected') throw health.reason
-  const scheduled = (settled(sessions) ?? []).filter(isScheduled)
-  const board = settled(leaderboard)
+export async function loadCohortNumbers(cohort: CohortDetailResponse): Promise<CohortNumbers> {
+  const health = await api.dashboard.cohortHealth(cohort.id)
   return {
-    menteesEnrolled: health.value.total_mentees,
-    coreRate: health.value.total_mentees > 0 ? health.value.average_core_rate : null,
-    overallRate: health.value.total_mentees > 0 ? health.value.average_combined_rate : null,
-    pointsDistributed: board ? sum(board.entries.map((entry) => entry.total_points)) : null,
-    sessionsCompleted: scheduled.filter((session) => new Date(session.ends_at) <= now).length,
-    sessionsTotal: scheduled.length,
+    menteesEnrolled: health.total_mentees,
+    coreRate: health.total_mentees > 0 ? health.average_core_rate : null,
+    overallRate: health.total_mentees > 0 ? health.average_overall_rate : null,
+    pointsDistributed: health.points_distributed,
+    sessionsCompleted: health.sessions_completed,
+    sessionsTotal: health.sessions_scheduled,
     threshold: cohort.graduation_threshold,
   }
 }
@@ -214,8 +204,8 @@ export async function loadCrossCohort(
     const engagement = settled(engagements[index])
     return {
       core: found && found.health.total_mentees > 0 ? found.health.average_core_rate : null,
-      overall: found && found.health.total_mentees > 0 ? found.health.average_combined_rate : null,
-      rating: settled(qualities[index])?.overall_quality ?? null,
+      overall: found && found.health.total_mentees > 0 ? found.health.average_overall_rate : null,
+      rating: settled(qualities[index])?.overall_average ?? null,
       mentees: found?.health.total_mentees ?? null,
       sessions: sessions
         ? sessions.filter((s) => isScheduled(s) && new Date(s.ends_at) <= now).length

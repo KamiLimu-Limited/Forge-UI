@@ -45,6 +45,14 @@ interface GraduationScreenProps {
   graduates: GraduateRow[]
   canGraduate: boolean
   onRefresh: () => void
+  isRefreshing?: boolean
+  // Resolves true once graduation is confirmed
+  onGraduate: (password: string) => Promise<boolean>
+  isGraduating?: boolean
+  graduateError?: string | null
+  onCloseCohort: () => Promise<boolean>
+  isClosing?: boolean
+  closeError?: string | null
   confirmFields: ConfirmFields
   onConfirmFieldsChange: (changes: Partial<ConfirmFields>) => void
   onResetConfirm: () => void
@@ -77,20 +85,26 @@ function MenteeTable({ rows, label }: { rows: GraduateRow[]; label: string }) {
   )
 }
 
-// Confirming takes the cohort name typed in and the Program Lead's password. The API can't
-// confirm a graduation or re-check a password yet, so Confirm graduation stays disabled.
+// Confirming takes the cohort name typed in and the Program Lead's password, which the API
+// re-checks before it graduates the cohort
 function ConfirmGraduationDialog({
   data,
   isOpen,
   onClose,
   fields,
   onChange,
+  onConfirm,
+  isConfirming,
+  error,
 }: {
   data: GraduationPreviewView
   isOpen: boolean
   onClose: () => void
   fields: ConfirmFields
   onChange: (changes: Partial<ConfirmFields>) => void
+  onConfirm: () => void
+  isConfirming: boolean
+  error: string | null
 }) {
   const nameMatches = fields.cohortName.trim() === data.cohortName
   return (
@@ -104,14 +118,18 @@ function ConfirmGraduationDialog({
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <div className="flex flex-col gap-1">
-            <Button disabled>Confirm graduation</Button>
-            <span className="font-sans text-caption text-text-muted">{NOT_AVAILABLE}</span>
-          </div>
+          <Button
+            onClick={onConfirm}
+            isLoading={isConfirming}
+            disabled={!nameMatches || !fields.password}
+          >
+            Confirm graduation
+          </Button>
         </div>
       }
     >
       <div className="flex flex-col gap-4">
+        {error && <Notice variant="danger">{error}</Notice>}
         <p className="font-sans text-body text-text-secondary">
           {data.graduates.length} mentees will graduate and receive alumni status.{' '}
           {data.nonGraduates.length} mentees will see their final result privately on their
@@ -146,12 +164,18 @@ function CloseCohortDialog({
   onClose,
   fields,
   onChange,
+  onConfirm,
+  isConfirming,
+  error,
 }: {
   data: GraduationPreviewView
   isOpen: boolean
   onClose: () => void
   fields: ConfirmFields
   onChange: (changes: Partial<ConfirmFields>) => void
+  onConfirm: () => void
+  isConfirming: boolean
+  error: string | null
 }) {
   return (
     <Modal
@@ -164,14 +188,19 @@ function CloseCohortDialog({
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <div className="flex flex-col gap-1">
-            <Button disabled>Close cohort</Button>
-            <span className="font-sans text-caption text-text-muted">{NOT_AVAILABLE}</span>
-          </div>
+          <Button
+            variant="danger"
+            onClick={onConfirm}
+            isLoading={isConfirming}
+            disabled={fields.cohortName.trim() !== data.cohortName}
+          >
+            Close cohort
+          </Button>
         </div>
       }
     >
       <div className="flex flex-col gap-4">
+        {error && <Notice variant="danger">{error}</Notice>}
         <p className="font-sans text-body text-text-secondary">
           Closing makes the cohort read only. Peer mentor assignments are archived, and every record
           stays available for alumni and cross-cohort comparison.
@@ -190,6 +219,7 @@ function CloseCohortDialog({
 
 function Preview(props: GraduationScreenProps & { data: GraduationPreviewView }) {
   const { data, isProgramLead, graduates, search, onSearch, canGraduate, onRefresh } = props
+  const reasons = data.unavailableReasons ?? []
   const [showAll, setShowAll] = useState(false)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const shown = showAll || search ? graduates : graduates.slice(0, FIRST_SHOWN)
@@ -205,7 +235,7 @@ function Preview(props: GraduationScreenProps & { data: GraduationPreviewView })
         subtitle={`${data.cohortName} ${data.hasEnded ? 'ended' : 'ends'} on ${formatLongDate(data.endDate)}. Preview last calculated ${formatDateTime(data.calculatedAt)}.`}
         action={
           <div className="flex flex-wrap gap-3">
-            <Button variant="secondary" onClick={onRefresh}>
+            <Button variant="secondary" onClick={onRefresh} isLoading={props.isRefreshing}>
               Refresh calculation
             </Button>
             {isProgramLead && (
@@ -223,6 +253,19 @@ function Preview(props: GraduationScreenProps & { data: GraduationPreviewView })
       />
       {isProgramLead && !data.hasEnded && (
         <Notice>Graduate cohort opens after the cohort end date.</Notice>
+      )}
+      {isProgramLead && data.hasEnded && reasons.length > 0 && (
+        <Notice variant="warning">
+          {reasons.length === 1 ? (
+            reasons[0]
+          ) : (
+            <ul className="list-disc pl-5">
+              {reasons.map((reason) => (
+                <li key={reason}>{reason}</li>
+              ))}
+            </ul>
+          )}
+        </Notice>
       )}
       <section aria-label="Summary" className="grid gap-4 md:grid-cols-3 md:gap-5">
         <StatTile
@@ -294,6 +337,13 @@ function Preview(props: GraduationScreenProps & { data: GraduationPreviewView })
           onClose={closeConfirm}
           fields={props.confirmFields}
           onChange={props.onConfirmFieldsChange}
+          onConfirm={() => {
+            void props.onGraduate(props.confirmFields.password).then((done) => {
+              if (done) closeConfirm()
+            })
+          }}
+          isConfirming={props.isGraduating ?? false}
+          error={props.graduateError ?? null}
         />
       )}
     </>
@@ -308,13 +358,13 @@ function GraduatedRecord(props: GraduationScreenProps & { data: GraduationPrevie
     <>
       <PageHeader
         title={`${data.cohortName} graduated`}
-        subtitle="Results are final."
+        subtitle={data.isClosed ? 'Results are final. The cohort is closed.' : 'Results are final.'}
         action={
           <div className="flex flex-wrap gap-3">
             <ButtonLink href={graduationSequenceRoute(data.cohortId)} variant="secondary">
               Replay graduation
             </ButtonLink>
-            <Button onClick={() => setIsCloseOpen(true)}>Close cohort</Button>
+            {!data.isClosed && <Button onClick={() => setIsCloseOpen(true)}>Close cohort</Button>}
           </div>
         }
       />
@@ -339,9 +389,13 @@ function GraduatedRecord(props: GraduationScreenProps & { data: GraduationPrevie
         <Card title="Graduation record">
           <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 font-sans text-small">
             <dt className="text-text-secondary">Confirmed by</dt>
-            <dd className="text-text-muted">{NOT_AVAILABLE}</dd>
+            <dd className={data.confirmedByName ? 'text-text-primary' : 'text-text-muted'}>
+              {data.confirmedByName ?? 'Not recorded'}
+            </dd>
             <dt className="text-text-secondary">Confirmed on</dt>
-            <dd className="text-text-muted">{NOT_AVAILABLE}</dd>
+            <dd className="text-text-primary">
+              {data.confirmedAt ? formatDateTime(data.confirmedAt) : 'Not recorded'}
+            </dd>
             <dt className="text-text-secondary">Threshold</dt>
             <dd className="text-text-primary">{data.threshold}% core attendance rate</dd>
             <dt className="text-text-secondary">Graduates</dt>
@@ -350,12 +404,14 @@ function GraduatedRecord(props: GraduationScreenProps & { data: GraduationPrevie
             </dd>
           </dl>
         </Card>
-        <Card title="Next step">
-          <p className="font-sans text-small text-text-secondary">
-            Close the cohort once the ceremony is over. Peer mentor assignments are archived and
-            every record is kept for cross-cohort comparison.
-          </p>
-        </Card>
+        {!data.isClosed && (
+          <Card title="Next step">
+            <p className="font-sans text-small text-text-secondary">
+              Close the cohort once the ceremony is over. Peer mentor assignments are archived and
+              every record is kept for cross-cohort comparison.
+            </p>
+          </Card>
+        )}
       </div>
       <Card title={`Graduates (${data.graduates.length})`} flush>
         <MenteeTable rows={data.graduates} label="Graduates" />
@@ -369,6 +425,16 @@ function GraduatedRecord(props: GraduationScreenProps & { data: GraduationPrevie
         }}
         fields={props.confirmFields}
         onChange={props.onConfirmFieldsChange}
+        onConfirm={() => {
+          void props.onCloseCohort().then((done) => {
+            if (done) {
+              setIsCloseOpen(false)
+              props.onResetConfirm()
+            }
+          })
+        }}
+        isConfirming={props.isClosing ?? false}
+        error={props.closeError ?? null}
       />
     </>
   )

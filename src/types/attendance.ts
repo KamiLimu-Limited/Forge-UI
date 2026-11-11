@@ -3,13 +3,10 @@
 import type { PageParams } from '@/types/page'
 import type { SessionBrief } from '@/types/session'
 
-export type AttendanceStatus =
-  | 'pending'
-  | 'attended'
-  | 'not_attended'
-  | 'missed'
-  | 'excused'
-  | 'disputed'
+export type AttendanceStatus = 'pending' | 'present' | 'absent' | 'missed' | 'excused'
+
+// Whether a submission came in on time or under an approved extension
+export type AttendanceSource = 'on_time' | 'reopened'
 
 export type OverrideRequestStatus = 'pending' | 'approved' | 'denied'
 
@@ -18,42 +15,27 @@ export interface AttendanceResponse {
   mentee_id: string
   session_id: string
   status: AttendanceStatus
-  quality_rating: number | null
-  usefulness_rating: number | null
-  understanding_score: number | null
-  academic_application_score: number | null
-  career_application_score: number | null
+  source: AttendanceSource | null
+  // Answers (1 to 5) to the cohort's nine rating questions, in question order
+  ratings: (number | null)[] | null
   feedback: string | null
   submitted_at: string | null
   updated_at: string
   session: SessionBrief
 }
 
-// The caller's own record, which also carries their private notes
-export interface MyAttendanceResponse extends AttendanceResponse {
-  personal_notes: string | null
-}
-
-// Ratings run from 1 to 5 and only count when status is attended
-export interface AttendanceRatings {
-  quality_rating?: number | null
-  usefulness_rating?: number | null
-  understanding_score?: number | null
-  academic_application_score?: number | null
-  career_application_score?: number | null
-}
-
-export interface AttendanceSubmissionRequest extends AttendanceRatings {
+// `present` needs all nine ratings and feedback; `absent` takes neither
+export interface AttendanceSubmissionRequest {
   session_id: string
-  status: 'attended' | 'not_attended'
+  status: 'present' | 'absent'
+  ratings?: number[] | null
   feedback?: string | null
-  personal_notes?: string | null
 }
 
-export interface AttendanceUpdateRequest extends AttendanceRatings {
-  status?: 'attended' | 'not_attended' | null
+export interface AttendanceUpdateRequest {
+  status?: 'present' | 'absent' | null
+  ratings?: number[] | null
   feedback?: string | null
-  personal_notes?: string | null
 }
 
 export interface AttendanceStatusUpdateRequest {
@@ -75,6 +57,8 @@ export interface OverrideRequestResponse {
   mentee_id: string
   session_id: string
   reason: string
+  // The deadline the participant asked for, if they gave one
+  requested_closes_at: string | null
   status: OverrideRequestStatus
   reviewed_by: string | null
   reviewed_at: string | null
@@ -86,11 +70,12 @@ export interface OverrideRequestResponse {
 export interface OverrideRequestCreate {
   session_id: string
   reason: string
+  requested_closes_at?: string | null
 }
 
 export interface OverrideReviewRequest {
   reason?: string | null
-  // Approval only; the API defaults to now plus its extension hours
+  // Approval only; defaults to the deadline asked for, else now plus the API's extension hours
   new_closes_at?: string | null
 }
 

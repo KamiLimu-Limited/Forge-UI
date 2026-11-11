@@ -27,8 +27,8 @@ export const AllStatuses: Story = {
         <StatusChip kind="session" status="cancelled" />
       </div>
       <div className="flex flex-wrap gap-2">
-        <StatusChip kind="attendance" status="attended" />
-        <StatusChip kind="attendance" status="not_attended" />
+        <StatusChip kind="attendance" status="present" />
+        <StatusChip kind="attendance" status="absent" />
         <StatusChip kind="attendance" status="missed" />
         <StatusChip kind="attendance" status="excused" />
         <StatusChip kind="attendance" status="pending" />
@@ -37,7 +37,7 @@ export const AllStatuses: Story = {
         <StatusChip kind="override" status="pending" />
         <StatusChip kind="override" status="approved" />
         <StatusChip kind="override" status="denied" />
-        <StatusChip kind="activity" status="rejected" />
+        <StatusChip kind="activity" status="reversed" />
         <StatusChip kind="cohort" status="draft" />
         <StatusChip kind="cohort" status="active" />
         <StatusChip kind="cohort" status="completed" />

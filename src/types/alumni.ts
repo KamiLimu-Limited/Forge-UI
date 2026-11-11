@@ -5,20 +5,12 @@ import type { AttendanceStatus } from '@/types/attendance'
 import type { MenteeActivityCount, MenteeObjectiveRow } from '@/types/peerMentor'
 import type { Percentage } from '@/types/rate'
 
-// The final result once the cohort is completed. Before that the API sends standing labels,
-// which the PRD keeps off these screens.
-export interface FinalStatusResponse {
-  status: string
-  is_final: boolean
-}
-
 export interface AlumniHomeView {
   firstName: string
   cohortName: string
   // True once the cohort's result is final and they graduated
   graduated: boolean
-  // ISO date, null when it isn't known. The API has no graduation date, so this is the
-  // cohort's end date. See docs/api-gaps.md.
+  // ISO date, null when they didn't graduate or it couldn't be read
   graduatedOn: string | null
   // Rates are 0 to 100; null when they couldn't be read
   coreRate: Percentage | null

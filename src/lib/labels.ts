@@ -1,7 +1,13 @@
 // Plain-language labels for API enum values. Use these wherever a value is shown.
 
 import type { NotificationType } from '@/types/notification'
-import type { ActivityStatus, ActivityType, EventRole } from '@/types/activity'
+import type {
+  ActivityStatus,
+  ActivityType,
+  EventRole,
+  FinalOutcome,
+  OpportunityStage,
+} from '@/types/activity'
 import type { AttendanceStatus, OverrideRequestStatus } from '@/types/attendance'
 import type { AccountState } from '@/types/auth'
 import type { CohortStatus } from '@/types/cohort'
@@ -20,35 +26,37 @@ export const CATEGORY_OPTIONS: { value: SessionCategory; label: string }[] = [
   { value: 'peer_mentorship', label: 'Peer mentorship task' },
 ]
 
-// The API's four session kinds, until it stores the PRD's Theory, Hands-on and so on
 export const SESSION_TYPE_LABELS: Record<SessionType, string> = {
-  core: 'Core',
-  ict: 'ICT',
-  professional: 'Professional',
-  peer_mentorship: 'Peer mentorship',
+  theory: 'Theory',
+  tell_and_show: 'Tell and Show',
+  hands_on: 'Hands-on',
+  simulation: 'Simulation',
 }
+
+export const SESSION_TYPE_OPTIONS: { value: SessionType; label: string }[] = (
+  Object.keys(SESSION_TYPE_LABELS) as SessionType[]
+).map((value) => ({ value, label: SESSION_TYPE_LABELS[value] }))
 
 export const SESSION_STATUS_LABELS: Record<SessionStatus, string> = {
   draft: 'Draft',
   published: 'Published',
-  cancelled: 'Cancelled',
+  live: 'Live',
   completed: 'Completed',
+  rescheduled: 'Rescheduled',
+  cancelled: 'Cancelled',
 }
 
 export const MODE_LABELS: Record<SessionMode, string> = {
   physical: 'In person',
   virtual: 'Virtual',
-  hybrid: 'Hybrid',
 }
 
-// "disputed" is never offered as a choice
 export const ATTENDANCE_STATUS_LABELS: Record<AttendanceStatus, string> = {
-  attended: 'Present',
-  not_attended: 'Absent',
+  present: 'Present',
+  absent: 'Absent',
   missed: 'Missed',
   excused: 'Excused',
   pending: 'Pending',
-  disputed: 'Disputed',
 }
 
 export const OVERRIDE_STATUS_LABELS: Record<OverrideRequestStatus, string> = {
@@ -60,22 +68,35 @@ export const OVERRIDE_STATUS_LABELS: Record<OverrideRequestStatus, string> = {
 export const ACTIVITY_TYPE_LABELS: Record<ActivityType, string> = {
   academic: 'KamiLimu to Academia',
   event: 'External event',
-  opportunity: 'Application',
+  opportunity: 'Job application',
+  scholarship: 'Scholarship application',
   consultation: 'Consultation',
 }
 
 export const ACTIVITY_STATUS_LABELS: Record<ActivityStatus, string> = {
-  pending: 'Logged',
-  approved: 'Approved',
-  rejected: 'Reversed',
+  active: 'Logged',
+  reversed: 'Reversed',
 }
 
 export const EVENT_ROLE_LABELS: Record<EventRole, string> = {
-  attendee: 'participant',
+  participant: 'participant',
   speaker: 'speaker',
-  volunteer: 'volunteer',
   organizer: 'organizer',
-  panelist: 'panelist',
+}
+
+export const OPPORTUNITY_STAGE_LABELS: Record<OpportunityStage, string> = {
+  applied: 'Applied',
+  general_interview: 'General interview',
+  technical_interview: 'Technical interview',
+  final_interview: 'Final interview',
+  offer_made: 'Offer made',
+}
+
+export const FINAL_OUTCOME_LABELS: Record<FinalOutcome, string> = {
+  waiting_for_response: 'Waiting for a response',
+  did_not_proceed: 'Did not proceed',
+  offer_made_and_accepted: 'Offer accepted',
+  offer_made_but_rejected: 'Offer turned down',
 }
 
 export const ACCOUNT_STATE_LABELS: Record<AccountState, string> = {
@@ -87,7 +108,8 @@ export const ACCOUNT_STATE_LABELS: Record<AccountState, string> = {
 export const COHORT_STATUS_LABELS: Record<CohortStatus, string> = {
   draft: 'Draft',
   active: 'Active',
-  completed: 'Archived',
+  completed: 'Graduated',
+  archived: 'Archived',
 }
 
 // The six KamiLimu pillars, in the order the designs list them
@@ -123,6 +145,7 @@ const AUDIT_ACTION_LABELS: Record<string, string> = {
   admin_update_user: 'Edited user details',
   approve_extra_activity: 'Approved activity',
   reject_extra_activity: 'Reversed activity',
+  reverse_extra_activity: 'Reversed activity',
   approve_override_request: 'Approved override',
   deny_override_request: 'Denied override',
   assign_role: 'Assigned role',
@@ -172,20 +195,14 @@ export const AUDIT_RESOURCE_FILTERS: { value: string; label: string }[] = [
 
 // What each email is about, as the Email delivery screen lists it
 export const NOTIFICATION_TYPE_LABELS: Record<NotificationType, string> = {
-  session_published: 'Session published',
+  invitation: 'Invitation',
+  password_reset: 'Password reset',
+  attendance_window_opens: 'Attendance window opens',
+  attendance_window_closing_soon: 'Attendance window closing soon',
   session_rescheduled: 'Session rescheduled',
   session_cancelled: 'Session cancelled',
-  attendance_window_opening: 'Attendance window opens',
-  attendance_window_closing_soon: 'Attendance window closing soon',
-  graduation_warning: 'Graduation warning',
-  graduation_at_risk: 'Graduation warning',
   override_request_submitted: 'Extension request sent',
   override_request_approved: 'Extension approved',
   override_request_denied: 'Extension denied',
-  extra_activity_approved: 'Activity approved',
-  extra_activity_rejected: 'Activity rejected',
-  peer_task_launched: 'Peer mentorship task opens',
-  peer_task_deadline_reminder: 'Peer mentorship task due soon',
-  cohort_onboarding_invitation: 'Invitation',
   broadcast: 'Message',
 }

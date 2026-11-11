@@ -5,7 +5,6 @@ import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { LoadingState } from '@/components/ui/LoadingState'
-import { Notice } from '@/components/ui/Notice'
 import type { ReactNode } from 'react'
 import type { MenteeSessionsData } from '@/types/menteeSessions'
 
@@ -15,8 +14,6 @@ interface SessionsScreenProps {
   isLoading?: boolean
   error?: string | null
   onRetry?: () => void
-  // Shown at the top while saving is switched off, for example for peer mentors
-  saveBlockedNote?: string | null
 }
 
 interface SessionGroupProps {
@@ -39,7 +36,6 @@ export function SessionsScreen({
   isLoading = false,
   error = null,
   onRetry,
-  saveBlockedNote = null,
 }: SessionsScreenProps) {
   const isEmpty = data !== null && data.open.length === 0 && data.upcoming.length === 0
 
@@ -52,7 +48,6 @@ export function SessionsScreen({
         }
       />
       <SessionViewTabs />
-      {saveBlockedNote && <Notice>{saveBlockedNote}</Notice>}
       {error ? (
         <ErrorState message={error} onRetry={onRetry} />
       ) : isLoading || !data ? (

@@ -19,8 +19,9 @@ export function PeerTaskForm({ sessionId }: PeerTaskFormProps) {
       onRetry={task.refetch}
       onChange={task.setDraft}
       errors={task.errors}
-      canSave={task.canSave}
-      onSave={task.check}
+      onSave={() => void task.save()}
+      isSaving={task.isSaving}
+      saveError={task.saveError}
     />
   )
 }

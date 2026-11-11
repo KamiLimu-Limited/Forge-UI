@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/Card'
 import { Chip } from '@/components/ui/Chip'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { LoadingState } from '@/components/ui/LoadingState'
+import { Notice } from '@/components/ui/Notice'
 import { PasswordInput } from '@/components/ui/PasswordInput'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { Select } from '@/components/ui/Select'
@@ -29,8 +30,9 @@ interface CorrectionScreenProps {
   onChange: (changes: Partial<CorrectionDraft>) => void
   selected: UseCorrectionReturn['selected']
   errors: UseCorrectionReturn['errors']
-  canSave: boolean
   onSave: () => void
+  isSaving?: boolean
+  saveError?: string | null
 }
 
 const RESULTS: { value: CorrectedResult; label: string }[] = [
@@ -50,8 +52,9 @@ export function CorrectionScreen({
   onChange,
   selected,
   errors,
-  canSave,
   onSave,
+  isSaving = false,
+  saveError = null,
 }: CorrectionScreenProps) {
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
@@ -137,15 +140,11 @@ export function CorrectionScreen({
                   <ButtonLink href={PROGRAM_LEAD_ROUTES.graduation} variant="secondary">
                     Cancel
                   </ButtonLink>
-                  <Button type="submit" disabled={!canSave}>
+                  <Button type="submit" isLoading={isSaving}>
                     Record correction
                   </Button>
-                  {!canSave && (
-                    <span className="font-sans text-caption text-text-muted">
-                      Not available yet
-                    </span>
-                  )}
                 </div>
+                {saveError && <Notice variant="danger">{saveError}</Notice>}
               </div>
             </Card>
           </form>

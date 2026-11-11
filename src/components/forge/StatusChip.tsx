@@ -32,17 +32,18 @@ const ACCOUNT: Record<AccountState, ChipVariant> = {
 const SESSION: Record<SessionStatus, ChipVariant> = {
   draft: 'draft',
   published: 'default',
-  cancelled: 'err',
+  live: 'ok',
   completed: 'default',
+  rescheduled: 'info',
+  cancelled: 'err',
 }
 
 const ATTENDANCE: Record<AttendanceStatus, ChipVariant> = {
-  attended: 'ok',
-  not_attended: 'err',
+  present: 'ok',
+  absent: 'err',
   missed: 'default',
   excused: 'info',
   pending: 'warn',
-  disputed: 'warn',
 }
 
 const OVERRIDE: Record<OverrideRequestStatus, ChipVariant> = {
@@ -52,15 +53,15 @@ const OVERRIDE: Record<OverrideRequestStatus, ChipVariant> = {
 }
 
 const ACTIVITY: Record<ActivityStatus, ChipVariant> = {
-  pending: 'default',
-  approved: 'ok',
-  rejected: 'default',
+  active: 'ok',
+  reversed: 'default',
 }
 
 const COHORT: Record<CohortStatus, ChipVariant> = {
   draft: 'draft',
   active: 'ok',
   completed: 'default',
+  archived: 'default',
 }
 
 function resolve(props: StatusChipProps): { variant: ChipVariant; label: string } {

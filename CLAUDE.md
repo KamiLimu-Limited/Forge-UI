@@ -74,7 +74,7 @@ Every admin route is built. `src/app/admin/layout.tsx` wraps them in `<RequireAd
 The System Admin nav is `ADMIN_NAV_GROUPS` in `navConfig.ts`, in SA-Broadcast's order, with a "Messages and integrations" group.
 
 ### Program Lead screens
-The Program Lead (`program_lead`, typed ahead of the API) has every System Admin permission plus graduating a cohort. They use `/admin` and the `AdminShell`, which shows `PROGRAM_LEAD_NAV_GROUPS` (Overview, Graduation, the System Admin screens, and an Oversight group) when `isProgramLead(user)`. Graduation is built from `GET /cohorts/{id}/graduation-report`; confirming, corrections, closing and saving the reveal order wait on the API and are disabled.
+The Program Lead (`program_lead`) has every System Admin permission plus graduating a cohort. They use `/admin` and the `AdminShell`, which shows `PROGRAM_LEAD_NAV_GROUPS` (Overview, Graduation, the System Admin screens, and an Oversight group) when `isProgramLead(user)`. Graduation uses `/cohorts/{id}/graduation/preview` before it is confirmed and `/cohorts/{id}/graduation` after. Confirming re-checks the password with `POST /auth/confirm-password` and sends the token as `X-Confirmation-Token`; corrections, closing and the reveal order save through their own routes.
 
 | Route | Screen | Design |
 | --- | --- | --- |
@@ -87,7 +87,7 @@ The Program Lead (`program_lead`, typed ahead of the API) has every System Admin
 | `/admin/leaderboards` | `views/committee/CommitteeLeaderboards.tsx` | COM-Leaderboards |
 | `/graduation/[cohortId]` | `views/graduation/Sequence.tsx`, full screen with no shell, for projecting | Seq-1-Opening to Seq-5-Closing |
 
-The sequence plays in a labelled rehearsal mode from the live report until the API has a sequence route. Motion runs only under `motion-safe:` (the `seq-*` animations in `tailwind.config.ts`), and its type uses the `text-seq-*` tokens, which grow with the screen.
+The sequence plays from `GET /cohorts/{id}/graduation/sequence` (Program Lead only). Before graduation is confirmed, or for anyone else, it plays in a labelled rehearsal mode from the preview. Motion runs only under `motion-safe:` (the `seq-*` animations in `tailwind.config.ts`), and its type uses the `text-seq-*` tokens, which grow with the screen.
 
 ### Committee, Program Delivery Lead and professional mentor screens
 These live under `/dashboard` in the `AppShell`. Their links are in `NAV_BY_ROLE`, and `/dashboard` shows each role's home through the active view. The committee screens read their cohort with `useOversightCohort()`, so the same screens work in the admin shell (the Program Lead's Oversight pages) and on `/dashboard`. The committee is read only: no status labels such as on track, warning or at risk ever appear.
@@ -105,7 +105,7 @@ These live under `/dashboard` in the `AppShell`. Their links are in `NAV_BY_ROLE
 | `/dashboard/mentor/feedback` | `views/proMentor/ProFeedback.tsx` (reads `?session=`) | Professional mentor | PRO-Feedback |
 | `/dashboard/mentor/resources` | `views/proMentor/ProResources.tsx` | Professional mentor | PRO-Resources |
 
-The Program Delivery Lead (`program_delivery_lead`, typed ahead of the API) is a committee member who creates and edits peer mentorship tasks. Their nav group shows only to holders, and saving is disabled until the API has a permission for it.
+The Program Delivery Lead (`program_delivery_lead`) is a committee member who creates and edits peer mentorship tasks. Their nav group shows only to holders. A task is a `peer_mentorship` session whose `ends_at` is its deadline.
 
 ### Sign-in and error states
 - `src/lib/authErrors.ts` tells the dead-link and suspended-account answers apart by their message text (the API has no codes for them yet).
@@ -147,8 +147,8 @@ Every `/dashboard` route is built. `src/app/dashboard/layout.tsx` wraps them in 
 | `/dashboard/alumni/history` | `views/alumni/AlumniHistory.tsx` | Alumni |
 
 ### Dashboard infrastructure
-- `src/hooks/useActiveView.ts` — `<ActiveViewProvider>` builds one view per cohort the user holds a role in (newest first) and remembers the one picked in "Switch view" in `localStorage` under `kamilimu_active_view`. `useActiveView()` returns `{ contexts, active, canSwitch, setActiveKey, role, cohortId }`. Every `/dashboard` screen loads `cohortId` and picks its screens from `role`, and the shell's nav reads the same value (`hooks/useShellNav.ts`). When someone holds alumni and mentee in one cohort, alumni wins. Never keep a second "current view" anywhere else.
-- `src/hooks/useParticipantRole.ts` — the active view as a participant: `{ role, cohortId, peerCohortId, saveBlockedNote }`. Peer mentors use the mentee screens with saving switched off until the API lets them save.
+- `src/hooks/useActiveView.ts` — `<ActiveViewProvider>` builds one view per cohort the user holds a role in (newest first) and saves the one picked in "Switch view" on the account (`PUT /users/me/active-cohort`), with `localStorage` under `kamilimu_active_view` as the fallback. Cohort names come from `GET /users/me/cohorts`. `useActiveView()` returns `{ contexts, active, canSwitch, setActiveKey, role, cohortId }`. Every `/dashboard` screen loads `cohortId` and picks its screens from `role`, and the shell's nav reads the same value (`hooks/useShellNav.ts`). When someone holds alumni and mentee in one cohort, alumni wins. Never keep a second "current view" anywhere else.
+- `src/hooks/useParticipantRole.ts` — the active view as a participant: `{ role, cohortId, peerCohortId }`. Peer mentors use the mentee screens and routes and save like mentees.
 
 ### Admin infrastructure
 - `src/hooks/useActiveCohort.ts` — `<ActiveCohortProvider>` loads `GET /cohorts`, defaults to the newest cohort with status `active` (or the newest cohort), and remembers the choice in `localStorage` under `kamilimu_active_cohort`. `useActiveCohort()` returns `{ cohorts, cohort, cohortId, isLoading, error, setCohortId, refresh }`. Every cohort-scoped screen reads `cohortId` from it and shows `<NoCohortNotice>` when there is none. Never keep a second "current cohort" anywhere else.

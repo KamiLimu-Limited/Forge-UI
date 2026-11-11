@@ -13,10 +13,16 @@ import type {
   SessionFormValues,
   SessionPillarChoice,
 } from '@/hooks/useSessionEditor'
-import { CATEGORY_OPTIONS, MODE_LABELS, PILLAR_LABELS, type Pillar } from '@/lib/labels'
+import {
+  CATEGORY_OPTIONS,
+  MODE_LABELS,
+  PILLAR_LABELS,
+  SESSION_TYPE_OPTIONS,
+  type Pillar,
+} from '@/lib/labels'
 import { monthBoundaries, monthLabel } from '@/lib/sessions'
 import type { CohortResponse } from '@/types/cohort'
-import type { SessionCategory, SessionMode } from '@/types/session'
+import type { SessionCategory, SessionMode, SessionType } from '@/types/session'
 import { MentorPicker } from './MentorPicker'
 
 interface SessionFormProps {
@@ -24,6 +30,8 @@ interface SessionFormProps {
   errors: SessionFormErrors
   onChange: <K extends keyof SessionFormValues>(key: K, value: SessionFormValues[K]) => void
   cohort: CohortResponse | null
+  // The cohort's ICT track names
+  ictTracks: string[]
   mentors: MentorOption[]
   mentorsLoading?: boolean
   mentorsError?: string | null
@@ -46,8 +54,6 @@ const OTHER_PILLARS: Pillar[] = [
   'community',
 ]
 
-const SESSION_TYPES = ['Theory', 'Tell and Show', 'Hands-on', 'Simulation']
-
 const MODE_OPTIONS: { value: SessionMode; label: string }[] = [
   { value: 'virtual', label: MODE_LABELS.virtual },
   { value: 'physical', label: MODE_LABELS.physical },
@@ -63,6 +69,7 @@ export function SessionForm({
   errors,
   onChange,
   cohort,
+  ictTracks,
   mentors,
   mentorsLoading = false,
   mentorsError,
@@ -71,7 +78,6 @@ export function SessionForm({
   disabled = false,
   aside,
 }: SessionFormProps) {
-  const ictTracks = cohort?.ict_tracks_offered ?? []
   const months = monthBoundaries(cohort)
 
   return (
@@ -122,12 +128,9 @@ export function SessionForm({
             </div>
             <Select
               label="Session type"
-              options={SESSION_TYPES.map((t) => ({ value: t, label: t }))}
-              placeholder="Choose a type"
-              value=""
-              onChange={() => undefined}
-              disabled
-              hint={NOT_YET}
+              options={SESSION_TYPE_OPTIONS}
+              value={values.sessionType}
+              onChange={(e) => onChange('sessionType', e.target.value as SessionType)}
             />
           </div>
           {values.pillar === 'ict' && (
@@ -176,28 +179,20 @@ export function SessionForm({
               error={errors.start}
             />
             <Input
-              label="End"
+              label={values.category === 'peer_mentorship' ? 'Deadline' : 'End'}
               type="datetime-local"
               value={values.end}
               onChange={(e) => onChange('end', e.target.value)}
               error={errors.end}
             />
           </div>
-          {values.category === 'peer_mentorship' ? (
-            <Input
-              label="Attendance deadline"
-              type="datetime-local"
-              value={values.attendanceDeadline}
-              onChange={(e) => onChange('attendanceDeadline', e.target.value)}
-              error={errors.attendanceDeadline}
-              hint="Optional. When peer mentorship attendance closes."
-            />
-          ) : (
-            <p className="font-sans text-small text-text-secondary">
-              Attendance opens at the start time and closes after the cohort&apos;s attendance
-              window.
-            </p>
-          )}
+          <p className="font-sans text-small text-text-secondary">
+            {values.category === 'peer_mentorship'
+              ? 'Attendance closes at the deadline.'
+              : values.category === 'saturday'
+                ? `Attendance closes ${cohort?.saturday_window_hours ?? 48} hours after the session ends.`
+                : `Attendance closes ${cohort?.thursday_window_hours ?? 24} hours after the session ends.`}
+          </p>
           {isEdit && timeChanged && (
             <>
               <Notice variant="warning">
@@ -220,11 +215,7 @@ export function SessionForm({
             <span className="font-sans text-small font-semibold text-text-primary">Location</span>
             <SegmentedControl<SessionMode>
               label="Location"
-              options={
-                values.mode === 'hybrid'
-                  ? [...MODE_OPTIONS, { value: 'hybrid', label: 'Hybrid' }]
-                  : MODE_OPTIONS
-              }
+              options={MODE_OPTIONS}
               value={values.mode}
               onChange={(v) => onChange('mode', v)}
               disabled={disabled}

@@ -14,7 +14,10 @@ const config: StorybookConfig = {
     name: '@storybook/nextjs',
     options: {},
   },
-  staticDirs: ['../public'],
+  staticDirs: [
+    '../public',
+    { from: '../src/assets/fonts', to: 'src/assets/fonts' },
+  ],
   // Storybook only exposes variables listed here. Stories never call the API, but
   // src/lib/config.ts needs an address to load in a static build.
   env: (config) => ({
